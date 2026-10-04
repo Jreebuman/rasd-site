@@ -1,0 +1,484 @@
+<title>Rasd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: product landing page. Hero with a live-looking "needs attention" card, pains, how it works, features, industries, plans with a monthly/yearly switch, founder note, FAQ, closing CTA. Arabic (RTL) and English. */
+:root {
+  --bg: #F6F5F2;
+  --surface: #FFFFFF;
+  --surface-2: #ECEBE6;
+  --ink: #18191C;
+  --muted: #5E626A;
+  --line: #DDDCD6;
+  --accent: #7B2E63;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #F3E2EE;
+  --deep: #2A1124;
+  --deep-ink: #F8EEF5;
+  --good: #1E7A4B; --good-soft: #DDF0E5;
+  --warn: #9E5C00; --warn-soft: #FBEED6;
+  --crit: #B3261E; --crit-soft: #F9E0DE;
+  --wa: #128C4A;
+  --shadow: 0 24px 60px rgba(42, 17, 36, .16);
+  --display: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121114; --surface: #1C1A1E; --surface-2: #27242A; --ink: #EEECEF; --muted: #A09BA3; --line: #312E34;
+    --accent: #E794C9; --accent-ink: #121114; --accent-soft: #3A2133; --deep: #24101F; --deep-ink: #F8EEF5;
+    --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+    --shadow: 0 24px 60px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121114; --surface: #1C1A1E; --surface-2: #27242A; --ink: #EEECEF; --muted: #A09BA3; --line: #312E34;
+  --accent: #E794C9; --accent-ink: #121114; --accent-soft: #3A2133; --deep: #24101F; --deep-ink: #F8EEF5;
+  --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+  --shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+html[lang="ar"] { --display: "IBM Plex Sans Arabic", "Outfit", system-ui, sans-serif; --sans: "IBM Plex Sans Arabic", "Figtree", system-ui, sans-serif; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: 20px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+html[lang="ar"] .eyebrow { letter-spacing: 0; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+section { padding-block: 72px; }
+.sec-head { display: grid; gap: 10px; max-width: 680px; margin-bottom: 36px; }
+.sec-head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+html[lang="ar"] .sec-head h2 { letter-spacing: 0; line-height: 1.35; }
+.sec-head p { margin: 0; color: var(--muted); font-size: 17px; }
+
+/* nav */
+nav.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.nav-in { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.logo { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-inline-end: auto; }
+.logo i { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-style: normal; font-family: "IBM Plex Sans Arabic", sans-serif; font-weight: 600; font-size: 17px; }
+.logo b { font-family: "Outfit", sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -.01em; }
+.links { display: flex; gap: 20px; font-size: 15px; }
+.links a { text-decoration: none; color: var(--muted); }
+.links a:hover { color: var(--ink); }
+.lang { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; height: 36px; padding-inline: 11px; font-weight: 600; font-size: 14px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding-inline: 20px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-decoration: none; white-space: nowrap; font-size: 15.5px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 38px; padding-inline: 14px; font-size: 14.5px; border-radius: 9px; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+
+/* hero */
+.hero { padding-block: 64px 56px; }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: center; }
+.hero h1 { font-size: clamp(38px, 6vw, 64px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
+html[lang="ar"] .hero h1 { letter-spacing: 0; line-height: 1.25; font-weight: 700; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .lead { font-size: 19px; color: var(--muted); margin: 20px 0 28px; max-width: 34em; }
+.ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero .note { margin-top: 16px; font-size: 14px; color: var(--muted); }
+.mock { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.mock-h { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.mock-h b { font-family: var(--display); font-size: 16px; }
+.mock-h span { font-size: 12.5px; color: var(--muted); }
+.mock-k { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.mock-k div { padding: 12px 16px; display: grid; }
+.mock-k div + div { border-inline-start: 1px solid var(--line); }
+.mock-k b { font-family: "Outfit", sans-serif; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mock-k span { font-size: 12px; color: var(--muted); }
+.mock-row { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--line); }
+html[dir="rtl"] .mock-row { padding: 12px 0 12px 16px; }
+.mock-row:last-child { border-bottom: 0; }
+.mock-row i { align-self: stretch; border-radius: 0 3px 3px 0; }
+html[dir="rtl"] .mock-row i { border-radius: 3px 0 0 3px; }
+.mock-row i.c { background: var(--crit); } .mock-row i.w { background: var(--warn); }
+.mock-row .t { font-weight: 600; font-size: 14.5px; }
+.mock-row .d { font-size: 12.5px; color: var(--muted); }
+.mock-row .wa { font-size: 12.5px; font-weight: 600; color: var(--wa); border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
+.mock-row .wa svg { width: 14px; height: 14px; }
+.pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-inline-start: 6px; }
+.pill.c { background: var(--crit-soft); color: var(--crit); } .pill.w { background: var(--warn-soft); color: var(--warn); }
+.mock-foot { padding: 10px 16px; font-size: 12.5px; color: var(--muted); background: var(--surface-2); }
+.mock-foot b { color: var(--accent); }
+
+/* pains */
+.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.pain { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.pain q { font-family: var(--display); font-size: 19px; font-weight: 600; quotes: none; line-height: 1.35; }
+.pain p { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* steps */
+.dark { background: var(--deep); color: var(--deep-ink); }
+.dark .sec-head p, .dark .muted { color: color-mix(in srgb, var(--deep-ink) 72%, transparent); }
+.dark .eyebrow { color: #E9A6D2; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: s; }
+.step { display: grid; gap: 8px; align-content: start; border-top: 2px solid color-mix(in srgb, var(--deep-ink) 25%, transparent); padding-top: 18px; }
+.step::before { counter-increment: s; content: counter(s); font-family: "Outfit", sans-serif; font-size: 15px; font-weight: 700; color: #E9A6D2; }
+.step h3 { font-size: 21px; font-weight: 600; }
+.step p { margin: 0; font-size: 15.5px; }
+.step .when { font-family: var(--mono); font-size: 13px; color: #E9A6D2; }
+
+/* features */
+.feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.feat { padding: 22px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.feat .ic { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.feat .ic svg { width: 20px; height: 20px; }
+.feat h3 { font-size: 18px; font-weight: 600; }
+.feat p { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* industries */
+.inds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ind { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.ind h3 { font-size: 20px; font-weight: 600; }
+.ind ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.ind li { font-size: 14.5px; display: flex; gap: 8px; }
+.ind li::before { content: "⚡"; color: var(--accent); flex: none; }
+
+/* plans */
+.billing { display: inline-flex; background: var(--surface-2); border-radius: 11px; padding: 4px; gap: 2px; margin-bottom: 26px; }
+.billing button { border: 0; background: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; color: var(--muted); font-size: 14.5px; }
+.billing button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.billing small { color: var(--good); font-weight: 600; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px; display: grid; gap: 16px; align-content: start; position: relative; }
+.plan.hot { border: 2px solid var(--accent); }
+.plan .tag { position: absolute; top: -12px; inset-inline-start: 24px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.plan h3 { font-size: 22px; font-weight: 700; }
+.plan .for { color: var(--muted); font-size: 14.5px; margin: -8px 0 0; }
+.price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.price b { font-family: "Outfit", sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.price span { color: var(--muted); font-size: 14.5px; }
+.setup { font-size: 13.5px; color: var(--muted); margin-top: -8px; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 14.5px; }
+.plan li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
+.plan li svg { width: 16px; height: 16px; margin-top: 3px; }
+.plan li.yes svg { color: var(--good); }
+.plan li.no { color: var(--muted); }
+.plan li.no svg { color: var(--muted); }
+.plan .btn { width: 100%; margin-top: auto; }
+.plans-note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+
+/* founder */
+.founder { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: center; }
+.quote { font-family: var(--display); font-size: clamp(22px, 3vw, 30px); font-weight: 600; line-height: 1.3; letter-spacing: -.01em; }
+html[lang="ar"] .quote { letter-spacing: 0; line-height: 1.5; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
+.fact b { font-family: "Outfit", sans-serif; font-size: 30px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.fact span { font-size: 13.5px; color: var(--muted); }
+.founder .who { margin-top: 18px; color: var(--muted); font-size: 15px; }
+
+/* faq */
+.faq { display: grid; gap: 10px; max-width: 820px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
+.faq summary { font-weight: 600; cursor: pointer; font-size: 16.5px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::after { content: "+"; color: var(--accent); font-weight: 700; }
+.faq details[open] summary::after { content: "–"; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq p { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+
+/* final cta */
+.final { text-align: center; display: grid; gap: 16px; justify-items: center; }
+.final h2 { font-size: clamp(30px, 4.5vw, 46px); font-weight: 800; letter-spacing: -.02em; }
+html[lang="ar"] .final h2 { letter-spacing: 0; }
+.contact { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 15px; }
+.contact .mono { user-select: all; }
+.copy { border: 1px solid color-mix(in srgb, var(--deep-ink) 30%, transparent); background: transparent; color: inherit; border-radius: 8px; padding: 4px 10px; font-size: 13px; }
+footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+.draft { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); inset-inline-start: 14px; z-index: 40; background: var(--warn-soft); color: var(--warn); font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 99px; }
+.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; max-width: 380px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 14px; text-align: center; }
+
+@media (max-width: 960px) {
+  .hero-in, .founder { grid-template-columns: minmax(0, 1fr); }
+  .pains, .feats, .plans, .steps { grid-template-columns: minmax(0, 1fr); }
+  .inds { grid-template-columns: minmax(0, 1fr); }
+  .links { display: none; }
+}
+@media (max-width: 520px) {
+  section { padding-block: 52px; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .nav-cta { display: none; }
+  .mock-row .wa span { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mock-row.new { animation: slide .6s ease-out; }
+  @keyframes slide { from { background: var(--accent-soft); } to { background: transparent; } }
+}
+</style>
+
+<nav class="top" aria-label="Main">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top" aria-label="Rasd home"><i aria-hidden="true">ر</i><b data-brand></b></a>
+    <div class="links"><a href="#features" data-t="navFeatures"></a><a href="#industries" data-t="navInd"></a><a href="#plans" data-t="navPlans"></a><a href="#faq" data-t="navFaq"></a></div>
+    <button class="lang" type="button" id="langBtn"></button>
+    <a class="btn sm primary nav-cta" data-wa="demo" target="_blank" rel="noopener" data-t="ctaDemo"></a>
+  </div>
+</nav>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div>
+        <p class="eyebrow" data-t="heroEyebrow"></p>
+        <h1 data-th="heroTitle"></h1>
+        <p class="lead" data-t="heroLead"></p>
+        <div class="ctas">
+          <a class="btn primary" data-wa="demo" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg><span data-t="ctaDemo"></span></a>
+          <a class="btn" href="https://claude.ai/artifact/VVaVggPG13d36PwAxQHTDH" target="_blank" rel="noopener" data-t="ctaLive"></a>
+        </div>
+        <p class="note" data-t="heroNote"></p>
+      </div>
+      <div class="mock" aria-label="Product preview">
+        <div class="mock-h"><b data-t="mockTitle"></b><span class="mono">14:15</span></div>
+        <div class="mock-k">
+          <div><b>42</b><span data-t="mockK1"></span></div>
+          <div><b style="color:var(--good)">91%</b><span data-t="mockK2"></span></div>
+          <div><b style="color:var(--crit)">3</b><span data-t="mockK3"></span></div>
+        </div>
+        <div id="mockRows"></div>
+        <div class="mock-foot" data-th="mockFoot"></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:24px">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="painEyebrow"></p><h2 data-t="painTitle"></h2></div>
+      <div class="pains" id="pains"></div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="howEyebrow"></p><h2 data-t="howTitle"></h2><p data-t="howLead"></p></div>
+      <div class="steps" id="steps"></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="featEyebrow"></p><h2 data-t="featTitle"></h2></div>
+      <div class="feats" id="feats"></div>
+    </div>
+  </section>
+
+  <section id="industries" style="padding-top:24px">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="indEyebrow"></p><h2 data-t="indTitle"></h2><p data-t="indLead"></p></div>
+      <div class="inds" id="inds"></div>
+    </div>
+  </section>
+
+  <section id="plans" style="background:var(--surface-2)">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="planEyebrow"></p><h2 data-t="planTitle"></h2><p data-t="planLead"></p></div>
+      <div class="billing" role="group" aria-label="Billing period"><button type="button" data-bill="m" aria-pressed="true" data-t="billM"></button><button type="button" data-bill="y" aria-pressed="false"><span data-t="billY"></span> <small data-t="billSave"></small></button></div>
+      <div class="plans" id="plans-grid"></div>
+      <p class="plans-note" data-t="planNote"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap founder">
+      <div>
+        <p class="eyebrow" data-t="founderEyebrow"></p>
+        <p class="quote" data-t="founderQuote"></p>
+        <p class="who" data-t="founderWho"></p>
+      </div>
+      <div class="facts" id="facts"></div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding-top:24px">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="faqEyebrow"></p><h2 data-t="faqTitle"></h2></div>
+      <div class="faq" id="faqList"></div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap final">
+      <h2 data-t="finalTitle"></h2>
+      <p class="muted" data-t="finalLead" style="margin:0;font-size:18px;max-width:36em"></p>
+      <a class="btn primary" data-wa="demo" target="_blank" rel="noopener" data-t="ctaDemo"></a>
+      <div class="contact"><span data-t="orEmail"></span> <span class="mono" id="email"></span> <button class="copy" type="button" id="copyEmail" data-t="copy"></button></div>
+    </div>
+  </section>
+</main>
+
+<div class="wrap"><footer><span>© 2026 <span data-brand></span> · <span data-t="footerLoc"></span></span><span data-t="footerData"></span></footer></div>
+<span class="draft" data-t="draftTag"></span>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+const BRAND = { en: "Rasd", ar: "رصد" };
+const PHONE = "962795384541";
+const EMAIL = "moh_ammad15@hotmail.com";
+const PRICES = { starter: [49, 490], growth: [99, 990], pro: [199, 1990] };
+
+const IC = {
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  yes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>',
+  wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg>'
+};
+
+const T = {
+  en: {
+    navFeatures: "Features", navInd: "Industries", navPlans: "Plans", navFaq: "FAQ", ctaDemo: "Book a free demo", ctaLive: "Try the live demo",
+    heroEyebrow: "Operations software for growing businesses in Jordan",
+    heroTitle: "Your whole operation, <em>on one screen.</em>",
+    heroLead: "Rasd watches your orders, visits and complaints, warns your team before a customer notices, and turns every follow-up into one click.",
+    heroNote: "No app to install. Set up for you in about a week. Arabic and English.",
+    mockTitle: "Needs attention", mockK1: "orders today", mockK2: "on time", mockK3: "late now",
+    mockFoot: "<b>⚡ 3 rules</b> flagged these automatically. One click sends the update.",
+    painEyebrow: "Sound familiar?", painTitle: "Most small teams find problems when the customer calls to complain.",
+    howEyebrow: "How it works", howTitle: "We set it up around how your team already works.", howLead: "No long software project. You talk to someone who has run operations teams, not a salesperson.",
+    featEyebrow: "What you get", featTitle: "Everything your coordinators do by hand, in one place.",
+    indEyebrow: "Who it's for", indTitle: "Built for teams that move fast and talk to customers all day.", indLead: "Each business gets its own private workspace with rules made for its work.",
+    planEyebrow: "Plans", planTitle: "Pick a plan. Upgrade when you grow.", planLead: "Every plan includes setup help, training for your team, and support in Arabic and English.",
+    billM: "Monthly", billY: "Yearly", billSave: "2 months free",
+    planNote: "Prices in Jordanian dinars, excluding tax. Cancel any time on monthly plans, and you take your data with you.",
+    perMonth: "/ month", perYear: "/ year", from: "from", setup: "One-time setup", custom: "quoted after the free check-up",
+    choose: "Start with", talk: "Talk to us", popular: "Most popular",
+    founderEyebrow: "Why Rasd", founderQuote: "I spent 8 years inside delivery and customer operations. I built Rasd for the problems I fixed by hand every day.",
+    founderWho: "Mohammad Al-Khateeb, founder. Former Operations Team Lead and QA Specialist.",
+    faqEyebrow: "Questions", faqTitle: "Things people ask before they start",
+    finalTitle: "See it running on your own operation.", finalLead: "Book a free 20-minute demo. We'll look at how your team works today and show you where Rasd saves time.",
+    orEmail: "Or email", copy: "Copy", copied: "Email copied",
+    footerLoc: "Amman, Jordan", footerData: "Your data stays yours. Export it any time.", draftTag: "Draft · not public yet",
+    waDemo: "Hello, I'd like to book a free demo of Rasd.", waPlan: "Hello, I'm interested in the Rasd {plan} plan. Can we book a demo?"
+  },
+  ar: {
+    navFeatures: "المزايا", navInd: "القطاعات", navPlans: "الباقات", navFaq: "أسئلة", ctaDemo: "احجز عرضاً مجانياً", ctaLive: "جرّب النسخة التجريبية",
+    heroEyebrow: "نظام عمليات للشركات النامية في الأردن",
+    heroTitle: "عملياتك كلّها <em>على شاشة وحدة.</em>",
+    heroLead: "رصد يراقب طلباتك وزياراتك وشكاوى العملاء، وينبّه فريقك قبل ما ينتبه العميل، ويخلّي كل متابعة بكبسة زر.",
+    heroNote: "بدون تطبيق تنزّله. نجهّزه إلك خلال أسبوع تقريباً. عربي وإنجليزي.",
+    mockTitle: "بحاجة لانتباه", mockK1: "طلب اليوم", mockK2: "بالوقت", mockK3: "متأخر الآن",
+    mockFoot: "<b>⚡ ٣ قواعد</b> رصدت هاي الحالات تلقائياً. كبسة وحدة بتبعث التحديث.",
+    painEyebrow: "مألوف؟", painTitle: "أغلب الفرق الصغيرة بتكتشف المشكلة لما يتصل العميل يشتكي.",
+    howEyebrow: "كيف بيشتغل", howTitle: "منجهّزه على طريقة شغل فريقك الحالية.", howLead: "مش مشروع برمجي طويل. بتحكي مع شخص أدار فرق عمليات، مش مندوب مبيعات.",
+    featEyebrow: "شو بتحصل", featTitle: "كل الشغل اليدوي اللي بيعمله المنسّقين، بمكان واحد.",
+    indEyebrow: "لمين", indTitle: "مصمم للفرق السريعة اللي بتتعامل مع العملاء طول اليوم.", indLead: "كل شركة إلها مساحة خاصة فيها، بقواعد مصممة لطبيعة شغلها.",
+    planEyebrow: "الباقات", planTitle: "اختار باقتك، وكبّر لما تكبر.", planLead: "كل الباقات فيها مساعدة بالتجهيز، تدريب للفريق، ودعم بالعربي والإنجليزي.",
+    billM: "شهري", billY: "سنوي", billSave: "شهرين مجاناً",
+    planNote: "الأسعار بالدينار الأردني وغير شاملة الضريبة. بالباقات الشهرية بتقدر تلغي بأي وقت وبتاخذ بياناتك معك.",
+    perMonth: "/ شهرياً", perYear: "/ سنوياً", from: "يبدأ من", setup: "رسوم تجهيز لمرة واحدة", custom: "حسب الفحص المجاني",
+    choose: "ابدأ بباقة", talk: "تواصل معنا", popular: "الأكثر طلباً",
+    founderEyebrow: "ليش رصد", founderQuote: "قضيت ٨ سنين جوّا عمليات التوصيل وخدمة العملاء. بنيت رصد للمشاكل اللي كنت أحلّها بإيدي كل يوم.",
+    founderWho: "محمد الخطيب، المؤسس. قائد فريق عمليات وأخصائي ضبط جودة سابقاً.",
+    faqEyebrow: "أسئلة", faqTitle: "أسئلة بتنسأل قبل البداية",
+    finalTitle: "شوفه شغّال على عملياتك انت.", finalLead: "احجز عرض مجاني ٢٠ دقيقة. منشوف كيف بيشتغل فريقك اليوم ومنورجيك وين رصد بيوفّر وقت.",
+    orEmail: "أو راسلنا على", copy: "نسخ", copied: "تم نسخ الإيميل",
+    footerLoc: "عمّان، الأردن", footerData: "بياناتك إلك. بتقدر تصدّرها بأي وقت.", draftTag: "مسودة · غير منشورة بعد",
+    waDemo: "مرحبا، حابب أحجز عرض مجاني لنظام رصد.", waPlan: "مرحبا، مهتم بباقة {plan} من رصد. ممكن نحجز عرض؟"
+  }
+};
+
+const PAINS = {
+  en: [["“Wait, which orders are late?”", "Someone finds out when the customer calls. By then it's already a complaint."], ["“I copy the number, open WhatsApp, type the message…”", "Your coordinators spend hours a day on clicks a system could do."], ["“How did we do this week?”", "Nobody knows until someone builds a spreadsheet at the end of the month."]],
+  ar: [["«استنى، أي طلبات متأخرة؟»", "بتعرف لما يتصل العميل. وقتها صارت شكوى."], ["«بنسخ الرقم، بفتح واتساب، بكتب الرسالة…»", "المنسّقين بيضيّعوا ساعات كل يوم على كبسات ممكن النظام يعملها."], ["«كيف كان أداءنا هالأسبوع؟»", "ولا حدا بيعرف لآخر الشهر لما حدا يعمل ملف إكسل."]]
+};
+const STEPS = {
+  en: [["Free check-up", "Day 1–2", "We sit with your team, see how orders, calls and follow-ups really flow, and show you where time is lost."], ["Set up for you", "Within a week", "We build your workspace: your statuses, your rules, your WhatsApp messages, your team's logins."], ["Runs every day", "Ongoing", "Your team works from one screen. We watch the numbers with you and improve the rules each month."]],
+  ar: [["فحص مجاني", "اليوم ١–٢", "منقعد مع فريقك، منشوف كيف بتمشي الطلبات والمكالمات والمتابعات فعلياً، ومنورجيك وين بيضيع الوقت."], ["منجهّزه إلك", "خلال أسبوع", "منبني مساحتك: حالاتك، قواعدك، رسائل الواتساب، وحسابات فريقك."], ["شغّال كل يوم", "مستمر", "فريقك بيشتغل من شاشة وحدة. منتابع الأرقام معك ومنحسّن القواعد كل شهر."]]
+};
+const FEATS = {
+  en: [["bell", "Needs-attention alerts", "Late orders, unconfirmed visits and unanswered complaints rise to the top on their own."], ["chat", "One-click WhatsApp and calls", "Ready messages in Arabic or English, with the customer's name, time and order filled in."], ["bolt", "Automations you control", "Auto-assign drivers, escalate after 30 minutes, remind before visits. Switch each rule on or off."], ["chart", "Live numbers", "On-time rate, response time, no-shows and team targets, updated as work happens."], ["users", "Your whole team", "Coordinators, agents and managers each see what they need, with their own login."], ["lock", "Your data stays yours", "We never ask for your passwords. Connections use keys you can switch off, and you can export everything any time."]],
+  ar: [["bell", "تنبيهات «بحاجة لانتباه»", "الطلبات المتأخرة والزيارات غير المؤكدة والشكاوى بلا رد بتطلع لفوق لحالها."], ["chat", "واتساب واتصال بكبسة", "رسائل جاهزة بالعربي أو الإنجليزي، فيها اسم العميل والوقت والطلب تلقائياً."], ["bolt", "أتمتة تحت سيطرتك", "توزيع السواقين تلقائياً، تصعيد بعد ٣٠ دقيقة، تذكير قبل الزيارة. وكل قاعدة بتشغّلها أو بتطفيها."], ["chart", "أرقام مباشرة", "نسبة الالتزام بالوقت، سرعة الرد، الغيابات وأهداف الفريق، بتتحدّث أول بأول."], ["users", "فريقك كامل", "المنسّقين والموظفين والمدراء، كل واحد بيشوف اللي بيلزمه بحسابه الخاص."], ["lock", "بياناتك إلك", "ما منطلب كلمات السر أبداً. الربط بمفاتيح بتقدر توقفها، وبتقدر تصدّر كل شي بأي وقت."]]
+};
+const INDS = {
+  en: [["Delivery and q-commerce", ["Late-order alerts with a ready apology message", "Auto-assign orders to the least busy driver", "On-time rate per driver and per area"]], ["Home healthcare and labs", ["Reminder when a patient hasn't confirmed", "Alert when no team has left 30 minutes before a visit", "No-show rebooking in one click"]], ["Cloud kitchens and restaurants", ["Complaints from Talabat, Careem and direct in one queue", "15-minute reply promise, escalation to the brand manager", "Repeat-customer flags"]], ["Call centers and service teams", ["Daily targets per agent", "Follow-up lists that build themselves", "Quality checks and coaching notes"]]],
+  ar: [["التوصيل والتجارة السريعة", ["تنبيه الطلبات المتأخرة مع رسالة اعتذار جاهزة", "توزيع الطلبات تلقائياً على أقل سائق مشغول", "نسبة الالتزام بالوقت لكل سائق ومنطقة"]], ["الرعاية المنزلية والمختبرات", ["تذكير لما المريض ما أكّد الموعد", "تنبيه إذا ما طلع الفريق قبل الزيارة بـ ٣٠ دقيقة", "إعادة حجز الغياب بكبسة"]], ["المطابخ السحابية والمطاعم", ["شكاوى طلبات وكريم والطلب المباشر بقائمة وحدة", "وعد رد خلال ١٥ دقيقة وتصعيد لمدير البراند", "تمييز العملاء المتكررين"]], ["مراكز الاتصال وفرق الخدمة", ["أهداف يومية لكل موظف", "قوائم متابعة بتنبني لحالها", "تقييم جودة وملاحظات تدريب"]]]
+};
+const PLANS = {
+  en: [
+    { id: "starter", name: "Starter", for: "One team getting organised", setup: 150, feats: [[1, "One workspace, up to 3 users"], [1, "One-click WhatsApp and calls"], [1, "Ready message templates (Arabic and English)"], [1, "Daily numbers dashboard"], [0, "Automations and alerts"], [0, "Weekly performance report"], [0, "Several branches or brands"]] },
+    { id: "growth", name: "Growth", for: "Busy teams that want the system to do the chasing", setup: 300, hot: true, feats: [[1, "Everything in Starter"], [1, "Up to 10 users"], [1, "Automations: alerts, auto-assign, escalation"], [1, "Needs-attention list"], [1, "Weekly performance report"], [1, "Monthly rules review with us"], [0, "Several branches or brands"]] },
+    { id: "pro", name: "Pro", for: "Several branches, brands or teams", setup: null, from: true, feats: [[1, "Everything in Growth"], [1, "Unlimited users"], [1, "Several branches or brands"], [1, "Connections to your own systems"], [1, "Custom dashboards and reports"], [1, "Priority support"]] }
+  ],
+  ar: [
+    { id: "starter", name: "الأساسية", for: "فريق واحد بدّه يرتّب شغله", setup: 150, feats: [[1, "مساحة وحدة، لحد ٣ مستخدمين"], [1, "واتساب واتصال بكبسة"], [1, "رسائل جاهزة (عربي وإنجليزي)"], [1, "لوحة أرقام يومية"], [0, "الأتمتة والتنبيهات"], [0, "تقرير أداء أسبوعي"], [0, "عدة فروع أو براندات"]] },
+    { id: "growth", name: "النمو", for: "فرق مشغولة بدها النظام يلاحق عنها", setup: 300, hot: true, feats: [[1, "كل شي بالأساسية"], [1, "لحد ١٠ مستخدمين"], [1, "أتمتة: تنبيهات، توزيع تلقائي، تصعيد"], [1, "قائمة «بحاجة لانتباه»"], [1, "تقرير أداء أسبوعي"], [1, "مراجعة شهرية للقواعد معنا"], [0, "عدة فروع أو براندات"]] },
+    { id: "pro", name: "المحترفة", for: "عدة فروع أو براندات أو فرق", setup: null, from: true, feats: [[1, "كل شي بالنمو"], [1, "مستخدمين بلا حدود"], [1, "عدة فروع أو براندات"], [1, "ربط مع أنظمتك الخاصة"], [1, "لوحات وتقارير مخصصة"], [1, "دعم بأولوية"]] }
+  ]
+};
+const FACTS = { en: [["70%", "faster on a daily booking task I automated (10 min → 3)"], ["2×", "team output after that tool: 100 → 200 a day"], ["8 yrs", "in delivery, contact-center and healthcare operations"]], ar: [["٧٠٪", "أسرع بمهمة حجز يومية أتمتتها (١٠ دقائق ← ٣)"], ["٢×", "إنتاجية الفريق بعد الأداة: ١٠٠ ← ٢٠٠ يومياً"], ["٨ سنين", "بعمليات التوصيل ومراكز الاتصال والرعاية الصحية"]] };
+const FAQ = {
+  en: [["Do we need to install anything?", "No. Rasd runs in the browser on any computer, tablet or phone. Your team gets a link and a login."], ["Do you need our passwords?", "Never. WhatsApp messages open from your own phone or computer. Connections to other systems use access keys you create and can switch off at any time."], ["Who owns the data?", "You do. If you stop, we hand you everything as a spreadsheet and switch the service off. We don't use your data for anything else."], ["What does the setup fee cover?", "The free check-up, building your workspace (statuses, rules, messages), adding your team, and training them. Most setups take about a week."], ["Is there a contract?", "Monthly plans can be cancelled any time. Yearly plans give you 2 months free."], ["Our process is unusual. Will it fit?", "That's the point of the check-up. We shape the workspace around how you already work, not the other way round."]],
+  ar: [["لازم ننزّل إشي؟", "لا. رصد بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["بتحتاجوا كلمات السر تبعتنا؟", "أبداً. رسائل الواتساب بتفتح من جهازك انت. والربط مع أي نظام ثاني بيكون بمفاتيح بتعملها انت وبتقدر توقفها بأي وقت."], ["لمين البيانات؟", "إلك. إذا وقفت، منسلّمك كل شي بملف إكسل ومنوقف الخدمة. وما منستخدم بياناتك لأي إشي ثاني."], ["شو بتغطي رسوم التجهيز؟", "الفحص المجاني، بناء مساحتك (الحالات والقواعد والرسائل)، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["في عقد؟", "الباقات الشهرية بتلغيها بأي وقت. والسنوية بتعطيك شهرين مجاناً."], ["طريقة شغلنا مختلفة، بيزبط؟", "هاد هدف الفحص المجاني. منفصّل المساحة على طريقة شغلك، مش العكس."]]
+};
+const MOCK = {
+  en: [["c", "D-1063 · Majd R.", "Late 18 min", "Fresh Mart · Marj Al-Hamam · Saif"], ["w", "V-1121 · Lina K.", "Not confirmed", "Vitamin D · 16:30 · Khalda"], ["c", "C-1907 · Omar N.", "No reply 22 min", "Sushi Box · Cold food · Talabat"]],
+  ar: [["c", "D-1063 · مجد ر.", "متأخر ١٨ د", "فريش مارت · مرج الحمام · سيف"], ["w", "V-1121 · لينا خ.", "غير مؤكد", "فيتامين د · ١٦:٣٠ · خلدا"], ["c", "C-1907 · عمر ن.", "بلا رد ٢٢ د", "سوشي بوكس · أكل بارد · طلبات"]]
+};
+
+let lang = "en", bill = "m";
+try { const s = localStorage.getItem("rasd-site-lang"); lang = s || ((navigator.language || "").startsWith("ar") ? "ar" : "en"); } catch (e) {}
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = n => lang === "ar" ? Number(n).toLocaleString("ar-EG") : Number(n).toLocaleString("en-US");
+const wa = text => "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(text);
+
+function render() {
+  const t = T[lang];
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = BRAND[lang] === "رصد" ? "Rasd" : BRAND[lang];
+  document.querySelectorAll("[data-brand]").forEach(e => e.textContent = BRAND[lang]);
+  document.querySelectorAll("[data-t]").forEach(e => { const k = e.dataset.t; if (t[k] != null) e.textContent = t[k]; });
+  document.querySelectorAll("[data-th]").forEach(e => { const k = e.dataset.th; if (t[k] != null) e.innerHTML = t[k]; });
+  document.querySelectorAll("[data-wa='demo']").forEach(e => e.href = wa(t.waDemo));
+  $("#langBtn").textContent = lang === "ar" ? "English" : "العربية";
+  $("#langBtn").setAttribute("aria-label", lang === "ar" ? "Switch to English" : "التبديل إلى العربية");
+  $("#email").textContent = EMAIL;
+
+  $("#mockRows").innerHTML = MOCK[lang].map(([s, a, p, d], i) => `<div class="mock-row ${i === 0 ? "new" : ""}"><i class="${s}"></i><div style="min-width:0"><div class="t">${esc(a)}<span class="pill ${s}">${esc(p)}</span></div><div class="d">${esc(d)}</div></div><span class="wa">${IC.wa}<span>${lang === "ar" ? "إرسال" : "Send"}</span></span></div>`).join("");
+  $("#pains").innerHTML = PAINS[lang].map(([q, p]) => `<div class="pain"><q>${esc(q)}</q><p>${esc(p)}</p></div>`).join("");
+  $("#steps").innerHTML = STEPS[lang].map(([h, w, p]) => `<div class="step"><h3>${esc(h)}</h3><span class="when">${esc(w)}</span><p class="muted">${esc(p)}</p></div>`).join("");
+  $("#feats").innerHTML = FEATS[lang].map(([ic, h, p]) => `<div class="feat"><span class="ic">${IC[ic]}</span><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("");
+  $("#inds").innerHTML = INDS[lang].map(([h, list]) => `<div class="ind"><h3>${esc(h)}</h3><ul>${list.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("");
+  $("#plans-grid").innerHTML = PLANS[lang].map(p => {
+    const [m, y] = PRICES[p.id];
+    const price = bill === "m" ? m : y;
+    const setup = p.setup ? `${t.setup}: ${num(p.setup)} ${lang === "ar" ? "د.أ" : "JOD"}` : `${t.setup}: ${t.custom}`;
+    return `<div class="plan ${p.hot ? "hot" : ""}">${p.hot ? `<span class="tag">${esc(t.popular)}</span>` : ""}
+      <h3>${esc(p.name)}</h3><p class="for">${esc(p.for)}</p>
+      <div class="price">${p.from ? `<span>${esc(t.from)}</span>` : ""}<b>${num(price)}</b><span>${lang === "ar" ? "د.أ" : "JOD"} ${bill === "m" ? t.perMonth : t.perYear}</span></div>
+      <div class="setup">${esc(setup)}</div>
+      <ul>${p.feats.map(([ok, f]) => `<li class="${ok ? "yes" : "no"}">${ok ? IC.yes : IC.lock}<span>${esc(f)}</span></li>`).join("")}</ul>
+      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${p.id === "pro" ? esc(t.talk) : esc(t.choose + " " + p.name)}</a>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("[data-bill]").forEach(b => b.setAttribute("aria-pressed", b.dataset.bill === bill));
+  $("#facts").innerHTML = FACTS[lang].map(([b, s]) => `<div class="fact"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
+  $("#faqList").innerHTML = FAQ[lang].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
+}
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "langBtn") { lang = lang === "ar" ? "en" : "ar"; try { localStorage.setItem("rasd-site-lang", lang); } catch (err) {} return render(); }
+  if (b.dataset.bill) { bill = b.dataset.bill; return render(); }
+  if (b.id === "copyEmail") {
+    const el = $("#toast");
+    try { await navigator.clipboard.writeText(EMAIL); el.textContent = T[lang].copied; }
+    catch (err) { const r = document.createRange(); r.selectNodeContents($("#email")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); el.textContent = "Ctrl+C"; }
+    el.hidden = false; setTimeout(() => el.hidden = true, 2200);
+  }
+});
+render();
+})();
+</script>
