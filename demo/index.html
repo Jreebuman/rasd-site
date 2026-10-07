@@ -1,0 +1,626 @@
+<title>Jreebs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap">
+<style>
+/* Layout: one operations desk, three sample client workspaces. Header switches workspace; KPIs, then "needs attention", the live queue, and automations + activity on the side. */
+:root {
+  --bg: #F4F4F2;
+  --surface: #FFFFFF;
+  --surface-2: #ECECE8;
+  --ink: #1B1D21;
+  --muted: #60646C;
+  --line: #DCDDD8;
+  --accent: #7B2E63;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #F3E2EE;
+  --good: #1E7A4B; --good-soft: #DDF0E5;
+  --warn: #9E5C00; --warn-soft: #FBEED6;
+  --crit: #B3261E; --crit-soft: #F9E0DE;
+  --wa: #128C4A;
+  --shadow: 0 12px 40px rgba(27, 29, 33, .18);
+  --display: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --ar: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121316; --surface: #1B1C20; --surface-2: #26282D; --ink: #ECEDEF; --muted: #9A9EA6; --line: #2E3036;
+    --accent: #E794C9; --accent-ink: #121316; --accent-soft: #3A2133;
+    --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+    --shadow: 0 12px 40px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121316; --surface: #1B1C20; --surface-2: #26282D; --ink: #ECEDEF; --muted: #9A9EA6; --line: #2E3036;
+  --accent: #E794C9; --accent-ink: #121316; --accent-soft: #3A2133;
+  --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+  --shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 10px; display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--ar); font-weight: 500; font-size: 17px; }
+.brand h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -.01em; }
+.chip { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+.ws { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; margin-inline-end: auto; flex-wrap: wrap; }
+.ws button { border: 0; background: none; padding: 6px 12px; border-radius: 8px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.ws button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.clock { display: inline-flex; align-items: baseline; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.clock b { font-family: var(--mono); font-size: 17px; color: var(--ink); font-weight: 500; }
+.btn { height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; white-space: nowrap; text-decoration: none; font-size: 13.5px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn.sm { height: 30px; padding-inline: 9px; font-size: 13px; }
+.btn.wa { color: var(--wa); }
+
+.intro { margin-top: 14px; display: flex; gap: 8px 16px; align-items: baseline; flex-wrap: wrap; }
+.intro h2 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+.intro p { margin: 0; color: var(--muted); }
+
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-block: 14px 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; display: grid; gap: 3px; }
+.kpi .l { font-size: 12px; color: var(--muted); font-weight: 500; }
+.kpi .v { font-family: var(--display); font-size: 29px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi .v small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+.kpi.alert .v { color: var(--crit); }
+.kpi.good .v { color: var(--good); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.panel > h3 small { font-family: var(--sans); font-weight: 400; color: var(--muted); font-size: 12px; }
+.main { display: grid; gap: 16px; min-width: 0; }
+
+.attn { display: grid; gap: 0; }
+.att { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); }
+.att:last-child { border-bottom: 0; }
+.att .bar { align-self: stretch; border-radius: 0 3px 3px 0; }
+.att .bar.s3 { background: var(--crit); } .att .bar.s2 { background: var(--warn); } .att .bar.s1 { background: var(--muted); }
+.att .t { font-weight: 600; }
+.att .d { font-size: 13px; color: var(--muted); }
+.empty { padding: 22px 14px; color: var(--muted); text-align: center; }
+
+.tabs { display: flex; gap: 2px; padding-inline: 8px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { border: 0; background: none; padding: 11px 10px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.count { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border-radius: 99px; background: var(--surface-2); }
+
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: minmax(150px, 1.3fr) minmax(0, 1.3fr) .9fr .8fr .7fr minmax(130px, 1.2fr) auto; gap: 12px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.row.head { font-size: 11.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding-block: 8px; }
+.row:last-child { border-bottom: 0; }
+.row.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+.who { border: 0; background: none; padding: 0; text-align: start; min-width: 0; display: grid; }
+.who b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.who:hover b { color: var(--accent); }
+.cell { font-size: 13px; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cell b { color: var(--ink); font-weight: 500; }
+.st { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.pill { display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; background: var(--surface-2); color: var(--muted); }
+.pill.on { background: var(--accent-soft); color: var(--accent); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.s3 { background: var(--crit-soft); color: var(--crit); }
+.pill.s2 { background: var(--warn-soft); color: var(--warn); }
+.pill.s1 { background: var(--surface-2); color: var(--ink); }
+.acts { display: flex; gap: 6px; justify-content: flex-end; }
+.ib { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+.ib svg { width: 16px; height: 16px; }
+.ib.wa { color: var(--wa); }
+.ib.call { color: var(--accent); }
+.ib:hover { border-color: currentColor; }
+
+.rule { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 11px 14px; border-bottom: 1px solid var(--line); align-items: start; }
+.rule:last-child { border-bottom: 0; }
+.rule .n { font-weight: 600; font-size: 13.5px; }
+.rule .x { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+.rule .c { font-size: 11.5px; color: var(--accent); font-weight: 600; grid-column: 1; }
+.switch { position: relative; width: 38px; height: 22px; border-radius: 99px; border: 0; background: var(--surface-2); grid-row: span 3; margin-top: 2px; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(16px); }
+.side { display: grid; gap: 16px; }
+.feed { list-style: none; margin: 0; padding: 4px 0; max-height: 380px; overflow-y: auto; }
+.feed li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; padding: 7px 14px; font-size: 13px; }
+.feed time { font-family: var(--mono); font-size: 11.5px; color: var(--muted); padding-top: 1px; }
+.feed li.rule-ev span::before { content: "⚡ "; color: var(--accent); }
+
+.scrim { position: fixed; inset: 0; background: rgba(10, 10, 12, .45); z-index: 40; }
+.scrim.top { z-index: 50; }
+.drawer { position: fixed; inset-block: 0; inset-inline-end: 0; width: min(440px, 100%); background: var(--surface); z-index: 41; box-shadow: var(--shadow); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
+.d-head { padding: 16px 18px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-start; }
+.d-head h4 { margin: 0; font-family: var(--display); font-size: 20px; font-weight: 600; }
+.d-head .x { margin-inline-start: auto; }
+.d-body { padding: 16px 18px; overflow-y: auto; display: grid; gap: 16px; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.kv div { display: grid; gap: 1px; }
+.kv dt { font-size: 11.5px; color: var(--muted); }
+.kv dd { margin: 0; font-weight: 500; }
+.sec h5 { margin: 0 0 6px; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+.hist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.hist li { display: flex; gap: 10px; font-size: 13px; }
+.hist time { font-family: var(--mono); font-size: 11.5px; color: var(--muted); min-width: 40px; }
+.row-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.modal { position: fixed; z-index: 51; inset-inline: 16px; top: 50%; transform: translateY(-50%); margin-inline: auto; max-width: 470px; max-height: calc(100% - 32px); overflow-y: auto; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; display: grid; gap: 12px; }
+.modal h4 { margin: 0; font-family: var(--display); font-size: 19px; font-weight: 600; }
+.modal p { margin: 0; color: var(--muted); font-size: 13px; }
+.phone { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 10px; padding: 11px 13px; flex-wrap: wrap; }
+.phone .mono { font-size: 18px; direction: ltr; user-select: all; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 10px; font-size: 12.5px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+textarea.msg { width: 100%; min-height: 100px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); resize: vertical; }
+textarea.msg[dir="rtl"] { font-family: var(--ar); font-size: 15px; }
+.outs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.out { text-align: start; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 12px; font-weight: 600; }
+.out:hover { border-color: var(--accent); }
+.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; max-width: 440px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; box-shadow: var(--shadow); font-size: 13.5px; }
+
+@media (max-width: 1060px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .row.head { display: none; }
+  .row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "who acts" "info info" "st st"; gap: 6px 10px; }
+  .row .c-who { grid-area: who; } .row .c-acts { grid-area: acts; } .row .c-st { grid-area: st; }
+  .row .c-x { grid-area: info; } .row .c-area, .row .c-own, .row .c-due { display: none; }
+}
+@media (max-width: 420px) {
+  .kpi .v { font-size: 23px; }
+  .outs, .kv { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="logo" aria-hidden="true">ج</div><h1>Jreebs</h1></div>
+    <span class="chip">Demo · sample data</span>
+    <div class="ws" role="group" aria-label="Client workspace" id="wsSwitch"></div>
+    <span class="clock">Today <b id="clock">14:00</b></span>
+    <button class="btn primary" type="button" id="simBtn">+15 min</button>
+    <button class="btn ghost" type="button" id="resetBtn">Reset</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro"><h2 id="wsTitle"></h2><p id="wsSub"></p></div>
+  <section class="kpis" id="kpis" aria-label="Today's numbers"></section>
+  <div class="grid">
+    <div class="main">
+      <section class="panel"><h3><span>Needs attention</span><small id="attnSub"></small></h3><div class="attn" id="attn"></div></section>
+      <section class="panel"><div class="tabs" role="tablist" id="tabs"></div><div class="rows" id="rows"></div></section>
+    </div>
+    <aside class="side">
+      <section class="panel"><h3><span>Automations</span><small>switch rules on or off</small></h3><div id="rules"></div></section>
+      <section class="panel"><h3><span>Activity</span><small>live</small></h3><ul class="feed" id="feed"></ul></section>
+    </aside>
+  </div>
+</main>
+
+<div class="scrim" id="dScrim" hidden></div>
+<aside class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-label="Details"></aside>
+<div class="scrim top" id="mScrim" hidden></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+const KEY = "jreebs-demo-v1";
+const START = 14 * 60;
+const ICON = {
+  wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg>',
+  call: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>'
+};
+const AREAS = ["Abdoun", "Sweifieh", "Khalda", "Tla' Al-Ali", "Shmeisani", "Jubeiha", "Dabouq", "Marj Al-Hamam", "Jabal Amman", "Um Uthaina"];
+const FIRST = ["Ahmad", "Lina", "Omar", "Rania", "Khaled", "Dana", "Yousef", "Hiba", "Zaid", "Noor", "Tareq", "Reem", "Hamza", "Sara", "Faris", "Leen", "Majd", "Aseel"];
+const LAST = ["Haddad", "Khalil", "Nasser", "Saleh", "Odeh", "Qasem", "Shami", "Zoubi", "Masri", "Rawashdeh", "Majali", "Abu Ghosh"];
+
+const hm = m => { m = Math.max(0, Math.round(m)); return String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = s => document.querySelector(s);
+function rng(seed) { return () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }; }
+const pick = (r, a) => a[Math.floor(r() * a.length)];
+const person = r => pick(r, FIRST) + " " + pick(r, LAST);
+const phone = n => "+962 79 000 " + String(n).padStart(4, "0");
+const fill = (s, it, now) => s.replace(/\{(\w+)\}/g, (_, k) => k === "due" ? hm(it.due) : k === "late" ? String(Math.max(0, now - it.due)) : k === "first" ? it.name.split(" ")[0] : (it[k] ?? ""));
+
+/* ---------- workspace definitions ---------- */
+const WS = {
+  delivery: {
+    name: "Swift Delivery", title: "Swift Delivery · order desk", sub: "Sample delivery company in Amman: orders, drivers, late alerts.",
+    item: "Order", prefix: "D-", ownerLabel: "Driver", dueLabel: "Promised by",
+    owners: ["Yazan", "Bilal", "Odai", "Saif", "Hamza"],
+    stages: [["new", "New"], ["assigned", "Assigned"], ["picked", "On the way"], ["delivered", "Delivered"]],
+    alt: [["failed", "Failed delivery"]],
+    terminal: ["delivered", "failed"],
+    x: it => `<b>${esc(it.store)}</b> · ${it.value} JOD`,
+    templates: {
+      late: ["Late order", "Hi {first}, sorry, your order {id} is running about {late} minutes late. {owner} is on the way to you.", "مرحبا {first}، نعتذر، طلبك رقم {id} متأخر حوالي {late} دقيقة. {owner} في الطريق إليك."],
+      onway: ["On the way", "Hi {first}, your order {id} from {store} is on the way with {owner}.", "مرحبا {first}، طلبك رقم {id} من {store} في الطريق مع {owner}."],
+      driver: ["Message driver", "Hi {owner}, order {id} for {name} in {area} is due at {due}. Where are you now?", "مرحبا {owner}، الطلب {id} لـ {name} في {area} موعده {due}. وينك هلأ؟"]
+    },
+    rules: [
+      { id: "late", name: "Late order alert", desc: "When an order passes its promised time, flag it and prepare an apology message for the customer.", sev: 3,
+        check: (it, now) => !["delivered", "failed"].includes(it.status) && now > it.due ? `Late ${now - it.due} min` : null,
+        feed: it => `${it.id} is late. Apology message ready for ${it.name}` , tpl: "late" },
+      { id: "unassigned", name: "No driver after 5 min", desc: "Flag new orders still waiting for a driver after 5 minutes.", sev: 2,
+        check: (it, now) => it.status === "new" && now - it.created >= 5 ? `No driver for ${now - it.created} min` : null,
+        feed: it => `${it.id} has no driver yet` },
+      { id: "pickup", name: "Slow pickup", desc: "Flag orders assigned for 20+ minutes but not picked up from the store.", sev: 1,
+        check: (it, now) => it.status === "assigned" && now - (it.t.assigned ?? now) >= 20 ? "Not picked up" : null,
+        feed: it => `${it.id}: ${it.owner} hasn't picked up from ${it.store}`, tpl: "driver" },
+      { id: "autoassign", name: "Auto-assign drivers", desc: "Give each new order to the driver with the fewest active orders.", sev: 0, action: true }
+    ],
+    kpis: (items, now) => {
+      const done = items.filter(i => i.status === "delivered");
+      const onTime = done.filter(i => i.t.delivered <= i.due).length;
+      const late = items.filter(i => !["delivered", "failed"].includes(i.status) && now > i.due).length;
+      const avg = done.length ? Math.round(done.reduce((s, i) => s + (i.t.delivered - i.created), 0) / done.length) : 0;
+      return [["Orders today", items.length, `${done.length} delivered`], ["On time", done.length ? Math.round(onTime / done.length * 100) : 0, "% of delivered orders", "pct"], ["Late right now", late, late ? "need attention" : "all on track", late ? "alert" : "good"], ["Avg delivery time", avg, "minutes from order to door", "min"]];
+    },
+    seed: (r, st) => {
+      for (let k = 0; k < 18; k++) {
+        const created = START - 150 + Math.round(k * 8.5 + r() * 4);
+        const it = mk(st, "delivery", r, { created, due: created + 45, store: pick(r, ["Fresh Mart", "Pharma Plus", "Burger Lab", "Green Basket", "Sweet Corner"]), value: (3 + Math.round(r() * 27)) });
+        const age = START - created;
+        if (age > 70) { setStage(it, "assigned", created + 3); setStage(it, "picked", created + 15); setStage(it, "delivered", created + 30 + Math.round(r() * 25)); }
+        else if (age > 35) { setStage(it, "assigned", created + 4); setStage(it, "picked", created + 18); if (r() < .5) setStage(it, "delivered", Math.min(START - 2, created + 38)); }
+        else if (age > 8) { setStage(it, "assigned", created + 3 + Math.round(r() * 20)); }
+        if (it.status !== "new" && !it.owner) it.owner = pick(r, WS.delivery.owners);
+      }
+      const fail = st.items.find(i => i.status === "delivered"); if (fail) { fail.status = "failed"; fail.t.failed = fail.t.delivered; delete fail.t.delivered; }
+    },
+    tick: (st, now, r) => {
+      const n = 2 + Math.floor(r() * 3);
+      for (let k = 0; k < n; k++) { const created = now - Math.floor(r() * 14); mk(st, "delivery", r, { created, due: created + 45, store: pick(r, ["Fresh Mart", "Pharma Plus", "Burger Lab", "Green Basket", "Sweet Corner"]), value: 3 + Math.round(r() * 27) }); }
+      st.items.forEach(it => {
+        if (it.status === "assigned" && r() < .55) setStage(it, "picked", now - Math.floor(r() * 10));
+        else if (it.status === "picked" && r() < .5) setStage(it, "delivered", now - Math.floor(r() * 10));
+      });
+    }
+  },
+
+  lab: {
+    name: "HomeLab Care", title: "HomeLab Care · home visits", sub: "Sample medical lab: home sample collection bookings, confirmations, no-shows.",
+    item: "Visit", prefix: "V-", ownerLabel: "Team", dueLabel: "Visit at",
+    owners: ["Team Rana", "Team Huda", "Team Ali"],
+    stages: [["booked", "Booked"], ["confirmed", "Confirmed"], ["onway", "Team on the way"], ["collected", "Sample collected"]],
+    alt: [["noshow", "No-show"]],
+    terminal: ["collected", "noshow"],
+    x: it => `<b>${esc(it.test)}</b>`,
+    templates: {
+      confirm: ["Confirm visit", "Hello {first}, a reminder of your home sample collection today at {due} in {area}. Reply 1 to confirm or 2 to change the time.", "مرحباً {first}، نذكّرك بموعد سحب العينة من المنزل اليوم الساعة {due} في {area}. ردّ بـ 1 للتأكيد أو 2 لتغيير الموعد."],
+      onway: ["Team on the way", "Hello {first}, our team ({owner}) is on the way and will arrive around {due}.", "مرحباً {first}، فريقنا ({owner}) في الطريق ويصل حوالي الساعة {due}."],
+      noshow: ["Missed visit", "Hello {first}, our team couldn't reach you at {due} today. Would you like to book a new time?", "مرحباً {first}، لم يتمكن فريقنا من الوصول إليك الساعة {due} اليوم. هل تودّ حجز موعد جديد؟"]
+    },
+    rules: [
+      { id: "unconfirmed", name: "Unconfirmed visit reminder", desc: "3 hours before a visit, flag it if the patient hasn't confirmed, and prepare the reminder message.", sev: 2,
+        check: (it, now) => it.status === "booked" && it.due - now <= 180 && it.due - now > -20 ? `Not confirmed · ${hm(it.due)}` : null,
+        feed: it => `${it.id} at ${hm(it.due)} not confirmed. Reminder ready for ${it.name}`, tpl: "confirm" },
+      { id: "dispatch", name: "Team not sent out", desc: "Flag confirmed visits starting in 30 minutes when no team is on the way yet.", sev: 2,
+        check: (it, now) => it.status === "confirmed" && it.due - now <= 30 && it.due - now > -20 ? "Team not on the way" : null,
+        feed: it => `${it.id}: ${it.owner} should leave now for ${it.area}` },
+      { id: "noshow", name: "Possible no-show", desc: "Flag visits 20+ minutes past their time with no sample collected, and prepare a rebooking message.", sev: 3,
+        check: (it, now) => ["booked", "confirmed", "onway"].includes(it.status) && now > it.due + 20 ? "Possible no-show" : null,
+        feed: it => `${it.id} may be a no-show. Rebooking message ready`, tpl: "noshow" }
+    ],
+    kpis: (items, now) => {
+      const coll = items.filter(i => i.status === "collected").length;
+      const ns = items.filter(i => i.status === "noshow").length;
+      const upcoming = items.filter(i => i.due >= now && !["collected", "noshow"].includes(i.status));
+      const conf = upcoming.filter(i => i.status !== "booked").length;
+      return [["Visits today", items.length, `${upcoming.length} still to come`], ["Upcoming confirmed", upcoming.length ? Math.round(conf / upcoming.length * 100) : 100, "% of upcoming visits", "pct"], ["Samples collected", coll, "today so far", "good"], ["No-shows", ns, ns ? "rebook these" : "none today", ns ? "alert" : "good"]];
+    },
+    seed: (r, st) => {
+      const tests = ["Full blood count", "Vitamin D", "HbA1c (diabetes)", "Lipid profile", "Thyroid (TSH)", "Urine test", "Kidney function"];
+      for (let k = 0; k < 15; k++) {
+        const due = 8 * 60 + k * 45 + Math.round(r() * 10);
+        const it = mk(st, "lab", r, { created: due - 600, due, test: pick(r, tests) });
+        if (due < START - 30) { setStage(it, "confirmed", due - 300); setStage(it, "onway", due - 25); setStage(it, "collected", due + 5); }
+        else if (due < START + 30) { setStage(it, "confirmed", due - 240); if (due < START + 10) setStage(it, "onway", START - 10); }
+        else if (r() < .45) setStage(it, "confirmed", START - 60);
+      }
+      const ns = st.items.find(i => i.status === "collected" && i.due > 10 * 60); if (ns) { ns.status = "noshow"; ns.t.noshow = ns.t.collected; delete ns.t.collected; }
+    },
+    tick: (st, now, r) => {
+      st.items.forEach(it => {
+        if (it.status === "booked" && it.due - now < 300 && r() < .3) setStage(it, "confirmed", now - 5);
+        else if (it.status === "onway" && now >= it.due && r() < .75) setStage(it, "collected", now - Math.floor(r() * 8));
+        else if (it.status === "confirmed" && it.due - now <= 25 && r() < .5) setStage(it, "onway", now - 3);
+      });
+      if (r() < .6) mk(st, "lab", r, { created: now, due: now + 120 + Math.floor(r() * 240), test: pick(r, ["Full blood count", "Vitamin D", "HbA1c (diabetes)", "Lipid profile"]) });
+    }
+  },
+
+  kitchen: {
+    name: "Kitchen Collective", title: "Kitchen Collective · complaints", sub: "Sample cloud kitchen with 3 brands: complaints from every app in one queue.",
+    item: "Complaint", prefix: "C-", ownerLabel: "Agent", dueLabel: "Reply by",
+    owners: ["Dana", "Omar", "Sara"],
+    stages: [["new", "New"], ["replied", "Replied"], ["resolved", "Resolved"]],
+    alt: [["escalated", "Escalate to manager"]],
+    terminal: ["resolved"],
+    x: it => `<b>${esc(it.brand)}</b> · ${esc(it.issue)} · ${esc(it.app)}`,
+    templates: {
+      apology: ["Apology + fix", "Hi {first}, we're really sorry about your {brand} order ({issue}). We're sending a replacement now, or we can refund you. Which do you prefer?", "مرحبا {first}، بنعتذر كثير عن مشكلة طلبك من {brand} ({issue}). رح نبعتلك طلب بديل هلأ أو منرجعلك المبلغ، شو بتفضّل؟"],
+      followup: ["Follow up", "Hi {first}, did your replacement from {brand} arrive OK? Thank you for your patience.", "مرحبا {first}، وصلك الطلب البديل من {brand} بشكل سليم؟ شكراً لصبرك."]
+    },
+    rules: [
+      { id: "overdue", name: "15-minute reply promise", desc: "Flag any complaint with no reply after 15 minutes, and prepare the apology message.", sev: 3,
+        check: (it, now) => it.status === "new" && now - it.created > 15 ? `No reply for ${now - it.created} min` : null,
+        feed: it => `${it.id} (${it.brand}) waiting ${it.waited} min. Apology ready`, tpl: "apology" },
+      { id: "escalate", name: "Escalate after 30 min", desc: "Move complaints still unanswered after 30 minutes to the brand manager.", sev: 0, action: true },
+      { id: "repeat", name: "Repeat customer", desc: "Flag customers who complained more than once this week so they get extra care.", sev: 1,
+        check: it => it.repeat && it.status !== "resolved" ? "Repeat customer" : null,
+        feed: it => `${it.name} has complained before. Flagged for extra care` }
+    ],
+    kpis: (items, now) => {
+      const rep = items.filter(i => i.t.replied != null);
+      const avg = rep.length ? Math.round(rep.reduce((s, i) => s + (i.t.replied - i.created), 0) / rep.length) : 0;
+      const over = items.filter(i => i.status === "new" && now - i.created > 15).length;
+      const res = items.filter(i => i.status === "resolved").length;
+      return [["Complaints today", items.length, "Talabat, Careem & direct"], ["Avg first reply", avg, "minutes (promise: 15)", avg > 15 ? "alert" : "good"], ["Waiting too long", over, over ? "past 15 minutes" : "all answered in time", over ? "alert" : "good"], ["Resolved", items.length ? Math.round(res / items.length * 100) : 0, "% of today's complaints", "pct"]];
+    },
+    seed: (r, st) => {
+      for (let k = 0; k < 11; k++) {
+        const created = START - 130 + Math.round(k * 12 + r() * 5);
+        const it = mk(st, "kitchen", r, kitchenFields(r, created));
+        const age = START - created;
+        if (age > 40) { setStage(it, "replied", created + 6 + Math.round(r() * 10)); if (r() < .75) setStage(it, "resolved", created + 30 + Math.round(r() * 20)); }
+        else if (age > 18 && r() < .5) setStage(it, "replied", created + 9);
+      }
+      const a = st.items[2], b = st.items[st.items.length - 1]; b.name = a.name; b.phone = a.phone; b.repeat = true;
+    },
+    tick: (st, now, r) => {
+      const n = 1 + Math.floor(r() * 2);
+      for (let k = 0; k < n; k++) mk(st, "kitchen", r, kitchenFields(r, now - Math.floor(r() * 12)));
+      st.items.forEach(it => {
+        if (it.status === "replied" && r() < .45) setStage(it, "resolved", now - Math.floor(r() * 8));
+        else if ((it.status === "new" || it.status === "escalated") && now - it.created > 10 && r() < .25) setStage(it, "replied", now - 2);
+      });
+    }
+  }
+};
+function kitchenFields(r, created) {
+  return { created, due: created + 15, brand: pick(r, ["Burger Lab", "Sushi Box", "Mana'eesh House"]), issue: pick(r, ["Cold food", "Missing item", "Late delivery", "Wrong order", "Spilled drink"]), app: pick(r, ["Talabat", "Careem", "Direct"]) };
+}
+
+/* ---------- state ---------- */
+let S, cur = "delivery", tab = "active", openId = null;
+function mk(st, ws, r, extra) {
+  st.seq = (st.seq || 1040) + 1 + Math.floor(r() * 3);
+  const it = { id: WS[ws].prefix + st.seq, name: person(r), phone: phone(st.seq), area: pick(r, AREAS), status: WS[ws].stages[0][0], owner: null, t: {}, hist: [], ...extra };
+  it.t[it.status] = it.created;
+  st.items.push(it); it.isNew = true;
+  return it;
+}
+function setStage(it, s, at) { it.status = s; it.t[s] = at; it.hist.push({ at, text: "→ " + stageName(it, s) }); }
+function stageName(it, s) { const w = Object.values(WS).find(w => w.prefix === it.id.slice(0, 2)); return [...w.stages, ...w.alt].find(x => x[0] === s)?.[1] || s; }
+function fresh() {
+  const s = { v: 1, now: START, ws: {} };
+  Object.keys(WS).forEach((k, i) => {
+    const r = rng(20261004 + i * 97);
+    const st = { items: [], seq: 1040 + i * 300, rules: {}, fired: {}, feed: [] };
+    WS[k].rules.forEach(rl => { st.rules[rl.id] = true; st.fired[rl.id] = 0; });
+    WS[k].seed(r, st);
+    st.items.forEach(it => { delete it.isNew; if (it.status !== WS[k].stages[0][0] && !it.owner) it.owner = pick(r, WS[k].owners); });
+    s.ws[k] = st;
+    evalRules(k, s, true);
+  });
+  return s;
+}
+function load() { try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.v === 1) return v; } catch (e) {} return fresh(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+function log(ws, text, kind) { S.ws[ws].feed.unshift({ at: S.now, text, kind: kind || "" }); S.ws[ws].feed = S.ws[ws].feed.slice(0, 80); }
+
+function evalRules(k, s, quiet) {
+  s = s || S; const w = WS[k], st = s.ws[k], now = s.now;
+  st.items.forEach(it => {
+    if (w.terminal.includes(it.status)) { it.flags = []; return; }
+    const old = new Set((it.flags || []).map(f => f.rule));
+    it.flags = [];
+    w.rules.forEach(rl => {
+      if (rl.action || !st.rules[rl.id]) return;
+      it.waited = now - it.created;
+      const f = rl.check(it, now);
+      if (f) {
+        it.flags.push({ rule: rl.id, text: f, sev: rl.sev, tpl: rl.tpl });
+        if (!old.has(rl.id)) { st.fired[rl.id]++; if (!quiet) { s.ws[k].feed.unshift({ at: now, text: rl.feed(it), kind: "rule-ev" }); } }
+      }
+    });
+  });
+  // action rules
+  if (k === "delivery" && st.rules.autoassign) {
+    st.items.filter(it => it.status === "new").forEach(it => {
+      const load = d => st.items.filter(x => x.owner === d && ["assigned", "picked"].includes(x.status)).length;
+      const d = [...w.owners].sort((a, b) => load(a) - load(b))[0];
+      it.owner = d; setStage(it, "assigned", now); it.flags = it.flags.filter(f => f.rule !== "unassigned");
+      st.fired.autoassign++;
+      if (!quiet) s.ws[k].feed.unshift({ at: now, text: `${it.id} auto-assigned to ${d} (fewest active orders)`, kind: "rule-ev" });
+    });
+  }
+  if (k === "kitchen" && st.rules.escalate) {
+    st.items.filter(it => it.status === "new" && now - it.created > 30).forEach(it => {
+      setStage(it, "escalated", now); it.owner = "Brand manager"; st.fired.escalate++;
+      if (!quiet) s.ws[k].feed.unshift({ at: now, text: `${it.id} unanswered 30+ min. Escalated to the ${it.brand} manager`, kind: "rule-ev" });
+    });
+  }
+  st.feed = st.feed.slice(0, 80);
+}
+
+/* ---------- render ---------- */
+const w = () => WS[cur], st = () => S.ws[cur];
+function render() {
+  $("#clock").textContent = hm(S.now);
+  $("#wsSwitch").innerHTML = Object.entries(WS).map(([k, v]) => `<button type="button" data-ws="${k}" aria-pressed="${k === cur}">${esc(v.name)}</button>`).join("");
+  $("#wsTitle").textContent = w().title;
+  $("#wsSub").textContent = w().sub;
+  const items = st().items;
+  $("#kpis").innerHTML = w().kpis(items, S.now).map(([l, v, s, kind]) => `<div class="kpi ${kind === "alert" ? "alert" : kind === "good" ? "good" : ""}"><span class="l">${l}</span><span class="v">${v}${kind === "pct" ? "<small>%</small>" : kind === "min" ? "<small> min</small>" : ""}</span><span class="s">${s}</span></div>`).join("");
+
+  const flagged = items.filter(i => i.flags && i.flags.length).sort((a, b) => Math.max(...b.flags.map(f => f.sev)) - Math.max(...a.flags.map(f => f.sev)) || a.due - b.due);
+  $("#attnSub").textContent = flagged.length ? `${flagged.length} flagged by your rules` : "";
+  $("#attn").innerHTML = flagged.length ? flagged.slice(0, 6).map(it => {
+    const top = it.flags.reduce((a, b) => b.sev > a.sev ? b : a);
+    return `<div class="att"><span class="bar s${top.sev}"></span>
+      <div style="min-width:0"><div class="t">${esc(it.id)} · ${esc(it.name)} <span class="pill s${top.sev}">${esc(top.text)}</span></div>
+      <div class="d">${w().x(it)} · ${esc(it.area)}${it.owner ? " · " + esc(it.owner) : ""}</div></div>
+      <div class="acts">${top.tpl ? `<button class="btn sm wa" type="button" data-wa="${esc(it.id)}" data-tpl="${top.tpl}">${ICON.wa.replace("<svg", '<svg width="15" height="15"')} Send update</button>` : ""}<button class="btn sm" type="button" data-open="${esc(it.id)}">Open</button></div></div>`;
+  }).join("") + (flagged.length > 6 ? `<div class="empty" style="padding:10px">+ ${flagged.length - 6} more in the list below</div>` : "") : `<div class="empty">Nothing needs attention. Your rules are watching.</div>`;
+
+  const groups = [["active", "Active"], ...w().stages.map(([k, l]) => [k, l]), ...w().alt.map(([k, l]) => [k, l.replace("Escalate to manager", "Escalated")])];
+  const cnt = g => g === "active" ? items.filter(i => !w().terminal.includes(i.status)).length : items.filter(i => i.status === g).length;
+  $("#tabs").innerHTML = groups.map(([k, l]) => `<button class="tab" role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}">${l} <span class="count">${cnt(k)}</span></button>`).join("");
+  let rows = tab === "active" ? items.filter(i => !w().terminal.includes(i.status)) : items.filter(i => i.status === tab);
+  rows = rows.slice().sort((a, b) => (b.flags?.length ? 1 : 0) - (a.flags?.length ? 1 : 0) || a.due - b.due);
+  const head = `<div class="row head"><span>${w().item}</span><span>Details</span><span>Area</span><span>${w().ownerLabel}</span><span>${w().dueLabel}</span><span>Status</span><span></span></div>`;
+  $("#rows").innerHTML = head + (rows.length ? rows.map(it => `
+    <div class="row ${it.flash ? "flash" : ""}" data-id="${esc(it.id)}">
+      <div class="c-who"><button class="who" type="button" data-open="${esc(it.id)}"><b>${esc(it.name)}</b><span>${esc(it.id)}</span></button></div>
+      <div class="cell c-x">${w().x(it)}</div>
+      <div class="cell c-area">${esc(it.area)}</div>
+      <div class="cell c-own">${it.owner ? `<b>${esc(it.owner)}</b>` : "Unassigned"}</div>
+      <div class="cell c-due mono">${hm(it.due)}</div>
+      <div class="st c-st"><span class="pill ${w().terminal.includes(it.status) ? (it.status === "noshow" || it.status === "failed" ? "s3" : "good") : "on"}">${esc(stageName(it, it.status))}</span>${(it.flags || []).map(f => `<span class="pill s${f.sev}">${esc(f.text)}</span>`).join("")}</div>
+      <div class="acts c-acts"><button class="ib wa" type="button" data-wa="${esc(it.id)}" aria-label="WhatsApp ${esc(it.name)}">${ICON.wa}</button><button class="ib call" type="button" data-call="${esc(it.id)}" aria-label="Call ${esc(it.name)}">${ICON.call}</button></div>
+    </div>`).join("") : `<div class="empty">Nothing here right now.</div>`);
+  items.forEach(i => delete i.flash);
+
+  $("#rules").innerHTML = w().rules.map(rl => `<div class="rule"><span class="n">${esc(rl.name)}</span><button class="switch" type="button" role="switch" aria-checked="${!!st().rules[rl.id]}" aria-label="${esc(rl.name)}" data-rule="${rl.id}"></button><span class="x">${esc(rl.desc)}</span><span class="c">${st().fired[rl.id] || 0} times today</span></div>`).join("");
+  $("#feed").innerHTML = st().feed.length ? st().feed.slice(0, 40).map(e => `<li class="${e.kind}"><time>${hm(e.at)}</time><span>${esc(e.text)}</span></li>`).join("") : `<li><time></time><span style="color:var(--muted)">Press +15 min to watch the day move.</span></li>`;
+  if (openId) renderDrawer();
+}
+
+function find(id) { return st().items.find(i => i.id === id); }
+
+function renderDrawer() {
+  const it = find(openId); if (!it) return closeDrawer();
+  const ws = w(), idx = ws.stages.findIndex(s => s[0] === it.status);
+  const next = idx > -1 && idx < ws.stages.length - 1 ? ws.stages[idx + 1] : (it.status === "escalated" ? ["replied", "Replied"] : null);
+  $("#drawer").innerHTML = `
+    <div class="d-head"><div><h4>${esc(it.name)}</h4><span class="mono" style="color:var(--muted);font-size:12px">${esc(it.id)} · ${esc(stageName(it, it.status))}</span></div><button class="btn sm x" type="button" data-act="close">Close</button></div>
+    <div class="d-body">
+      <div class="row-btns">
+        <button class="btn wa" type="button" data-wa="${esc(it.id)}">${ICON.wa.replace("<svg", '<svg width="16" height="16"')} WhatsApp</button>
+        <button class="btn" type="button" data-call="${esc(it.id)}">${ICON.call.replace("<svg", '<svg width="16" height="16"')} Call</button>
+      </div>
+      ${ws.terminal.includes(it.status) ? "" : `<div class="row-btns">
+        ${next ? `<button class="btn primary" type="button" data-stage="${next[0]}">Mark: ${esc(next[1])}</button>` : ""}
+        ${ws.alt.filter(a => a[0] !== it.status).map(a => `<button class="btn" type="button" data-stage="${a[0]}">${esc(a[1])}</button>`).join("")}
+      </div>`}
+      ${(it.flags || []).length ? `<div class="st">${it.flags.map(f => `<span class="pill s${f.sev}">${esc(f.text)}</span>`).join("")}</div>` : ""}
+      <dl class="kv">
+        <div><dt>Details</dt><dd>${ws.x(it)}</dd></div>
+        <div><dt>Area</dt><dd>${esc(it.area)}</dd></div>
+        <div><dt>${ws.ownerLabel}</dt><dd>${esc(it.owner || "Unassigned")}</dd></div>
+        <div><dt>${ws.dueLabel}</dt><dd class="mono">${hm(it.due)}</dd></div>
+        <div><dt>Phone</dt><dd class="mono" dir="ltr" style="text-align:start">${esc(it.phone)}</dd></div>
+        <div><dt>Created</dt><dd class="mono">${hm(it.created)}</dd></div>
+      </dl>
+      <div class="sec"><h5>History</h5><ul class="hist">${[{ at: it.created, text: "Created" }, ...it.hist].sort((a, b) => a.at - b.at).map(h => `<li><time>${hm(h.at)}</time><span>${esc(h.text)}</span></li>`).join("")}</ul></div>
+    </div>`;
+}
+function openDrawer(id) { openId = id; $("#drawer").hidden = false; $("#dScrim").hidden = false; renderDrawer(); }
+function closeDrawer() { openId = null; $("#drawer").hidden = true; $("#dScrim").hidden = true; }
+function openModal(html) { $("#modal").innerHTML = html; $("#modal").hidden = false; $("#mScrim").hidden = false; }
+function closeModal() { $("#modal").hidden = true; $("#mScrim").hidden = true; }
+
+let waLang = "ar";
+function waModal(it, tplKey) {
+  const T = w().templates; tplKey = tplKey && T[tplKey] ? tplKey : Object.keys(T)[0];
+  const t = T[tplKey], txt = fill(waLang === "ar" ? t[2] : t[1], it, S.now);
+  const href = "https://wa.me/" + it.phone.replace(/\D/g, "") + "?text=" + encodeURIComponent(txt);
+  openModal(`
+    <h4>WhatsApp ${esc(it.name)}</h4>
+    <p>Pick a message. Names, times and order details fill in by themselves.</p>
+    <div class="seg" role="group">${Object.entries(T).map(([k, v]) => `<button type="button" data-tplpick="${k}" data-id="${esc(it.id)}" aria-pressed="${k === tplKey}">${esc(v[0])}</button>`).join("")}</div>
+    <div class="seg" role="group"><button type="button" data-lang="ar" data-id="${esc(it.id)}" data-tplk="${tplKey}" aria-pressed="${waLang === "ar"}">عربي</button><button type="button" data-lang="en" data-id="${esc(it.id)}" data-tplk="${tplKey}" aria-pressed="${waLang === "en"}">English</button></div>
+    <textarea class="msg" id="waMsg" ${waLang === "ar" ? 'dir="rtl"' : ""} aria-label="Message">${esc(txt)}</textarea>
+    <p>Demo numbers are not real. In a client's system this opens WhatsApp with the message ready to send.</p>
+    <div class="row-btns" style="justify-content:flex-end">
+      <button class="btn" type="button" data-act="copymsg">Copy</button>
+      <a class="btn wa" id="waLink" href="${href}" target="_blank" rel="noopener">Open WhatsApp</a>
+      <button class="btn primary" type="button" data-sent="${esc(it.id)}">Log as sent</button>
+    </div>`);
+  $("#waMsg").oninput = () => { $("#waLink").href = "https://wa.me/" + it.phone.replace(/\D/g, "") + "?text=" + encodeURIComponent($("#waMsg").value); };
+}
+function callModal(it) {
+  openModal(`
+    <h4>Call ${esc(it.name)}</h4>
+    <p>Dial, talk, then pick what happened. It's saved to the history.</p>
+    <div class="phone"><span class="mono">${esc(it.phone)}</span><div class="row-btns"><button class="btn sm" type="button" data-copy="${esc(it.phone)}">Copy</button><a class="btn sm primary" href="tel:${it.phone.replace(/\s/g, "")}">Dial</a></div></div>
+    <div class="outs">${["Reached, all good", "Reached, issue logged", "No answer", "Wrong number"].map(o => `<button class="out" type="button" data-outcome="${o}" data-id="${esc(it.id)}">${o}</button>`).join("")}</div>`);
+}
+
+let tt;
+function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3400); }
+async function copy(text, btn) { try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; } catch (e) { toast("Select the text and press Ctrl+C."); } }
+
+function simulate() {
+  S.now += 15;
+  Object.keys(WS).forEach((k, i) => {
+    const r = rng(Math.floor(Math.random() * 1e9));
+    WS[k].tick(S.ws[k], S.now, r);
+    S.ws[k].items.forEach(it => { if (it.isNew) { it.flash = true; delete it.isNew; if (k !== "delivery" || !S.ws[k].rules.autoassign) log(k, `New ${WS[k].item.toLowerCase()} ${it.id} from ${it.name}`); } });
+    evalRules(k);
+  });
+  save(); render();
+  const flagged = st().items.filter(i => i.flags && i.flags.length).length;
+  toast(`Moved to ${hm(S.now)}. ${flagged} item${flagged === 1 ? "" : "s"} need attention in ${w().name}.`);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = b.dataset;
+  if (d.ws) { cur = d.ws; tab = "active"; closeDrawer(); return render(); }
+  if (d.tab) { tab = d.tab; return render(); }
+  if (d.open) return openDrawer(d.open);
+  if (d.wa) { const it = find(d.wa); if (it) waModal(it, d.tpl || (it.flags || []).find(f => f.tpl)?.tpl); return; }
+  if (d.call) { const it = find(d.call); if (it) callModal(it); return; }
+  if (d.tplpick) return waModal(find(d.id), d.tplpick);
+  if (d.lang) { waLang = d.lang; return waModal(find(d.id), d.tplk); }
+  if (d.copy) return copy(d.copy, b);
+  if (d.act === "copymsg") return copy($("#waMsg").value, b);
+  if (d.sent) { const it = find(d.sent); it.hist.push({ at: S.now, text: "WhatsApp sent" }); log(cur, `WhatsApp sent to ${it.name} (${it.id})`); it.flash = true; save(); closeModal(); render(); return toast("Logged as sent."); }
+  if (d.outcome) { const it = find(d.id); it.hist.push({ at: S.now, text: "Call: " + d.outcome }); log(cur, `Called ${it.name} (${it.id}): ${d.outcome}`); save(); closeModal(); render(); return toast("Call logged."); }
+  if (d.stage) {
+    const it = find(openId); if (!it) return;
+    if (d.stage === "assigned" && !it.owner) { const ow = w().owners; it.owner = ow[Math.floor(Math.random() * ow.length)]; }
+    if (d.stage === "onway" && !it.owner) it.owner = w().owners[0];
+    setStage(it, d.stage, S.now); it.flash = true;
+    log(cur, `${it.id} marked ${stageName(it, d.stage)}`);
+    evalRules(cur); save(); render(); return toast(`${it.id}: ${stageName(it, d.stage)}`);
+  }
+  if (d.rule) { st().rules[d.rule] = !st().rules[d.rule]; const rl = w().rules.find(r => r.id === d.rule); log(cur, `Rule ${st().rules[d.rule] ? "switched on" : "switched off"}: ${rl.name}`); evalRules(cur); save(); return render(); }
+  if (d.act === "close") return closeDrawer();
+  if (d.act === "reset") { S = fresh(); closeModal(); closeDrawer(); save(); render(); return toast("Demo reset to 14:00."); }
+});
+$("#simBtn").onclick = simulate;
+$("#resetBtn").onclick = () => openModal(`<h4>Reset the demo?</h4><p>All three workspaces go back to 14:00 with fresh sample data.</p><div class="row-btns" style="justify-content:flex-end"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn primary" type="button" data-act="reset">Reset</button></div>`);
+document.addEventListener("click", e => { if (e.target.closest('[data-act="mclose"]')) closeModal(); });
+$("#dScrim").onclick = closeDrawer;
+$("#mScrim").onclick = closeModal;
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#modal").hidden) closeModal(); else if (openId) closeDrawer(); } });
+
+S = load();
+render();
+})();
+</script>
