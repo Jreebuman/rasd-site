@@ -32,11 +32,10 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; }
-button, input { font: inherit; color: inherit; }
+button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ===== Login screen ===== */
 .login-wrap { min-height: 100svh; display: grid; place-items: center; padding: 24px; }
 .login-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 32px 28px; box-shadow: var(--shadow); }
 .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
@@ -52,9 +51,10 @@ button { cursor: pointer; }
 .login-btn:hover { filter: brightness(1.06); }
 .login-btn:disabled { opacity: .6; cursor: default; }
 .login-err { background: var(--crit-soft); color: var(--crit); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
-.login-foot { text-align: center; margin-top: 18px; font-size: 12px; color: var(--muted); }
+.login-ok { background: var(--good-soft); color: var(--good); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
+.login-foot { text-align: center; margin-top: 18px; font-size: 12.5px; color: var(--muted); }
+.login-switch { background: none; border: 0; color: var(--accent); font-weight: 600; text-decoration: underline; padding: 0; }
 
-/* ===== App shell ===== */
 .app { display: none; }
 .app.show { display: block; }
 .login-wrap.hide { display: none; }
@@ -67,6 +67,7 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
 .spacer { margin-inline-end: auto; }
 .btn { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: 13.5px; }
 .btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .btn.sm { height: 30px; padding-inline: 9px; font-size: 13px; }
 .wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-block: 16px; }
@@ -75,7 +76,7 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
 .kpi .v { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .kpi.alert .v { color: var(--crit); }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
-.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; }
+.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .rows { display: grid; }
 .row { display: grid; grid-template-columns: minmax(150px,1.4fr) 1fr .9fr .8fr auto; gap: 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .row.head { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-block: 8px; }
@@ -86,10 +87,23 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
 .pill { display: inline-flex; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
 .pill.on { background: var(--accent-soft); color: var(--accent); }
 .pill.crit { background: var(--crit-soft); color: var(--crit); }
+.pill.good { background: var(--good-soft); color: var(--good); }
 .empty { padding: 30px 14px; text-align: center; color: var(--muted); }
-.loading { display: grid; place-items: center; min-height: 60vh; color: var(--muted); }
 .toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom,0px)); margin-inline: auto; max-width: 420px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 13.5px; text-align: center; }
-@media (max-width: 760px) { .row { grid-template-columns: minmax(0,1fr) auto; } .row .c-area, .row .c-owner, .row .c-due { display: none; } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+/* admin */
+.admin-clients { display: grid; }
+.aclient { display: grid; grid-template-columns: minmax(150px,1.4fr) .8fr .8fr .8fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.aclient:last-child { border-bottom: 0; }
+.aclient .nm { font-weight: 600; }
+.aclient .slug { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.link-row { display: flex; gap: 6px; align-items: center; }
+.link-row input { height: 30px; border: 1px solid var(--line); border-radius: 7px; padding-inline: 8px; background: var(--bg); width: 150px; font-size: 12.5px; }
+.modal-scrim { position: fixed; inset: 0; background: rgba(10,10,12,.45); z-index: 50; }
+.modal { position: fixed; z-index: 51; inset-inline: 16px; top: 50%; transform: translateY(-50%); margin-inline: auto; max-width: 420px; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 20px; display: grid; gap: 12px; }
+.modal h3 { margin: 0; font-family: var(--display); font-size: 18px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+@media (max-width: 760px) { .row { grid-template-columns: minmax(0,1fr) auto; } .row .c-area, .row .c-owner, .row .c-due { display: none; } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } .aclient { grid-template-columns: minmax(0,1fr) auto; } .aclient .c2, .aclient .c3, .aclient .c4 { display: none; } }
 </style>
 </head>
 <body>
@@ -97,15 +111,16 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
 <div class="login-wrap" id="loginWrap">
   <div class="login-card">
     <div class="login-logo"><i>ج</i><b>Jreebs</b></div>
-    <h1>Sign in</h1>
-    <p class="sub">Your operations desk</p>
+    <h1 id="formTitle">Sign in</h1>
+    <p class="sub" id="formSub">Your operations desk</p>
     <div class="login-err" id="loginErr" hidden></div>
+    <div class="login-ok" id="loginOk" hidden></div>
     <form id="loginForm">
       <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
-      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required minlength="6"></div>
       <button class="login-btn" type="submit" id="loginBtn">Sign in</button>
     </form>
-    <p class="login-foot">Jreebs · operations software</p>
+    <p class="login-foot" id="switchMode">New here? <button class="login-switch" type="button" id="toSignup">Create an account</button></p>
   </div>
 </div>
 
@@ -118,16 +133,48 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
       <button class="btn sm" type="button" id="signOutBtn">Sign out</button>
     </div>
   </header>
-  <main class="wrap">
+  <main class="wrap" id="workspaceView">
     <section class="kpis" id="kpis"></section>
     <section class="panel">
       <h3>Items</h3>
       <div class="rows" id="rows"></div>
     </section>
   </main>
+  <main class="wrap" id="adminView" hidden>
+    <h2 style="font-family:var(--display);font-size:22px;margin:18px 0 4px">All clients</h2>
+    <p style="color:var(--muted);margin:0 0 16px;font-size:13.5px">You're signed in as an admin. Add clients and link their logins here.</p>
+    <section class="panel">
+      <h3><span>Clients</span><button class="btn sm primary" type="button" id="newClientBtn">+ New client</button></h3>
+      <div class="admin-clients" id="adminClients"></div>
+    </section>
+  </main>
 </div>
 
-<div class="loading" id="loadingScreen" hidden><span>Loading…</span></div>
+<div class="modal-scrim" id="newClientScrim" hidden></div>
+<div class="modal" id="newClientModal" hidden>
+  <h3>New client</h3>
+  <div class="field"><label for="ncName">Company name</label><input id="ncName" type="text" placeholder="e.g. Swift Delivery"></div>
+  <div class="field"><label for="ncSlug">Slug (used internally, no spaces)</label><input id="ncSlug" type="text" placeholder="swift-delivery"></div>
+  <div class="field"><label for="ncType">Workspace type</label>
+    <select id="ncType" style="height:40px;border:1px solid var(--line);border-radius:9px;padding-inline:12px;background:var(--bg);color:var(--ink)">
+      <option value="delivery">Delivery</option>
+      <option value="lab">Home-visit lab</option>
+      <option value="kitchen">Cloud kitchen</option>
+    </select>
+  </div>
+  <div class="field"><label for="ncPlan">Plan</label>
+    <select id="ncPlan" style="height:40px;border:1px solid var(--line);border-radius:9px;padding-inline:12px;background:var(--bg);color:var(--ink)">
+      <option value="starter">Starter</option>
+      <option value="growth" selected>Growth</option>
+      <option value="pro">Pro</option>
+    </select>
+  </div>
+  <div class="modal-actions">
+    <button class="btn sm" type="button" id="ncCancel">Cancel</button>
+    <button class="btn sm primary" type="button" id="ncSave">Create client</button>
+  </div>
+</div>
+
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
@@ -138,18 +185,48 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let toastTimer;
-function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
-
+let toastTimer, mode = "signin";
+function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3400); }
 function showLogin() { $("#loginWrap").classList.remove("hide"); $("#app").classList.remove("show"); }
 function showApp() { $("#loginWrap").classList.add("hide"); $("#app").classList.add("show"); }
 
+function setMode(m) {
+  mode = m;
+  $("#loginErr").hidden = true; $("#loginOk").hidden = true;
+  if (m === "signup") {
+    $("#formTitle").textContent = "Create your account";
+    $("#formSub").textContent = "You'll be assigned to a workspace next.";
+    $("#loginBtn").textContent = "Create account";
+    $("#switchMode").innerHTML = `Already have an account? <button class="login-switch" type="button" id="toSignin">Sign in</button>`;
+    $("#toSignin").onclick = () => setMode("signin");
+  } else {
+    $("#formTitle").textContent = "Sign in";
+    $("#formSub").textContent = "Your operations desk";
+    $("#loginBtn").textContent = "Sign in";
+    $("#switchMode").innerHTML = `New here? <button class="login-switch" type="button" id="toSignup">Create an account</button>`;
+    $("#toSignup").onclick = () => setMode("signup");
+  }
+}
+$("#toSignup").onclick = () => setMode("signup");
+
 $("#loginForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const btn = $("#loginBtn"); btn.disabled = true; btn.textContent = "Signing in…";
-  $("#loginErr").hidden = true;
-  const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
-  btn.disabled = false; btn.textContent = "Sign in";
+  const btn = $("#loginBtn"); btn.disabled = true;
+  $("#loginErr").hidden = true; $("#loginOk").hidden = true;
+  const email = $("#email").value.trim(), password = $("#password").value;
+  if (mode === "signup") {
+    const { error } = await sb.auth.signUp({ email, password });
+    btn.disabled = false;
+    if (error) { $("#loginErr").textContent = error.message; $("#loginErr").hidden = false; return; }
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) return loadWorkspace();
+    $("#loginOk").textContent = "Account created. You can sign in now.";
+    $("#loginOk").hidden = false;
+    setMode("signin");
+    return;
+  }
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
   if (error) { $("#loginErr").textContent = error.message; $("#loginErr").hidden = false; return; }
   await loadWorkspace();
 });
@@ -160,33 +237,36 @@ async function loadWorkspace() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return showLogin();
 
-  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id, role").limit(1).single();
-  if (mErr || !membership) { toast("No workspace is linked to this account yet."); return showLogin(); }
+  const { data: adminRow } = await sb.from("admins").select("auth_user_id").maybeSingle();
+  if (adminRow) { showApp(); return loadAdmin(); }
+
+  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id, role").limit(1).maybeSingle();
+  if (mErr || !membership) { toast("Your account isn't linked to a workspace yet. Ask your admin to add you."); return showLogin(); }
 
   const { data: client } = await sb.from("clients").select("*").eq("id", membership.client_id).single();
   if (!client) { toast("Couldn't load your workspace."); return showLogin(); }
 
   $("#clientName").textContent = client.name;
   $("#clientPlan").textContent = client.plan;
+  $("#workspaceView").hidden = false; $("#adminView").hidden = true;
   showApp();
 
   const { data: items } = await sb.from("items").select("*").order("due", { ascending: true });
-  render(client, items || []);
+  renderWorkspace(client, items || []);
 }
 
-function render(client, items) {
+function renderWorkspace(client, items) {
   const now = Date.now();
-  const late = items.filter(i => !["delivered","collected","resolved","failed","noshow"].includes(i.status) && new Date(i.due).getTime() < now);
+  const openStatuses = it => !["delivered","collected","resolved","failed","noshow"].includes(it.status);
+  const late = items.filter(i => openStatuses(i) && new Date(i.due).getTime() < now);
   $("#kpis").innerHTML = [
-    ["Items", items.length, ""],
-    ["Open", items.filter(i => !["delivered","collected","resolved","failed","noshow"].includes(i.status)).length, ""],
-    ["Late", late.length, late.length ? "alert" : ""],
-    ["Plan", client.plan, ""]
+    ["Items", items.length, ""], ["Open", items.filter(openStatuses).length, ""],
+    ["Late", late.length, late.length ? "alert" : ""], ["Plan", client.plan, ""]
   ].map(([l,v,cls]) => `<div class="kpi ${cls}"><span class="l">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("");
 
   const head = `<div class="row head"><span>Item</span><span>Details</span><span class="c-area">Area</span><span class="c-owner">Owner</span><span></span></div>`;
   $("#rows").innerHTML = head + (items.length ? items.map(it => {
-    const isLate = !["delivered","collected","resolved","failed","noshow"].includes(it.status) && new Date(it.due).getTime() < now;
+    const isLate = openStatuses(it) && new Date(it.due).getTime() < now;
     return `<div class="row">
       <div class="who"><b>${esc(it.name)}</b><span>${esc(it.ext_id)}</span></div>
       <div class="cell">${esc(it.data?.store || it.data?.test || it.data?.brand || "")}</div>
@@ -196,6 +276,67 @@ function render(client, items) {
     </div>`;
   }).join("") : `<div class="empty">No items yet.</div>`);
 }
+
+async function loadAdmin() {
+  $("#clientName").textContent = "Jreebs Admin";
+  $("#clientPlan").textContent = "owner";
+  $("#workspaceView").hidden = true; $("#adminView").hidden = false;
+  await renderAdmin();
+}
+
+async function renderAdmin() {
+  const { data: clients, error } = await sb.from("clients").select("*").order("created_at", { ascending: false });
+  if (error) { toast("Couldn't load clients: " + error.message); return; }
+  const { data: itemCounts } = await sb.from("items").select("client_id");
+  const countBy = {};
+  (itemCounts || []).forEach(i => countBy[i.client_id] = (countBy[i.client_id] || 0) + 1);
+
+  $("#adminClients").innerHTML = (clients && clients.length) ? clients.map(c => `
+    <div class="aclient">
+      <div><div class="nm">${esc(c.name)}</div><div class="slug">${esc(c.slug)}</div></div>
+      <div class="cell c2">${esc(c.workspace_type)}</div>
+      <div class="cell c3"><span class="pill good">${esc(c.plan)}</span></div>
+      <div class="cell c4">${countBy[c.id] || 0} items</div>
+      <div class="link-row">
+        <input type="email" placeholder="user@email.com" data-client="${esc(c.id)}" class="linkEmail">
+        <button class="btn sm" type="button" data-link="${esc(c.id)}">Link</button>
+      </div>
+    </div>
+  `).join("") : `<div class="empty">No clients yet. Click "+ New client" to add your first one.</div>`;
+}
+
+document.addEventListener("click", async e => {
+  const linkBtn = e.target.closest("[data-link]");
+  if (linkBtn) {
+    const clientId = linkBtn.dataset.link;
+    const input = document.querySelector(`.linkEmail[data-client="${clientId}"]`);
+    const email = input.value.trim();
+    if (!email) return toast("Enter the person's email first.");
+    linkBtn.disabled = true;
+    const { error } = await sb.rpc("admin_link_user", { p_client_id: clientId, p_email: email, p_role: "owner" });
+    linkBtn.disabled = false;
+    if (error) return toast(error.message);
+    input.value = "";
+    toast(`Linked ${email}.`);
+    renderAdmin();
+  }
+});
+
+$("#newClientBtn").addEventListener("click", () => { $("#newClientScrim").hidden = false; $("#newClientModal").hidden = false; });
+$("#ncCancel").addEventListener("click", () => { $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true; });
+$("#newClientScrim").addEventListener("click", () => { $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true; });
+$("#ncSave").addEventListener("click", async () => {
+  const name = $("#ncName").value.trim();
+  let slug = $("#ncSlug").value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!name) return toast("Enter a company name.");
+  if (!slug) slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const { error } = await sb.from("clients").insert({ name, slug, workspace_type: $("#ncType").value, plan: $("#ncPlan").value, config: {} });
+  if (error) return toast(error.message);
+  $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true;
+  $("#ncName").value = ""; $("#ncSlug").value = "";
+  toast(`${name} created.`);
+  renderAdmin();
+});
 
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
