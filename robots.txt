@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /demo/
+Disallow: /privacy.html
+
+Sitemap: https://jreebs.com/sitemap.xml
