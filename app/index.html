@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jreebs — sign in</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root {
+  --bg: #F4F4F2; --surface: #FFFFFF; --surface-2: #ECECE8; --ink: #1B1D21; --muted: #60646C; --line: #DCDDD8;
+  --accent: #7B2E63; --accent-ink: #FFFFFF; --accent-soft: #F3E2EE;
+  --good: #1E7A4B; --good-soft: #DDF0E5; --warn: #9E5C00; --warn-soft: #FBEED6; --crit: #B3261E; --crit-soft: #F9E0DE;
+  --wa: #128C4A; --shadow: 0 12px 40px rgba(27,29,33,.18);
+  --display: "Outfit", system-ui, sans-serif; --sans: "Figtree", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark;
+    --bg:#121316; --surface:#1B1C20; --surface-2:#26282D; --ink:#ECEDEF; --muted:#9A9EA6; --line:#2E3036;
+    --accent:#E794C9; --accent-ink:#121316; --accent-soft:#3A2133;
+    --good:#5CCB8E; --good-soft:#15301F; --warn:#E6AE52; --warn-soft:#33270F; --crit:#F08A82; --crit-soft:#3A1B19;
+    --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
+}
+:root[data-theme="dark"] { color-scheme: dark;
+  --bg:#121316; --surface:#1B1C20; --surface-2:#26282D; --ink:#ECEDEF; --muted:#9A9EA6; --line:#2E3036;
+  --accent:#E794C9; --accent-ink:#121316; --accent-soft:#3A2133;
+  --good:#5CCB8E; --good-soft:#15301F; --warn:#E6AE52; --warn-soft:#33270F; --crit:#F08A82; --crit-soft:#3A1B19;
+  --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ===== Login screen ===== */
+.login-wrap { min-height: 100svh; display: grid; place-items: center; padding: 24px; }
+.login-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 32px 28px; box-shadow: var(--shadow); }
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+.login-logo i { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-style: normal; font-family: var(--display); font-weight: 700; font-size: 17px; }
+.login-logo b { font-family: var(--display); font-size: 21px; font-weight: 700; }
+.login-card h1 { font-family: var(--display); font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.login-card p.sub { margin: 0 0 20px; color: var(--muted); font-size: 13.5px; }
+.field { display: grid; gap: 5px; margin-bottom: 14px; }
+.field label { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.field input { height: 40px; border: 1px solid var(--line); border-radius: 9px; padding-inline: 12px; background: var(--bg); color: var(--ink); }
+.field input:focus-visible { border-color: var(--accent); }
+.login-btn { width: 100%; height: 42px; border-radius: 9px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 600; margin-top: 4px; }
+.login-btn:hover { filter: brightness(1.06); }
+.login-btn:disabled { opacity: .6; cursor: default; }
+.login-err { background: var(--crit-soft); color: var(--crit); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
+.login-foot { text-align: center; margin-top: 18px; font-size: 12px; color: var(--muted); }
+
+/* ===== App shell ===== */
+.app { display: none; }
+.app.show { display: block; }
+.login-wrap.hide { display: none; }
+header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 10px; display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 9px; }
+.logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 15px; }
+.brand h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 19px; }
+.pill-plan { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+.spacer { margin-inline-end: auto; }
+.btn { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: 13.5px; }
+.btn:hover { border-color: var(--muted); }
+.btn.sm { height: 30px; padding-inline: 9px; font-size: 13px; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-block: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; display: grid; gap: 3px; }
+.kpi .l { font-size: 12px; color: var(--muted); font-weight: 500; }
+.kpi .v { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi.alert .v { color: var(--crit); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; }
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: minmax(150px,1.4fr) 1fr .9fr .8fr auto; gap: 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.row.head { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-block: 8px; }
+.row:last-child { border-bottom: 0; }
+.who b { font-weight: 600; display: block; }
+.who span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.cell { font-size: 13px; color: var(--muted); }
+.pill { display: inline-flex; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
+.pill.on { background: var(--accent-soft); color: var(--accent); }
+.pill.crit { background: var(--crit-soft); color: var(--crit); }
+.empty { padding: 30px 14px; text-align: center; color: var(--muted); }
+.loading { display: grid; place-items: center; min-height: 60vh; color: var(--muted); }
+.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom,0px)); margin-inline: auto; max-width: 420px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 13.5px; text-align: center; }
+@media (max-width: 760px) { .row { grid-template-columns: minmax(0,1fr) auto; } .row .c-area, .row .c-owner, .row .c-due { display: none; } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo"><i>ج</i><b>Jreebs</b></div>
+    <h1>Sign in</h1>
+    <p class="sub">Your operations desk</p>
+    <div class="login-err" id="loginErr" hidden></div>
+    <form id="loginForm">
+      <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <button class="login-btn" type="submit" id="loginBtn">Sign in</button>
+    </form>
+    <p class="login-foot">Jreebs · operations software</p>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="top-in">
+      <div class="brand"><div class="logo">ج</div><h1 id="clientName">—</h1></div>
+      <span class="pill-plan" id="clientPlan"></span>
+      <span class="spacer"></span>
+      <button class="btn sm" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="kpis" id="kpis"></section>
+    <section class="panel">
+      <h3>Items</h3>
+      <div class="rows" id="rows"></div>
+    </section>
+  </main>
+</div>
+
+<div class="loading" id="loadingScreen" hidden><span>Loading…</span></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+const SUPABASE_URL = "https://gcjigukdiekalhibokhg.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zXqWbvDuUCYk4LNyFxVMiA_zGbELxA5";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let toastTimer;
+function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
+
+function showLogin() { $("#loginWrap").classList.remove("hide"); $("#app").classList.remove("show"); }
+function showApp() { $("#loginWrap").classList.add("hide"); $("#app").classList.add("show"); }
+
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("#loginBtn"); btn.disabled = true; btn.textContent = "Signing in…";
+  $("#loginErr").hidden = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+  btn.disabled = false; btn.textContent = "Sign in";
+  if (error) { $("#loginErr").textContent = error.message; $("#loginErr").hidden = false; return; }
+  await loadWorkspace();
+});
+
+$("#signOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); showLogin(); });
+
+async function loadWorkspace() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return showLogin();
+
+  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id, role").limit(1).single();
+  if (mErr || !membership) { toast("No workspace is linked to this account yet."); return showLogin(); }
+
+  const { data: client } = await sb.from("clients").select("*").eq("id", membership.client_id).single();
+  if (!client) { toast("Couldn't load your workspace."); return showLogin(); }
+
+  $("#clientName").textContent = client.name;
+  $("#clientPlan").textContent = client.plan;
+  showApp();
+
+  const { data: items } = await sb.from("items").select("*").order("due", { ascending: true });
+  render(client, items || []);
+}
+
+function render(client, items) {
+  const now = Date.now();
+  const late = items.filter(i => !["delivered","collected","resolved","failed","noshow"].includes(i.status) && new Date(i.due).getTime() < now);
+  $("#kpis").innerHTML = [
+    ["Items", items.length, ""],
+    ["Open", items.filter(i => !["delivered","collected","resolved","failed","noshow"].includes(i.status)).length, ""],
+    ["Late", late.length, late.length ? "alert" : ""],
+    ["Plan", client.plan, ""]
+  ].map(([l,v,cls]) => `<div class="kpi ${cls}"><span class="l">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("");
+
+  const head = `<div class="row head"><span>Item</span><span>Details</span><span class="c-area">Area</span><span class="c-owner">Owner</span><span></span></div>`;
+  $("#rows").innerHTML = head + (items.length ? items.map(it => {
+    const isLate = !["delivered","collected","resolved","failed","noshow"].includes(it.status) && new Date(it.due).getTime() < now;
+    return `<div class="row">
+      <div class="who"><b>${esc(it.name)}</b><span>${esc(it.ext_id)}</span></div>
+      <div class="cell">${esc(it.data?.store || it.data?.test || it.data?.brand || "")}</div>
+      <div class="cell c-area">${esc(it.area || "")}</div>
+      <div class="cell c-owner">${esc(it.owner || "Unassigned")}</div>
+      <div><span class="pill ${isLate ? "crit" : "on"}">${esc(it.status)}</span></div>
+    </div>`;
+  }).join("") : `<div class="empty">No items yet.</div>`);
+}
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { await loadWorkspace(); } else { showLogin(); }
+})();
+})();
+</script>
+</body>
+</html>
