@@ -155,6 +155,8 @@ textarea.msg[dir="rtl"] { font-family: var(--ar); font-size: 15px; }
 .aclient .nm { font-weight: 600; } .aclient .slug { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 .link-row { display: flex; gap: 6px; align-items: center; }
 .link-row input { height: 30px; border: 1px solid var(--line); border-radius: 7px; padding-inline: 8px; background: var(--bg); width: 150px; font-size: 12.5px; }
+.link-row select { height: 30px; border: 1px solid var(--line); border-radius: 7px; padding-inline: 6px; background: var(--bg); font-size: 12.5px; color: var(--ink); }
+.switch:disabled { opacity: .45; cursor: not-allowed; }
 
 @media (max-width: 1060px) { .grid { grid-template-columns: minmax(0,1fr); } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 760px) {
@@ -206,6 +208,16 @@ textarea.msg[dir="rtl"] { font-family: var(--ar); font-size: 15px; }
       </div>
       <aside style="display:grid;gap:16px">
         <section class="panel"><h3><span>Automations</span><small>on or off</small></h3><div id="rules"></div></section>
+        <section class="panel" id="teamPanel" hidden>
+          <h3><span>Team</span><button class="btn sm" type="button" id="importItemsBtn">Import items</button></h3>
+          <div id="teamList"></div>
+          <div class="link-row" style="margin-top:10px">
+            <input type="email" placeholder="teammate@email.com" id="inviteEmail">
+            <select id="inviteRole"><option value="agent" selected>Agent</option><option value="supervisor">Supervisor</option><option value="team_lead">Team lead</option><option value="manager">Manager</option><option value="owner">Owner</option></select>
+            <button class="btn sm primary" type="button" id="inviteBtn">Invite</button>
+          </div>
+          <p style="color:var(--muted);font-size:12px;margin:6px 0 0">They must already have a Jreebs account (ask them to create one at sign-in) before you can invite them here.</p>
+        </section>
         <section class="panel"><h3><span>Activity</span><small>live</small></h3><ul class="feed" id="feed"></ul></section>
       </aside>
     </div>
@@ -237,6 +249,14 @@ textarea.msg[dir="rtl"] { font-family: var(--ar); font-size: 15px; }
     <select id="ncPlan"><option value="starter">Starter</option><option value="growth" selected>Growth</option><option value="pro">Pro</option></select>
   </div>
   <div class="row-btns"><button class="btn sm" type="button" id="ncCancel">Cancel</button><button class="btn sm primary" type="button" id="ncSave">Create client</button></div>
+</div>
+
+<div class="scrim" id="importScrim" hidden></div>
+<div class="modal" id="importModal" hidden style="width:520px;max-width:92vw">
+  <h4>Import items</h4>
+  <p style="color:var(--muted);font-size:13px;margin:0 0 8px" id="importHint"></p>
+  <textarea id="importCsv" rows="10" style="width:100%;font-family:var(--mono,monospace);font-size:12.5px;padding:8px;border:1px solid var(--line);border-radius:8px" placeholder="Paste CSV here, first row = headers"></textarea>
+  <div class="row-btns"><button class="btn sm" type="button" id="importCancel">Cancel</button><button class="btn sm primary" type="button" id="importGo">Import</button></div>
 </div>
 
 <div class="toast" id="toast" hidden role="status"></div>
@@ -390,10 +410,13 @@ $("#refreshBtn").addEventListener("click", () => boot());
 
 /* ---------- boot: decide admin vs workspace ---------- */
 let CLIENT = null, WDEF = null, ITEMS = [], RULES = {}, tab = "active", LAST_FEED = [];
+let CURRENT_ROLE = null, CURRENT_EMAIL = null;
+const canManage = () => CURRENT_ROLE === "owner" || CURRENT_ROLE === "manager";
 
 async function boot() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return showLogin();
+  CURRENT_EMAIL = user.email;
 
   const { data: adminRow } = await sb.from("admins").select("auth_user_id").maybeSingle();
   if (adminRow) {
@@ -402,8 +425,9 @@ async function boot() {
     showApp(); return renderAdmin();
   }
 
-  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id").limit(1).maybeSingle();
+  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id, role").limit(1).maybeSingle();
   if (mErr || !membership) { toast("Your account isn't linked to a workspace yet. Ask your admin to add you."); return showLogin(); }
+  CURRENT_ROLE = membership.role;
 
   const { data: client } = await sb.from("clients").select("*").eq("id", membership.client_id).single();
   if (!client) { toast("Couldn't load your workspace."); return showLogin(); }
@@ -485,9 +509,11 @@ function renderWorkspace(feedRows) {
       <div class="acts c-acts">${nextStageBtn(it)}<button class="ib wa" type="button" data-wa="${it.id}" aria-label="WhatsApp">${ICON.wa}</button><button class="ib call" type="button" data-call="${it.id}" aria-label="Call">${ICON.call}</button></div>
     </div>`).join("") : `<div class="empty">Nothing here.</div>`);
 
-  $("#rules").innerHTML = WDEF.rules.map(r => `<div class="rule"><span class="n">${esc(r.name)}</span><button class="switch" type="button" role="switch" aria-checked="${!!RULES[r.id]}" data-rule="${r.id}"></button><span class="x">${esc(r.desc)}</span></div>`).join("");
+  const lockRules = !canManage();
+  $("#rules").innerHTML = WDEF.rules.map(r => `<div class="rule"><span class="n">${esc(r.name)}</span><button class="switch" type="button" role="switch" aria-checked="${!!RULES[r.id]}" data-rule="${r.id}" ${lockRules ? 'disabled title="Only an owner or manager can change this"' : ""}></button><span class="x">${esc(r.desc)}</span></div>`).join("");
+  renderTeam();
 
-  $("#feed").innerHTML = feedRows.length ? feedRows.map(e => `<li><time>${new Date(e.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time><span>${esc(e.text)}</span></li>`).join("") : `<li><time></time><span style="color:var(--muted)">No activity yet.</span></li>`;
+  $("#feed").innerHTML = feedRows.length ? feedRows.map(e => `<li><time>${new Date(e.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time><span>${esc(e.text)}${e.actor_email ? ` <small style="color:var(--muted)">— ${esc(e.actor_email)}</small>` : ""}</span></li>`).join("") : `<li><time></time><span style="color:var(--muted)">No activity yet.</span></li>`;
 }
 
 function find(id) { return ITEMS.find(i => i.id === id); }
@@ -501,7 +527,7 @@ function nextStageBtn(it) {
 }
 
 async function logActivity(text) {
-  await sb.from("activity").insert({ client_id: CLIENT.id, text });
+  await sb.from("activity").insert({ client_id: CLIENT.id, text, actor_email: CURRENT_EMAIL });
 }
 
 /* ---------- stage change ---------- */
@@ -564,8 +590,8 @@ async function renderAdmin() {
       <div><div class="nm">${esc(c.name)}</div><div class="slug">${esc(c.slug)}</div></div>
       <div class="cell c2">${esc(c.workspace_type)}</div>
       <div class="cell c3"><span class="pill good">${esc(c.plan)}</span></div>
-      <div class="cell c4">${countBy[c.id]||0} items</div>
-      <div class="link-row"><input type="email" placeholder="user@email.com" data-client="${c.id}" class="linkEmail"><button class="btn sm" type="button" data-link="${c.id}">Link</button></div>
+      <div class="cell c4">${countBy[c.id]||0} items <button class="btn sm" type="button" data-import="${c.id}" data-wtype="${esc(c.workspace_type)}">Import CSV</button></div>
+      <div class="link-row"><input type="email" placeholder="user@email.com" data-client="${c.id}" class="linkEmail"><select data-roleclient="${c.id}" class="linkRole"><option value="owner" selected>Owner</option><option value="manager">Manager</option><option value="team_lead">Team lead</option><option value="supervisor">Supervisor</option><option value="agent">Agent</option></select><button class="btn sm" type="button" data-link="${c.id}">Link</button></div>
     </div>`).join("") : `<div class="empty">No clients yet.</div>`;
 }
 $("#newClientBtn").addEventListener("click", () => { $("#newClientScrim").hidden = false; $("#newClientModal").hidden = false; });
@@ -600,12 +626,101 @@ document.addEventListener("click", async e => {
   if (d.outcome) { const it = find(d.id); await logInteraction(it, "Call: " + d.outcome); closeModal(); toast("Call logged."); loadWorkspaceData(); return; }
   if (d.link) {
     const input = document.querySelector(`.linkEmail[data-client="${d.link}"]`); const email = input.value.trim();
+    const roleSel = document.querySelector(`.linkRole[data-roleclient="${d.link}"]`); const role = roleSel ? roleSel.value : "owner";
     if (!email) return toast("Enter the person's email first.");
-    const { error } = await sb.rpc("admin_link_user", { p_client_id: d.link, p_email: email, p_role: "owner" });
+    const { error } = await sb.rpc("admin_link_user", { p_client_id: d.link, p_email: email, p_role: role });
     if (error) return toast(error.message);
-    input.value = ""; toast(`Linked ${email}.`); renderAdmin();
+    input.value = ""; toast(`Linked ${email} as ${role}.`); renderAdmin();
     return;
   }
+  if (d.import) { openImportModal(d.import, d.wtype, "admin"); return; }
+});
+
+$("#inviteBtn").addEventListener("click", async () => {
+  const email = $("#inviteEmail").value.trim(); const role = $("#inviteRole").value;
+  if (!email) return toast("Enter their email first.");
+  const { error } = await sb.rpc("client_invite_user", { p_client_id: CLIENT.id, p_email: email, p_role: role });
+  if (error) return toast(error.message);
+  $("#inviteEmail").value = ""; toast(`Invited ${email} as ${role}.`); renderTeam();
+});
+
+async function renderTeam() {
+  const panel = $("#teamPanel");
+  if (!CLIENT || !canManage()) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const { data, error } = await sb.rpc("client_team", { p_client_id: CLIENT.id });
+  if (error) { $("#teamList").innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  $("#teamList").innerHTML = (data && data.length) ? data.map(m =>
+    `<div class="rule"><span class="n">${esc(m.email)}</span><span class="x" style="text-align:right">${esc(m.role)}</span></div>`
+  ).join("") : `<div class="empty">No teammates yet.</div>`;
+}
+
+/* ---------- CSV import ---------- */
+let IMPORT_CTX = null;
+function importFieldsFor(wtype) {
+  if (wtype === "lab") return { extra: ["test"], label: "ext_id,name,phone,area,owner,status,due,test" };
+  if (wtype === "kitchen") return { extra: ["brand","issue"], label: "ext_id,name,phone,area,owner,status,due,brand,issue" };
+  return { extra: ["store","value"], label: "ext_id,name,phone,area,owner,status,due,store,value" };
+}
+function defaultStatusFor(wtype) { return (WS[wtype] || WS.delivery).stages[0][0]; }
+function openImportModal(clientId, wtype, ctx) {
+  IMPORT_CTX = { clientId, wtype, ctx };
+  const f = importFieldsFor(wtype);
+  $("#importHint").textContent = `Columns (any order, case-insensitive): ${f.label}. Unknown columns are ignored. due accepts any date/time text.`;
+  $("#importCsv").value = "";
+  $("#importScrim").hidden = false; $("#importModal").hidden = false;
+}
+function closeImportModal() { $("#importScrim").hidden = true; $("#importModal").hidden = true; IMPORT_CTX = null; }
+$("#importItemsBtn").addEventListener("click", () => { if (CLIENT) openImportModal(CLIENT.id, CLIENT.workspace_type, "workspace"); });
+$("#importCancel").addEventListener("click", closeImportModal);
+$("#importScrim").addEventListener("click", closeImportModal);
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length);
+  if (!lines.length) return [];
+  const splitLine = l => {
+    const out = []; let cur = ""; let inQ = false;
+    for (let i = 0; i < l.length; i++) {
+      const c = l[i];
+      if (inQ) { if (c === '"') { if (l[i+1] === '"') { cur += '"'; i++; } else inQ = false; } else cur += c; }
+      else { if (c === '"') inQ = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c; }
+    }
+    out.push(cur); return out.map(s => s.trim());
+  };
+  const headers = splitLine(lines[0]).map(h => h.toLowerCase());
+  return lines.slice(1).map(l => {
+    const cells = splitLine(l); const row = {};
+    headers.forEach((h, i) => row[h] = cells[i] ?? "");
+    return row;
+  });
+}
+
+$("#importGo").addEventListener("click", async () => {
+  if (!IMPORT_CTX) return;
+  const { clientId, wtype, ctx } = IMPORT_CTX;
+  const rows = parseCsv($("#importCsv").value);
+  if (!rows.length) return toast("Paste some CSV rows first.");
+  const f = importFieldsFor(wtype);
+  const defStatus = defaultStatusFor(wtype);
+  const payload = [];
+  for (const r of rows) {
+    if (!r.ext_id || !r.name) continue;
+    const due = r.due ? new Date(r.due) : null;
+    const data = {};
+    f.extra.forEach(k => { if (r[k]) data[k] = isNaN(r[k]) ? r[k] : Number(r[k]); });
+    payload.push({
+      client_id: clientId, ext_id: r.ext_id, name: r.name, phone: r.phone || "",
+      area: r.area || null, owner: r.owner || null, status: r.status || defStatus,
+      due: (due && !isNaN(due)) ? due.toISOString() : new Date(Date.now() + 3600000).toISOString(),
+      data
+    });
+  }
+  if (!payload.length) return toast("No valid rows found (need at least ext_id and name).");
+  const { error } = await sb.from("items").upsert(payload, { onConflict: "client_id,ext_id" });
+  if (error) return toast(error.message);
+  toast(`Imported ${payload.length} item(s).`);
+  closeImportModal();
+  if (ctx === "admin") renderAdmin(); else if (ctx === "workspace") loadWorkspaceData();
 });
 document.querySelectorAll(".row").forEach(() => {});
 document.body.addEventListener("click", e => { if (e.target === $("#mScrim")) closeModal(); });
