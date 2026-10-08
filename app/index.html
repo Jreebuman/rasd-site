@@ -3,39 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Jreebs — sign in</title>
+<title>Jreebs</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root {
-  --bg: #F4F4F2; --surface: #FFFFFF; --surface-2: #ECECE8; --ink: #1B1D21; --muted: #60646C; --line: #DCDDD8;
-  --accent: #7B2E63; --accent-ink: #FFFFFF; --accent-soft: #F3E2EE;
-  --good: #1E7A4B; --good-soft: #DDF0E5; --warn: #9E5C00; --warn-soft: #FBEED6; --crit: #B3261E; --crit-soft: #F9E0DE;
-  --wa: #128C4A; --shadow: 0 12px 40px rgba(27,29,33,.18);
-  --display: "Outfit", system-ui, sans-serif; --sans: "Figtree", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  --bg: #F2F4F7; --surface: #FFFFFF; --surface-2: #E6ECEE; --ink: #142126; --muted: #586A71; --line: #D3DDE0;
+  --accent: #0E5A73; --accent-ink: #FFFFFF; --accent-soft: #DCEBF0;
+  --strong: #1D7A46; --strong-soft: #DCF1E3; --ok: #8A5A00; --ok-soft: #FAEED3; --weak: #6C7A80; --weak-soft: #E9EEF0;
+  --crit: #AE2F2F; --crit-soft: #F7E0E0; --wa: #128C4A; --shadow: 0 12px 40px rgba(20,33,38,.18);
+  --display: "Outfit", system-ui, sans-serif; --sans: "Figtree", system-ui, sans-serif; --mono: "JetBrains Mono", monospace; --ar: "IBM Plex Sans Arabic", "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { color-scheme: dark;
-    --bg:#121316; --surface:#1B1C20; --surface-2:#26282D; --ink:#ECEDEF; --muted:#9A9EA6; --line:#2E3036;
-    --accent:#E794C9; --accent-ink:#121316; --accent-soft:#3A2133;
-    --good:#5CCB8E; --good-soft:#15301F; --warn:#E6AE52; --warn-soft:#33270F; --crit:#F08A82; --crit-soft:#3A1B19;
-    --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
+    --bg:#0E1518; --surface:#152024; --surface-2:#1E2B30; --ink:#E3ECEF; --muted:#93A6AD; --line:#2A383D;
+    --accent:#6BC2DE; --accent-ink:#0E1518; --accent-soft:#173643;
+    --strong:#5CCB8B; --strong-soft:#15301F; --ok:#E6B054; --ok-soft:#33280F; --weak:#93A6AD; --weak-soft:#1E2B30;
+    --crit:#EF7B7B; --crit-soft:#3A1B1B; --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
 }
 :root[data-theme="dark"] { color-scheme: dark;
-  --bg:#121316; --surface:#1B1C20; --surface-2:#26282D; --ink:#ECEDEF; --muted:#9A9EA6; --line:#2E3036;
-  --accent:#E794C9; --accent-ink:#121316; --accent-soft:#3A2133;
-  --good:#5CCB8E; --good-soft:#15301F; --warn:#E6AE52; --warn-soft:#33270F; --crit:#F08A82; --crit-soft:#3A1B19;
-  --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
+  --bg:#0E1518; --surface:#152024; --surface-2:#1E2B30; --ink:#E3ECEF; --muted:#93A6AD; --line:#2A383D;
+  --accent:#6BC2DE; --accent-ink:#0E1518; --accent-soft:#173643;
+  --strong:#5CCB8B; --strong-soft:#15301F; --ok:#E6B054; --ok-soft:#33280F; --weak:#93A6AD; --weak-soft:#1E2B30;
+  --crit:#EF7B7B; --crit-soft:#3A1B1B; --wa:#4CD08A; --shadow:0 12px 40px rgba(0,0,0,.5); }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
+/* login */
 .login-wrap { min-height: 100svh; display: grid; place-items: center; padding: 24px; }
 .login-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 32px 28px; box-shadow: var(--shadow); }
 .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
@@ -45,19 +47,18 @@ button { cursor: pointer; }
 .login-card p.sub { margin: 0 0 20px; color: var(--muted); font-size: 13.5px; }
 .field { display: grid; gap: 5px; margin-bottom: 14px; }
 .field label { font-size: 12.5px; color: var(--muted); font-weight: 500; }
-.field input { height: 40px; border: 1px solid var(--line); border-radius: 9px; padding-inline: 12px; background: var(--bg); color: var(--ink); }
-.field input:focus-visible { border-color: var(--accent); }
+.field input, .field select { height: 40px; border: 1px solid var(--line); border-radius: 9px; padding-inline: 12px; background: var(--bg); color: var(--ink); width: 100%; }
 .login-btn { width: 100%; height: 42px; border-radius: 9px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 600; margin-top: 4px; }
-.login-btn:hover { filter: brightness(1.06); }
-.login-btn:disabled { opacity: .6; cursor: default; }
+.login-btn:disabled { opacity: .6; }
 .login-err { background: var(--crit-soft); color: var(--crit); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
-.login-ok { background: var(--good-soft); color: var(--good); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
+.login-ok { background: var(--strong-soft); color: var(--strong); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
 .login-foot { text-align: center; margin-top: 18px; font-size: 12.5px; color: var(--muted); }
 .login-switch { background: none; border: 0; color: var(--accent); font-weight: 600; text-decoration: underline; padding: 0; }
 
-.app { display: none; }
-.app.show { display: block; }
+.app { display: none; } .app.show { display: block; }
 .login-wrap.hide { display: none; }
+
+/* shell */
 header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
 .top-in { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 10px; display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 9px; }
@@ -65,45 +66,105 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
 .brand h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 19px; }
 .pill-plan { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
 .spacer { margin-inline-end: auto; }
-.btn { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: 13.5px; }
+.btn { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; font-size: 13.5px; white-space: nowrap; }
 .btn:hover { border-color: var(--muted); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.wa { color: var(--wa); }
 .btn.sm { height: 30px; padding-inline: 9px; font-size: 13px; }
 .wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+
+/* kpis */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-block: 16px; }
 .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; display: grid; gap: 3px; }
 .kpi .l { font-size: 12px; color: var(--muted); font-weight: 500; }
-.kpi .v { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.kpi.alert .v { color: var(--crit); }
+.kpi .v { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kpi .v small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+.kpi.alert .v { color: var(--crit); } .kpi.good .v { color: var(--strong); }
+
+.grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 16px; align-items: start; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
-.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.panel > h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: var(--display); font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.panel > h3 small { font-family: var(--sans); font-weight: 400; color: var(--muted); font-size: 12px; }
+.main { display: grid; gap: 16px; min-width: 0; }
+
+.attn { display: grid; }
+.att { display: grid; grid-template-columns: 4px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); }
+.att:last-child { border-bottom: 0; }
+.att .bar { align-self: stretch; border-radius: 0 3px 3px 0; }
+.att .bar.s3 { background: var(--crit); } .att .bar.s2 { background: var(--ok); } .att .bar.s1 { background: var(--muted); }
+.att .t { font-weight: 600; }
+.att .d { font-size: 13px; color: var(--muted); }
+.empty { padding: 26px 14px; color: var(--muted); text-align: center; }
+
+.tabs { display: flex; gap: 2px; padding-inline: 8px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { border: 0; background: none; padding: 11px 10px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.count { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border-radius: 99px; background: var(--surface-2); }
+
 .rows { display: grid; }
-.row { display: grid; grid-template-columns: minmax(150px,1.4fr) 1fr .9fr .8fr auto; gap: 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
-.row.head { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-block: 8px; }
+.row { display: grid; grid-template-columns: minmax(150px,1.3fr) minmax(0,1.3fr) .9fr .8fr .7fr minmax(130px,1.2fr) auto; gap: 12px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.row.head { font-size: 11.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding-block: 8px; }
 .row:last-child { border-bottom: 0; }
-.who b { font-weight: 600; display: block; }
+.who { border: 0; background: none; padding: 0; text-align: start; min-width: 0; display: grid; }
+.who b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .who span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
-.cell { font-size: 13px; color: var(--muted); }
-.pill { display: inline-flex; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
-.pill.on { background: var(--accent-soft); color: var(--accent); }
-.pill.crit { background: var(--crit-soft); color: var(--crit); }
-.pill.good { background: var(--good-soft); color: var(--good); }
-.empty { padding: 30px 14px; text-align: center; color: var(--muted); }
-.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom,0px)); margin-inline: auto; max-width: 420px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 13.5px; text-align: center; }
+.cell { font-size: 13px; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.st { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.pill { display: inline-flex; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; background: var(--surface-2); color: var(--muted); }
+.pill.on { background: var(--accent-soft); color: var(--accent); } .pill.good { background: var(--strong-soft); color: var(--strong); }
+.pill.s3 { background: var(--crit-soft); color: var(--crit); } .pill.s2 { background: var(--ok-soft); color: var(--ok); } .pill.s1 { background: var(--surface-2); color: var(--ink); }
+.acts { display: flex; gap: 6px; justify-content: flex-end; }
+.ib { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+.ib svg { width: 16px; height: 16px; }
+.ib.wa { color: var(--wa); } .ib.call { color: var(--accent); }
+
+.rule { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 12px; padding: 11px 14px; border-bottom: 1px solid var(--line); align-items: start; }
+.rule:last-child { border-bottom: 0; }
+.rule .n { font-weight: 600; font-size: 13.5px; }
+.rule .x { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+.switch { position: relative; width: 38px; height: 22px; border-radius: 99px; border: 0; background: var(--surface-2); grid-row: span 2; margin-top: 2px; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(16px); }
+.feed { list-style: none; margin: 0; padding: 4px 0; max-height: 360px; overflow-y: auto; }
+.feed li { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 8px; padding: 7px 14px; font-size: 13px; }
+.feed time { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+.scrim { position: fixed; inset: 0; background: rgba(10,10,12,.45); z-index: 40; }
+.scrim.top { z-index: 50; }
+.modal { position: fixed; z-index: 51; inset-inline: 16px; top: 50%; transform: translateY(-50%); margin-inline: auto; max-width: 440px; max-height: calc(100% - 32px); overflow-y: auto; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; display: grid; gap: 12px; }
+.modal h4 { margin: 0; font-family: var(--display); font-size: 19px; }
+.modal p { margin: 0; color: var(--muted); font-size: 13px; }
+.phone { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 10px; padding: 11px 13px; flex-wrap: wrap; }
+.phone .mono { font-size: 17px; direction: ltr; user-select: all; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 10px; font-size: 12.5px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+textarea.msg { width: 100%; min-height: 100px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); resize: vertical; }
+textarea.msg[dir="rtl"] { font-family: var(--ar); font-size: 15px; }
+.outs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.out { text-align: start; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 12px; font-weight: 600; }
+.row-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom,0px)); margin-inline: auto; max-width: 440px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 13.5px; text-align: center; }
 
 /* admin */
 .admin-clients { display: grid; }
 .aclient { display: grid; grid-template-columns: minmax(150px,1.4fr) .8fr .8fr .8fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
 .aclient:last-child { border-bottom: 0; }
-.aclient .nm { font-weight: 600; }
-.aclient .slug { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.aclient .nm { font-weight: 600; } .aclient .slug { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 .link-row { display: flex; gap: 6px; align-items: center; }
 .link-row input { height: 30px; border: 1px solid var(--line); border-radius: 7px; padding-inline: 8px; background: var(--bg); width: 150px; font-size: 12.5px; }
-.modal-scrim { position: fixed; inset: 0; background: rgba(10,10,12,.45); z-index: 50; }
-.modal { position: fixed; z-index: 51; inset-inline: 16px; top: 50%; transform: translateY(-50%); margin-inline: auto; max-width: 420px; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 20px; display: grid; gap: 12px; }
-.modal h3 { margin: 0; font-family: var(--display); font-size: 18px; }
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-@media (max-width: 760px) { .row { grid-template-columns: minmax(0,1fr) auto; } .row .c-area, .row .c-owner, .row .c-due { display: none; } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } .aclient { grid-template-columns: minmax(0,1fr) auto; } .aclient .c2, .aclient .c3, .aclient .c4 { display: none; } }
+
+@media (max-width: 1060px) { .grid { grid-template-columns: minmax(0,1fr); } .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 760px) {
+  .row.head { display: none; }
+  .row { grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "who acts" "x x" "st st"; gap: 6px 10px; }
+  .row .c-who { grid-area: who; } .row .c-acts { grid-area: acts; } .row .c-st { grid-area: st; } .row .c-x { grid-area: x; }
+  .row .c-area, .row .c-owner, .row .c-due { display: none; }
+  .aclient { grid-template-columns: minmax(0,1fr) auto; } .aclient .c2, .aclient .c3, .aclient .c4 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
@@ -130,16 +191,27 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
       <div class="brand"><div class="logo">ج</div><h1 id="clientName">—</h1></div>
       <span class="pill-plan" id="clientPlan"></span>
       <span class="spacer"></span>
+      <button class="btn sm" type="button" id="refreshBtn">Refresh</button>
       <button class="btn sm" type="button" id="signOutBtn">Sign out</button>
     </div>
   </header>
+
+  <!-- workspace -->
   <main class="wrap" id="workspaceView">
     <section class="kpis" id="kpis"></section>
-    <section class="panel">
-      <h3>Items</h3>
-      <div class="rows" id="rows"></div>
-    </section>
+    <div class="grid">
+      <div class="main">
+        <section class="panel"><h3><span>Needs attention</span><small id="attnSub"></small></h3><div class="attn" id="attn"></div></section>
+        <section class="panel"><div class="tabs" role="tablist" id="tabs"></div><div class="rows" id="rows"></div></section>
+      </div>
+      <aside style="display:grid;gap:16px">
+        <section class="panel"><h3><span>Automations</span><small>on or off</small></h3><div id="rules"></div></section>
+        <section class="panel"><h3><span>Activity</span><small>live</small></h3><ul class="feed" id="feed"></ul></section>
+      </aside>
+    </div>
   </main>
+
+  <!-- admin -->
   <main class="wrap" id="adminView" hidden>
     <h2 style="font-family:var(--display);font-size:22px;margin:18px 0 4px">All clients</h2>
     <p style="color:var(--muted);margin:0 0 16px;font-size:13.5px">You're signed in as an admin. Add clients and link their logins here.</p>
@@ -150,29 +222,21 @@ header.top { position: sticky; top: env(safe-area-inset-top,0px); z-index: 20; b
   </main>
 </div>
 
-<div class="modal-scrim" id="newClientScrim" hidden></div>
+<div class="scrim" id="dScrim" hidden></div>
+<div class="scrim top" id="mScrim" hidden></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true"></div>
+<div class="scrim" id="newClientScrim" hidden></div>
 <div class="modal" id="newClientModal" hidden>
-  <h3>New client</h3>
+  <h4>New client</h4>
   <div class="field"><label for="ncName">Company name</label><input id="ncName" type="text" placeholder="e.g. Swift Delivery"></div>
-  <div class="field"><label for="ncSlug">Slug (used internally, no spaces)</label><input id="ncSlug" type="text" placeholder="swift-delivery"></div>
+  <div class="field"><label for="ncSlug">Slug (no spaces)</label><input id="ncSlug" type="text" placeholder="swift-delivery"></div>
   <div class="field"><label for="ncType">Workspace type</label>
-    <select id="ncType" style="height:40px;border:1px solid var(--line);border-radius:9px;padding-inline:12px;background:var(--bg);color:var(--ink)">
-      <option value="delivery">Delivery</option>
-      <option value="lab">Home-visit lab</option>
-      <option value="kitchen">Cloud kitchen</option>
-    </select>
+    <select id="ncType"><option value="delivery">Delivery</option><option value="lab">Home-visit lab</option><option value="kitchen">Cloud kitchen</option></select>
   </div>
   <div class="field"><label for="ncPlan">Plan</label>
-    <select id="ncPlan" style="height:40px;border:1px solid var(--line);border-radius:9px;padding-inline:12px;background:var(--bg);color:var(--ink)">
-      <option value="starter">Starter</option>
-      <option value="growth" selected>Growth</option>
-      <option value="pro">Pro</option>
-    </select>
+    <select id="ncPlan"><option value="starter">Starter</option><option value="growth" selected>Growth</option><option value="pro">Pro</option></select>
   </div>
-  <div class="modal-actions">
-    <button class="btn sm" type="button" id="ncCancel">Cancel</button>
-    <button class="btn sm primary" type="button" id="ncSave">Create client</button>
-  </div>
+  <div class="row-btns"><button class="btn sm" type="button" id="ncCancel">Cancel</button><button class="btn sm primary" type="button" id="ncSave">Create client</button></div>
 </div>
 
 <div class="toast" id="toast" hidden role="status"></div>
@@ -183,32 +247,125 @@ const SUPABASE_URL = "https://gcjigukdiekalhibokhg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_zXqWbvDuUCYk4LNyFxVMiA_zGbELxA5";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const ICON = {
+  wa: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg>',
+  call: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>'
+};
+
+/* ---------- workspace templates (same logic as the sales demo) ---------- */
+const WS = {
+  delivery: {
+    item: "Order", ownerLabel: "Driver", dueLabel: "Promised by",
+    stages: [["new","New"],["assigned","Assigned"],["picked","On the way"],["delivered","Delivered"]],
+    alt: [["failed","Failed delivery"]], terminal: ["delivered","failed"],
+    x: it => `<b>${esc(it.data?.store || "")}</b>${it.data?.value ? " · " + it.data.value + " JOD" : ""}`,
+    templates: {
+      late: ["Late order", "Hi {first}, sorry, your order {id} is running about {late} minutes late. {owner} is on the way to you.", "مرحبا {first}، نعتذر، طلبك رقم {id} متأخر حوالي {late} دقيقة. {owner} في الطريق إليك."],
+      onway: ["On the way", "Hi {first}, your order {id} is on the way with {owner}.", "مرحبا {first}، طلبك رقم {id} في الطريق مع {owner}."],
+      driver: ["Message driver", "Hi {owner}, order {id} for {name} in {area} is due at {due}. Where are you now?", "مرحبا {owner}، الطلب {id} لـ {name} في {area} موعده {due}. وينك هلأ؟"]
+    },
+    rules: [
+      { id: "late", name: "Late order alert", desc: "When an order passes its promised time, flag it and prepare an apology message.", sev: 3,
+        check: (it, now) => !["delivered","failed"].includes(it.status) && now > it.due ? `Late ${Math.round(now - it.due)} min` : null,
+        feed: it => `${it.ext_id} is late. Apology ready for ${it.name}`, tpl: "late" },
+      { id: "unassigned", name: "No driver after 5 min", desc: "Flag new orders still waiting for a driver after 5 minutes.", sev: 2,
+        check: (it, now) => it.status === "new" && now - it.created >= 5 ? `No driver for ${Math.round(now - it.created)} min` : null,
+        feed: it => `${it.ext_id} has no driver yet` },
+      { id: "pickup", name: "Slow pickup", desc: "Flag orders assigned 20+ minutes but not picked up.", sev: 1,
+        check: (it, now) => it.status === "assigned" && now - (it.t.assigned ?? now) >= 20 ? "Not picked up" : null,
+        feed: it => `${it.ext_id}: ${it.owner || "driver"} hasn't picked up`, tpl: "driver" }
+    ],
+    kpis: (items, now) => {
+      const done = items.filter(i => i.status === "delivered");
+      const onTime = done.filter(i => (i.t.delivered ?? Infinity) <= i.due).length;
+      const late = items.filter(i => !["delivered","failed"].includes(i.status) && now > i.due).length;
+      const avg = done.length ? Math.round(done.reduce((s,i) => s + ((i.t.delivered ?? i.created) - i.created), 0) / done.length) : 0;
+      return [["Orders", items.length, `${done.length} delivered`], ["On time", done.length ? Math.round(onTime/done.length*100) : 0, "% delivered on time", "pct"], ["Late now", late, late ? "need attention" : "all on track", late ? "alert" : "good"], ["Avg time", avg, "minutes, order to door", "min"]];
+    }
+  },
+  lab: {
+    item: "Visit", ownerLabel: "Team", dueLabel: "Visit at",
+    stages: [["booked","Booked"],["confirmed","Confirmed"],["onway","Team on the way"],["collected","Sample collected"]],
+    alt: [["noshow","No-show"]], terminal: ["collected","noshow"],
+    x: it => `<b>${esc(it.data?.test || "")}</b>`,
+    templates: {
+      confirm: ["Confirm visit", "Hello {first}, a reminder of your home sample collection today at {due} in {area}. Reply 1 to confirm or 2 to change the time.", "مرحباً {first}، نذكّرك بموعد سحب العينة من المنزل اليوم الساعة {due} في {area}. ردّ بـ 1 للتأكيد أو 2 لتغيير الموعد."],
+      onway: ["Team on the way", "Hello {first}, our team ({owner}) is on the way and will arrive around {due}.", "مرحباً {first}، فريقنا ({owner}) في الطريق ويصل حوالي الساعة {due}."],
+      noshow: ["Missed visit", "Hello {first}, our team couldn't reach you at {due} today. Would you like to book a new time?", "مرحباً {first}، لم يتمكن فريقنا من الوصول إليك الساعة {due} اليوم. هل تودّ حجز موعد جديد؟"]
+    },
+    rules: [
+      { id: "unconfirmed", name: "Unconfirmed visit reminder", desc: "3 hours before a visit, flag it if not confirmed yet.", sev: 2,
+        check: (it, now) => it.status === "booked" && it.due - now <= 180 && it.due - now > -20 ? `Not confirmed · ${hm(it.due)}` : null,
+        feed: it => `${it.ext_id} at ${hm(it.due)} not confirmed`, tpl: "confirm" },
+      { id: "dispatch", name: "Team not sent out", desc: "Flag confirmed visits starting in 30 minutes with no team on the way.", sev: 2,
+        check: (it, now) => it.status === "confirmed" && it.due - now <= 30 && it.due - now > -20 ? "Team not on the way" : null,
+        feed: it => `${it.ext_id}: ${it.owner || "team"} should leave now` },
+      { id: "noshow", name: "Possible no-show", desc: "Flag visits 20+ minutes past time with no sample collected.", sev: 3,
+        check: (it, now) => ["booked","confirmed","onway"].includes(it.status) && now > it.due + 20 ? "Possible no-show" : null,
+        feed: it => `${it.ext_id} may be a no-show`, tpl: "noshow" }
+    ],
+    kpis: (items, now) => {
+      const coll = items.filter(i => i.status === "collected").length;
+      const ns = items.filter(i => i.status === "noshow").length;
+      const upcoming = items.filter(i => i.due >= now && !["collected","noshow"].includes(i.status));
+      const conf = upcoming.filter(i => i.status !== "booked").length;
+      return [["Visits", items.length, `${upcoming.length} still to come`], ["Confirmed", upcoming.length ? Math.round(conf/upcoming.length*100) : 100, "% of upcoming", "pct"], ["Collected", coll, "today so far", "good"], ["No-shows", ns, ns ? "rebook these" : "none today", ns ? "alert" : "good"]];
+    }
+  },
+  kitchen: {
+    item: "Complaint", ownerLabel: "Agent", dueLabel: "Reply by",
+    stages: [["new","New"],["replied","Replied"],["resolved","Resolved"]],
+    alt: [["escalated","Escalated"]], terminal: ["resolved"],
+    x: it => `<b>${esc(it.data?.brand || "")}</b>${it.data?.issue ? " · " + esc(it.data.issue) : ""}`,
+    templates: {
+      apology: ["Apology + fix", "Hi {first}, we're sorry about your {brand} order. We're sending a replacement now, or we can refund you. Which do you prefer?", "مرحبا {first}، بنعتذر عن مشكلة طلبك من {brand}. رح نبعتلك طلب بديل هلأ أو منرجعلك المبلغ، شو بتفضّل؟"],
+      followup: ["Follow up", "Hi {first}, did your replacement arrive OK? Thank you for your patience.", "مرحبا {first}، وصلك الطلب البديل بشكل سليم؟ شكراً لصبرك."]
+    },
+    rules: [
+      { id: "overdue", name: "15-minute reply promise", desc: "Flag complaints with no reply after 15 minutes.", sev: 3,
+        check: (it, now) => it.status === "new" && now - it.created > 15 ? `No reply for ${Math.round(now - it.created)} min` : null,
+        feed: it => `${it.ext_id} waiting. Apology ready`, tpl: "apology" },
+      { id: "repeat", name: "Repeat customer", desc: "Flag customers who complained more than once.", sev: 1,
+        check: it => it.data?.repeat && it.status !== "resolved" ? "Repeat customer" : null,
+        feed: it => `${it.name} has complained before` }
+    ],
+    kpis: (items, now) => {
+      const over = items.filter(i => i.status === "new" && now - i.created > 15).length;
+      const res = items.filter(i => i.status === "resolved").length;
+      return [["Complaints", items.length, "today"], ["Waiting too long", over, over ? "past 15 minutes" : "all answered in time", over ? "alert" : "good"], ["Resolved", items.length ? Math.round(res/items.length*100) : 0, "% of today's", "pct"], ["", "", ""]];
+    }
+  }
+};
+
+/* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let toastTimer, mode = "signin";
+const mins = ms => ms / 60000;
+const hm = m => new Date(m * 60000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const fill = (s, it, now) => s.replace(/\{(\w+)\}/g, (_, k) => k === "due" ? hm(it.due) : k === "late" ? String(Math.max(0, Math.round(now - it.due))) : k === "first" ? (it.name||"").split(" ")[0] : k === "id" ? it.ext_id : (it[k] ?? it.data?.[k] ?? ""));
+let toastTimer;
 function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3400); }
 function showLogin() { $("#loginWrap").classList.remove("hide"); $("#app").classList.remove("show"); }
 function showApp() { $("#loginWrap").classList.add("hide"); $("#app").classList.add("show"); }
+function stageName(w, s) { return [...w.stages, ...w.alt].find(x => x[0] === s)?.[1] || s; }
 
+/* ---------- auth ---------- */
+let mode = "signin";
 function setMode(m) {
-  mode = m;
-  $("#loginErr").hidden = true; $("#loginOk").hidden = true;
+  mode = m; $("#loginErr").hidden = true; $("#loginOk").hidden = true;
   if (m === "signup") {
-    $("#formTitle").textContent = "Create your account";
-    $("#formSub").textContent = "You'll be assigned to a workspace next.";
+    $("#formTitle").textContent = "Create your account"; $("#formSub").textContent = "You'll be assigned to a workspace next.";
     $("#loginBtn").textContent = "Create account";
     $("#switchMode").innerHTML = `Already have an account? <button class="login-switch" type="button" id="toSignin">Sign in</button>`;
     $("#toSignin").onclick = () => setMode("signin");
   } else {
-    $("#formTitle").textContent = "Sign in";
-    $("#formSub").textContent = "Your operations desk";
+    $("#formTitle").textContent = "Sign in"; $("#formSub").textContent = "Your operations desk";
     $("#loginBtn").textContent = "Sign in";
     $("#switchMode").innerHTML = `New here? <button class="login-switch" type="button" id="toSignup">Create an account</button>`;
     $("#toSignup").onclick = () => setMode("signup");
   }
 }
 $("#toSignup").onclick = () => setMode("signup");
-
 $("#loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   const btn = $("#loginBtn"); btn.disabled = true;
@@ -219,128 +376,244 @@ $("#loginForm").addEventListener("submit", async e => {
     btn.disabled = false;
     if (error) { $("#loginErr").textContent = error.message; $("#loginErr").hidden = false; return; }
     const { data: { session } } = await sb.auth.getSession();
-    if (session) return loadWorkspace();
-    $("#loginOk").textContent = "Account created. You can sign in now.";
-    $("#loginOk").hidden = false;
-    setMode("signin");
+    if (session) return boot();
+    $("#loginOk").textContent = "Account created. You can sign in now."; $("#loginOk").hidden = false; setMode("signin");
     return;
   }
   const { error } = await sb.auth.signInWithPassword({ email, password });
   btn.disabled = false;
   if (error) { $("#loginErr").textContent = error.message; $("#loginErr").hidden = false; return; }
-  await loadWorkspace();
+  await boot();
 });
-
 $("#signOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); showLogin(); });
+$("#refreshBtn").addEventListener("click", () => boot());
 
-async function loadWorkspace() {
+/* ---------- boot: decide admin vs workspace ---------- */
+let CLIENT = null, WDEF = null, ITEMS = [], RULES = {}, tab = "active", LAST_FEED = [];
+
+async function boot() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return showLogin();
 
   const { data: adminRow } = await sb.from("admins").select("auth_user_id").maybeSingle();
-  if (adminRow) { showApp(); return loadAdmin(); }
+  if (adminRow) {
+    $("#clientName").textContent = "Jreebs Admin"; $("#clientPlan").textContent = "owner";
+    $("#workspaceView").hidden = true; $("#adminView").hidden = false;
+    showApp(); return renderAdmin();
+  }
 
-  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id, role").limit(1).maybeSingle();
+  const { data: membership, error: mErr } = await sb.from("client_users").select("client_id").limit(1).maybeSingle();
   if (mErr || !membership) { toast("Your account isn't linked to a workspace yet. Ask your admin to add you."); return showLogin(); }
 
   const { data: client } = await sb.from("clients").select("*").eq("id", membership.client_id).single();
   if (!client) { toast("Couldn't load your workspace."); return showLogin(); }
+  CLIENT = client; WDEF = WS[client.workspace_type] || WS.delivery;
 
-  $("#clientName").textContent = client.name;
-  $("#clientPlan").textContent = client.plan;
+  $("#clientName").textContent = client.name; $("#clientPlan").textContent = client.plan;
   $("#workspaceView").hidden = false; $("#adminView").hidden = true;
   showApp();
-
-  const { data: items } = await sb.from("items").select("*").order("due", { ascending: true });
-  renderWorkspace(client, items || []);
+  await loadWorkspaceData();
 }
 
-function renderWorkspace(client, items) {
-  const now = Date.now();
-  const openStatuses = it => !["delivered","collected","resolved","failed","noshow"].includes(it.status);
-  const late = items.filter(i => openStatuses(i) && new Date(i.due).getTime() < now);
-  $("#kpis").innerHTML = [
-    ["Items", items.length, ""], ["Open", items.filter(openStatuses).length, ""],
-    ["Late", late.length, late.length ? "alert" : ""], ["Plan", client.plan, ""]
-  ].map(([l,v,cls]) => `<div class="kpi ${cls}"><span class="l">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("");
-
-  const head = `<div class="row head"><span>Item</span><span>Details</span><span class="c-area">Area</span><span class="c-owner">Owner</span><span></span></div>`;
-  $("#rows").innerHTML = head + (items.length ? items.map(it => {
-    const isLate = openStatuses(it) && new Date(it.due).getTime() < now;
-    return `<div class="row">
-      <div class="who"><b>${esc(it.name)}</b><span>${esc(it.ext_id)}</span></div>
-      <div class="cell">${esc(it.data?.store || it.data?.test || it.data?.brand || "")}</div>
-      <div class="cell c-area">${esc(it.area || "")}</div>
-      <div class="cell c-owner">${esc(it.owner || "Unassigned")}</div>
-      <div><span class="pill ${isLate ? "crit" : "on"}">${esc(it.status)}</span></div>
-    </div>`;
-  }).join("") : `<div class="empty">No items yet.</div>`);
+async function loadWorkspaceData() {
+  const [{ data: items }, { data: rules }, { data: feed }] = await Promise.all([
+    sb.from("items").select("*").eq("client_id", CLIENT.id).order("due", { ascending: true }),
+    sb.from("rules").select("*").eq("client_id", CLIENT.id),
+    sb.from("activity").select("*").eq("client_id", CLIENT.id).order("at", { ascending: false }).limit(30)
+  ]);
+  ITEMS = (items || []).map(mapItem);
+  RULES = {}; (rules || []).forEach(r => RULES[r.rule_id] = r.enabled);
+  WDEF.rules.forEach(r => { if (!(r.id in RULES)) RULES[r.id] = true; });
+  LAST_FEED = feed || [];
+  renderWorkspace(LAST_FEED);
 }
 
-async function loadAdmin() {
-  $("#clientName").textContent = "Jreebs Admin";
-  $("#clientPlan").textContent = "owner";
-  $("#workspaceView").hidden = true; $("#adminView").hidden = false;
-  await renderAdmin();
+function mapItem(row) {
+  return {
+    id: row.id, ext_id: row.ext_id, name: row.name, phone: row.phone, area: row.area, owner: row.owner,
+    status: row.status, due: mins(new Date(row.due).getTime()), created: mins(new Date(row.created).getTime()),
+    data: row.data || {}, hist: row.hist || [],
+    t: Object.fromEntries(Object.entries((row.data||{}).t || {}).map(([k,v]) => [k, mins(v)]))
+  };
 }
 
+function evalFlags(now) {
+  ITEMS.forEach(it => {
+    it.flags = [];
+    if (WDEF.terminal.includes(it.status)) return;
+    WDEF.rules.forEach(r => {
+      if (!RULES[r.id]) return;
+      const f = r.check(it, now);
+      if (f) it.flags.push({ rule: r.id, text: f, sev: r.sev, tpl: r.tpl });
+    });
+  });
+}
+
+/* ---------- render: workspace ---------- */
+function renderWorkspace(feedRows) {
+  const now = mins(Date.now());
+  evalFlags(now);
+
+  $("#kpis").innerHTML = WDEF.kpis(ITEMS, now).filter(k => k[0]).map(([l,v,s,kind]) =>
+    `<div class="kpi ${kind==="alert"?"alert":kind==="good"?"good":""}"><span class="l">${esc(l)}</span><span class="v">${esc(v)}${kind==="pct"?"<small>%</small>":kind==="min"?"<small> min</small>":""}</span><span class="s">${esc(s)}</span></div>`
+  ).join("");
+
+  const flagged = ITEMS.filter(i => i.flags.length).sort((a,b) => Math.max(...b.flags.map(f=>f.sev)) - Math.max(...a.flags.map(f=>f.sev)));
+  $("#attnSub").textContent = flagged.length ? `${flagged.length} flagged` : "";
+  $("#attn").innerHTML = flagged.length ? flagged.slice(0,8).map(it => {
+    const top = it.flags.reduce((a,b)=>b.sev>a.sev?b:a);
+    return `<div class="att"><span class="bar s${top.sev}"></span>
+      <div style="min-width:0"><div class="t">${esc(it.ext_id)} · ${esc(it.name)} <span class="pill s${top.sev}">${esc(top.text)}</span></div>
+      <div class="d">${WDEF.x(it)}${it.area ? " · " + esc(it.area) : ""}${it.owner ? " · " + esc(it.owner) : ""}</div></div>
+      <div class="acts">${top.tpl ? `<button class="btn sm wa" type="button" data-wa="${it.id}" data-tpl="${top.tpl}">${ICON.wa.replace("<svg",'<svg width="15" height="15"')} Send</button>` : ""}<button class="btn sm" type="button" data-open="${it.id}">Open</button></div></div>`;
+  }).join("") : `<div class="empty">Nothing needs attention right now.</div>`;
+
+  const groups = [["active","Active"], ...WDEF.stages, ...WDEF.alt];
+  const cnt = g => g === "active" ? ITEMS.filter(i => !WDEF.terminal.includes(i.status)).length : ITEMS.filter(i => i.status === g).length;
+  $("#tabs").innerHTML = groups.map(([k,l]) => `<button class="tab" role="tab" type="button" data-tab="${k}" aria-selected="${tab===k}">${esc(l)} <span class="count">${cnt(k)}</span></button>`).join("");
+  let rows = tab === "active" ? ITEMS.filter(i => !WDEF.terminal.includes(i.status)) : ITEMS.filter(i => i.status === tab);
+  rows = rows.slice().sort((a,b) => (b.flags?.length?1:0)-(a.flags?.length?1:0) || a.due-b.due);
+  const head = `<div class="row head"><span>${WDEF.item}</span><span>Details</span><span>Area</span><span>${WDEF.ownerLabel}</span><span>${WDEF.dueLabel}</span><span>Status</span><span></span></div>`;
+  $("#rows").innerHTML = head + (rows.length ? rows.map(it => `
+    <div class="row" data-id="${it.id}">
+      <div class="c-who"><button class="who" type="button" data-open="${it.id}"><b>${esc(it.name)}</b><span>${esc(it.ext_id)}</span></button></div>
+      <div class="cell c-x">${WDEF.x(it)}</div>
+      <div class="cell c-area">${esc(it.area||"")}</div>
+      <div class="cell c-owner">${it.owner ? "<b>"+esc(it.owner)+"</b>" : "Unassigned"}</div>
+      <div class="cell c-due mono">${hm(it.due)}</div>
+      <div class="st c-st"><span class="pill ${WDEF.terminal.includes(it.status)?"good":"on"}">${esc(stageName(WDEF,it.status))}</span>${(it.flags||[]).map(f=>`<span class="pill s${f.sev}">${esc(f.text)}</span>`).join("")}</div>
+      <div class="acts c-acts">${nextStageBtn(it)}<button class="ib wa" type="button" data-wa="${it.id}" aria-label="WhatsApp">${ICON.wa}</button><button class="ib call" type="button" data-call="${it.id}" aria-label="Call">${ICON.call}</button></div>
+    </div>`).join("") : `<div class="empty">Nothing here.</div>`);
+
+  $("#rules").innerHTML = WDEF.rules.map(r => `<div class="rule"><span class="n">${esc(r.name)}</span><button class="switch" type="button" role="switch" aria-checked="${!!RULES[r.id]}" data-rule="${r.id}"></button><span class="x">${esc(r.desc)}</span></div>`).join("");
+
+  $("#feed").innerHTML = feedRows.length ? feedRows.map(e => `<li><time>${new Date(e.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time><span>${esc(e.text)}</span></li>`).join("") : `<li><time></time><span style="color:var(--muted)">No activity yet.</span></li>`;
+}
+
+function find(id) { return ITEMS.find(i => i.id === id); }
+
+function nextStageBtn(it) {
+  if (WDEF.terminal.includes(it.status)) return "";
+  const idx = WDEF.stages.findIndex(s => s[0] === it.status);
+  const next = idx > -1 && idx < WDEF.stages.length - 1 ? WDEF.stages[idx + 1] : null;
+  if (!next) return "";
+  return `<button class="btn sm" type="button" data-advance="${it.id}" data-to="${next[0]}">${esc(next[1])}</button>`;
+}
+
+async function logActivity(text) {
+  await sb.from("activity").insert({ client_id: CLIENT.id, text });
+}
+
+/* ---------- stage change ---------- */
+async function setStage(it, status) {
+  const nowIso = new Date().toISOString();
+  const newData = { ...it.data, t: { ...(it.data.t||{}), [status]: Date.now() } };
+  const newHist = [...it.hist, { at: nowIso, text: "→ " + stageName(WDEF, status) }];
+  const { error } = await sb.from("items").update({ status, data: newData, hist: newHist }).eq("id", it.id);
+  if (error) return toast(error.message);
+  await logActivity(`${it.ext_id} marked ${stageName(WDEF, status)}`);
+  toast(`${it.ext_id}: ${stageName(WDEF, status)}`);
+  await loadWorkspaceData();
+}
+
+/* ---------- modals ---------- */
+function openModal(html) { $("#modal").innerHTML = html; $("#modal").hidden = false; $("#mScrim").hidden = false; }
+function closeModal() { $("#modal").hidden = true; $("#mScrim").hidden = true; }
+let waLang = "en";
+function waModal(it, tplKey) {
+  const T = WDEF.templates; tplKey = tplKey && T[tplKey] ? tplKey : Object.keys(T)[0];
+  const t = T[tplKey], now = mins(Date.now());
+  const txt = fill(waLang === "ar" ? t[2] : t[1], it, now);
+  const href = "https://wa.me/" + String(it.phone||"").replace(/\D/g,"") + "?text=" + encodeURIComponent(txt);
+  openModal(`
+    <h4>WhatsApp ${esc(it.name)}</h4>
+    <p>Pick a message. Names and details fill in automatically.</p>
+    <div class="seg">${Object.entries(T).map(([k,v]) => `<button type="button" data-tplpick="${k}" data-id="${it.id}" aria-pressed="${k===tplKey}">${esc(v[0])}</button>`).join("")}</div>
+    <div class="seg"><button type="button" data-lang="en" data-id="${it.id}" data-tplk="${tplKey}" aria-pressed="${waLang==="en"}">English</button><button type="button" data-lang="ar" data-id="${it.id}" data-tplk="${tplKey}" aria-pressed="${waLang==="ar"}">عربي</button></div>
+    <textarea class="msg" id="waMsg" ${waLang==="ar"?'dir="rtl"':""}>${esc(txt)}</textarea>
+    <p>${it.phone ? esc(it.phone) : "No phone on file."}</p>
+    <div class="row-btns">
+      <button class="btn sm" type="button" data-act="copymsg">Copy</button>
+      <a class="btn sm wa" id="waLink" href="${href}" target="_blank" rel="noopener">Open WhatsApp</a>
+      <button class="btn sm primary" type="button" data-sent="${it.id}">Log as sent</button>
+    </div>`);
+  $("#waMsg").oninput = () => { $("#waLink").href = "https://wa.me/" + String(it.phone||"").replace(/\D/g,"") + "?text=" + encodeURIComponent($("#waMsg").value); };
+}
+function callModal(it) {
+  openModal(`
+    <h4>Call ${esc(it.name)}</h4>
+    <p>Dial, talk, then pick what happened.</p>
+    <div class="phone"><span class="mono">${esc(it.phone||"No phone on file")}</span>${it.phone ? `<div class="row-btns"><button class="btn sm" type="button" data-copy="${esc(it.phone)}">Copy</button><a class="btn sm primary" href="tel:${String(it.phone).replace(/\s/g,"")}">Dial</a></div>` : ""}</div>
+    <div class="outs">${["Reached, all good","Reached, issue logged","No answer","Wrong number"].map(o=>`<button class="out" type="button" data-outcome="${o}" data-id="${it.id}">${o}</button>`).join("")}</div>`);
+}
+async function logInteraction(it, text) {
+  const nowIso = new Date().toISOString();
+  const newHist = [...it.hist, { at: nowIso, text }];
+  await sb.from("items").update({ hist: newHist }).eq("id", it.id);
+  await logActivity(`${text} — ${it.ext_id}`);
+}
+
+/* ---------- admin ---------- */
 async function renderAdmin() {
   const { data: clients, error } = await sb.from("clients").select("*").order("created_at", { ascending: false });
   if (error) { toast("Couldn't load clients: " + error.message); return; }
-  const { data: itemCounts } = await sb.from("items").select("client_id");
-  const countBy = {};
-  (itemCounts || []).forEach(i => countBy[i.client_id] = (countBy[i.client_id] || 0) + 1);
-
+  const { data: itemRows } = await sb.from("items").select("client_id");
+  const countBy = {}; (itemRows||[]).forEach(i => countBy[i.client_id] = (countBy[i.client_id]||0)+1);
   $("#adminClients").innerHTML = (clients && clients.length) ? clients.map(c => `
     <div class="aclient">
       <div><div class="nm">${esc(c.name)}</div><div class="slug">${esc(c.slug)}</div></div>
       <div class="cell c2">${esc(c.workspace_type)}</div>
       <div class="cell c3"><span class="pill good">${esc(c.plan)}</span></div>
-      <div class="cell c4">${countBy[c.id] || 0} items</div>
-      <div class="link-row">
-        <input type="email" placeholder="user@email.com" data-client="${esc(c.id)}" class="linkEmail">
-        <button class="btn sm" type="button" data-link="${esc(c.id)}">Link</button>
-      </div>
-    </div>
-  `).join("") : `<div class="empty">No clients yet. Click "+ New client" to add your first one.</div>`;
+      <div class="cell c4">${countBy[c.id]||0} items</div>
+      <div class="link-row"><input type="email" placeholder="user@email.com" data-client="${c.id}" class="linkEmail"><button class="btn sm" type="button" data-link="${c.id}">Link</button></div>
+    </div>`).join("") : `<div class="empty">No clients yet.</div>`;
 }
-
-document.addEventListener("click", async e => {
-  const linkBtn = e.target.closest("[data-link]");
-  if (linkBtn) {
-    const clientId = linkBtn.dataset.link;
-    const input = document.querySelector(`.linkEmail[data-client="${clientId}"]`);
-    const email = input.value.trim();
-    if (!email) return toast("Enter the person's email first.");
-    linkBtn.disabled = true;
-    const { error } = await sb.rpc("admin_link_user", { p_client_id: clientId, p_email: email, p_role: "owner" });
-    linkBtn.disabled = false;
-    if (error) return toast(error.message);
-    input.value = "";
-    toast(`Linked ${email}.`);
-    renderAdmin();
-  }
-});
-
 $("#newClientBtn").addEventListener("click", () => { $("#newClientScrim").hidden = false; $("#newClientModal").hidden = false; });
 $("#ncCancel").addEventListener("click", () => { $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true; });
 $("#newClientScrim").addEventListener("click", () => { $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true; });
 $("#ncSave").addEventListener("click", async () => {
   const name = $("#ncName").value.trim();
-  let slug = $("#ncSlug").value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  let slug = $("#ncSlug").value.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   if (!name) return toast("Enter a company name.");
-  if (!slug) slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!slug) slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   const { error } = await sb.from("clients").insert({ name, slug, workspace_type: $("#ncType").value, plan: $("#ncPlan").value, config: {} });
   if (error) return toast(error.message);
-  $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true;
-  $("#ncName").value = ""; $("#ncSlug").value = "";
-  toast(`${name} created.`);
-  renderAdmin();
+  $("#newClientScrim").hidden = true; $("#newClientModal").hidden = true; $("#ncName").value = ""; $("#ncSlug").value = "";
+  toast(`${name} created.`); renderAdmin();
 });
+
+/* ---------- global click handling ---------- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button, a"); if (!b) return;
+  const d = b.dataset;
+  if (d.tab) { tab = d.tab; return renderWorkspace(LAST_FEED); }
+  if (d.advance) { const it = find(d.advance); if (it) await setStage(it, d.to); return; }
+  if (d.rule) { RULES[d.rule] = !RULES[d.rule]; await sb.from("rules").upsert({ client_id: CLIENT.id, rule_id: d.rule, enabled: RULES[d.rule] }, { onConflict: "client_id,rule_id" }); return loadWorkspaceData(); }
+  if (d.wa) { const it = find(d.wa); if (it) waModal(it, d.tpl || (it.flags||[]).find(f=>f.tpl)?.tpl); return; }
+  if (d.call) { const it = find(d.call); if (it) callModal(it); return; }
+  if (d.open) { const it = find(d.open); if (it) waModal(it); return; }
+  if (d.tplpick) return waModal(find(d.id), d.tplpick);
+  if (d.lang) { waLang = d.lang; return waModal(find(d.id), d.tplk); }
+  if (d.copy) { try { await navigator.clipboard.writeText(d.copy); toast("Copied."); } catch(err){} return; }
+  if (d.act === "copymsg") { try { await navigator.clipboard.writeText($("#waMsg").value); toast("Copied."); } catch(err){} return; }
+  if (d.sent) { const it = find(d.sent); await logInteraction(it, "WhatsApp sent"); closeModal(); toast("Logged."); loadWorkspaceData(); return; }
+  if (d.outcome) { const it = find(d.id); await logInteraction(it, "Call: " + d.outcome); closeModal(); toast("Call logged."); loadWorkspaceData(); return; }
+  if (d.link) {
+    const input = document.querySelector(`.linkEmail[data-client="${d.link}"]`); const email = input.value.trim();
+    if (!email) return toast("Enter the person's email first.");
+    const { error } = await sb.rpc("admin_link_user", { p_client_id: d.link, p_email: email, p_role: "owner" });
+    if (error) return toast(error.message);
+    input.value = ""; toast(`Linked ${email}.`); renderAdmin();
+    return;
+  }
+});
+document.querySelectorAll(".row").forEach(() => {});
+document.body.addEventListener("click", e => { if (e.target === $("#mScrim")) closeModal(); });
+$("#mScrim").addEventListener("click", closeModal);
 
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session) { await loadWorkspace(); } else { showLogin(); }
+  if (session) { await boot(); } else { showLogin(); }
 })();
 })();
 </script>
