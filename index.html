@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Jreebs — operations software for growing businesses in Jordan</title>
 <meta name="description" content="Jreebs watches your orders, visits and complaints, warns your team before a customer notices, and turns every follow-up into one click. Built for delivery, home healthcare, cloud kitchens and service teams in Jordan.">
-<meta name="theme-color" content="#7B2E63">
+<meta name="theme-color" content="#0E5A73">
+<script>try{var t=localStorage.getItem("jreebs-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Jreebs">
 <meta property="og:title" content="Jreebs — your whole operation, on one screen">
@@ -15,29 +16,33 @@
 <meta property="og:locale:alternate" content="ar_JO">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://jreebs.com/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237B2E63'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Tahoma,sans-serif' fill='white' text-anchor='middle'%3E%D8%AC%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230E5A73'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Tahoma,sans-serif' fill='white' text-anchor='middle'%3E%D8%AC%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: product landing page. Hero with a live-looking "needs attention" card, pains, how it works, features, industries, plans with a monthly/yearly switch, founder note, FAQ, closing CTA. Arabic (RTL) and English. */
+/* Layout: B2B product landing page. Hero with a live-looking "needs attention" card, before/after contrast, how it works, features, value tiles, industries, plans with a monthly/yearly switch, founder note, FAQ, closing CTA. Arabic (RTL) and English, light/dark toggle. */
 :root {
-  --bg: #F6F5F2;
+  --bg: #F4F6F7;
   --surface: #FFFFFF;
-  --surface-2: #ECEBE6;
-  --ink: #18191C;
-  --muted: #5E626A;
-  --line: #DDDCD6;
-  --accent: #7B2E63;
+  --surface-2: #E9EEF0;
+  --ink: #122028;
+  --muted: #5B6E76;
+  --line: #D7E0E3;
+  --accent: #0E5A73;
   --accent-ink: #FFFFFF;
-  --accent-soft: #F3E2EE;
-  --deep: #2A1124;
-  --deep-ink: #F8EEF5;
-  --good: #1E7A4B; --good-soft: #DDF0E5;
+  --accent-soft: #DCEBF0;
+  --cta: #E2640F;
+  --cta-ink: #FFFFFF;
+  --deep: #0A3F52;
+  --deep-ink: #EEF6F8;
+  --deep-accent: #8FD0E6;
+  --good: #1C8A5C; --good-soft: #DCF3E6;
   --warn: #9E5C00; --warn-soft: #FBEED6;
   --crit: #B3261E; --crit-soft: #F9E0DE;
+  --chaos: #8E9BA2; --chaos-soft: #E7EBEC;
   --wa: #128C4A;
-  --shadow: 0 24px 60px rgba(42, 17, 36, .16);
+  --shadow: 0 24px 60px rgba(10, 40, 52, .16);
   --display: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
   --sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -45,17 +50,21 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #121114; --surface: #1C1A1E; --surface-2: #27242A; --ink: #EEECEF; --muted: #A09BA3; --line: #312E34;
-    --accent: #E794C9; --accent-ink: #121114; --accent-soft: #3A2133; --deep: #24101F; --deep-ink: #F8EEF5;
-    --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+    --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --line: #28404A;
+    --accent: #5FB3CE; --accent-ink: #0F1A1F; --accent-soft: #1B3942; --cta: #F2873D; --cta-ink: #14181A;
+    --deep: #0A2530; --deep-ink: #E9F1F3; --deep-accent: #8FD0E6;
+    --good: #4FC98B; --good-soft: #143327; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+    --chaos: #6B7D85; --chaos-soft: #1C2A2F;
     --shadow: 0 24px 60px rgba(0,0,0,.5);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121114; --surface: #1C1A1E; --surface-2: #27242A; --ink: #EEECEF; --muted: #A09BA3; --line: #312E34;
-  --accent: #E794C9; --accent-ink: #121114; --accent-soft: #3A2133; --deep: #24101F; --deep-ink: #F8EEF5;
-  --good: #5CCB8E; --good-soft: #15301F; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+  --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --line: #28404A;
+  --accent: #5FB3CE; --accent-ink: #0F1A1F; --accent-soft: #1B3942; --cta: #F2873D; --cta-ink: #14181A;
+  --deep: #0A2530; --deep-ink: #E9F1F3; --deep-accent: #8FD0E6;
+  --good: #4FC98B; --good-soft: #143327; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+  --chaos: #6B7D85; --chaos-soft: #1C2A2F;
   --shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 html[lang="ar"] { --display: "IBM Plex Sans Arabic", "Outfit", system-ui, sans-serif; --sans: "IBM Plex Sans Arabic", "Figtree", system-ui, sans-serif; }
@@ -86,9 +95,11 @@ nav.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; bac
 .links a { text-decoration: none; color: var(--muted); }
 .links a:hover { color: var(--ink); }
 .lang { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; height: 36px; padding-inline: 11px; font-weight: 600; font-size: 14px; }
+.theme { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; }
+.theme svg { width: 18px; height: 18px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding-inline: 20px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-decoration: none; white-space: nowrap; font-size: 15.5px; }
 .btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
 .btn.primary:hover { filter: brightness(1.08); }
 .btn.sm { height: 38px; padding-inline: 14px; font-size: 14.5px; border-radius: 9px; }
 .btn svg { width: 18px; height: 18px; flex: none; }
@@ -126,22 +137,39 @@ html[dir="rtl"] .mock-row i { border-radius: 3px 0 0 3px; }
 .mock-foot { padding: 10px 16px; font-size: 12.5px; color: var(--muted); background: var(--surface-2); }
 .mock-foot b { color: var(--accent); }
 
-/* pains */
-.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.pain { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; }
-.pain q { font-family: var(--display); font-size: 19px; font-weight: 600; quotes: none; line-height: 1.35; }
-.pain p { margin: 0; color: var(--muted); font-size: 15px; }
+/* before / after contrast */
+.contrast { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.side { padding: 30px 28px; }
+.side.before { background: var(--chaos-soft); }
+.side.after { background: var(--surface); }
+.side h3 { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+html[lang="ar"] .side h3 { font-family: var(--sans); letter-spacing: 0; font-size: 15px; }
+.side.before h3 { color: var(--chaos); }
+.side.after h3 { color: var(--good); }
+.side ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 14px; }
+.side li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; font-size: 15px; align-items: start; }
+.side.before li { color: var(--muted); }
+.side.after li { font-weight: 500; }
+.side li b { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; margin-top: 1px; }
+.side.before li b { color: var(--chaos); }
+.side.after li b { background: var(--good-soft); color: var(--good); }
+
+/* value tiles */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tile { background: var(--deep); color: var(--deep-ink); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.tile b { font-family: var(--display); font-size: 21px; font-weight: 700; line-height: 1.2; }
+.tile span { font-size: 14px; color: color-mix(in srgb, var(--deep-ink) 78%, transparent); }
 
 /* steps */
 .dark { background: var(--deep); color: var(--deep-ink); }
 .dark .sec-head p, .dark .muted { color: color-mix(in srgb, var(--deep-ink) 72%, transparent); }
-.dark .eyebrow { color: #E9A6D2; }
+.dark .eyebrow { color: var(--deep-accent); }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: s; }
 .step { display: grid; gap: 8px; align-content: start; border-top: 2px solid color-mix(in srgb, var(--deep-ink) 25%, transparent); padding-top: 18px; }
-.step::before { counter-increment: s; content: counter(s); font-family: "Outfit", sans-serif; font-size: 15px; font-weight: 700; color: #E9A6D2; }
+.step::before { counter-increment: s; content: counter(s); font-family: "Outfit", sans-serif; font-size: 15px; font-weight: 700; color: var(--deep-accent); }
 .step h3 { font-size: 21px; font-weight: 600; }
 .step p { margin: 0; font-size: 15.5px; }
-.step .when { font-family: var(--mono); font-size: 13px; color: #E9A6D2; }
+.step .when { font-family: var(--mono); font-size: 13px; color: var(--deep-accent); }
 
 /* features */
 .feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -215,13 +243,14 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
 
 @media (max-width: 960px) {
   .hero-in, .founder { grid-template-columns: minmax(0, 1fr); }
-  .pains, .feats, .plans, .steps { grid-template-columns: minmax(0, 1fr); }
+  .contrast, .feats, .plans, .steps { grid-template-columns: minmax(0, 1fr); }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .inds { grid-template-columns: minmax(0, 1fr); }
   .links { display: none; }
 }
 @media (max-width: 520px) {
   section { padding-block: 52px; }
-  .facts { grid-template-columns: minmax(0, 1fr); }
+  .facts, .tiles { grid-template-columns: minmax(0, 1fr); }
   .nav-cta { display: none; }
   .mock-row .wa span { display: none; }
 }
@@ -237,6 +266,7 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
   <div class="wrap nav-in">
     <a class="logo" href="#top" aria-label="Jreebs home"><i aria-hidden="true">ج</i><b data-brand></b></a>
     <div class="links"><a href="#features" data-t="navFeatures"></a><a href="#industries" data-t="navInd"></a><a href="#plans" data-t="navPlans"></a><a href="#faq" data-t="navFaq"></a></div>
+    <button class="theme" type="button" id="themeBtn"></button>
     <button class="lang" type="button" id="langBtn"></button>
     <a class="btn sm primary nav-cta" data-wa="demo" target="_blank" rel="noopener" data-t="ctaDemo"></a>
   </div>
@@ -271,7 +301,10 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
   <section style="padding-top:24px">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="painEyebrow"></p><h2 data-t="painTitle"></h2></div>
-      <div class="pains" id="pains"></div>
+      <div class="contrast">
+        <div class="side before"><h3 data-t="beforeTitle"></h3><ul id="beforeList"></ul></div>
+        <div class="side after"><h3 data-t="afterTitle"></h3><ul id="afterList"></ul></div>
+      </div>
     </div>
   </section>
 
@@ -286,6 +319,13 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="featEyebrow"></p><h2 data-t="featTitle"></h2></div>
       <div class="feats" id="feats"></div>
+    </div>
+  </section>
+
+  <section style="padding-top:24px">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="valEyebrow"></p><h2 data-t="valTitle"></h2></div>
+      <div class="tiles" id="tiles"></div>
     </div>
   </section>
 
@@ -351,19 +391,24 @@ const IC = {
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>',
   lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   yes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>',
   wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg>'
 };
 
 const T = {
   en: {
     navFeatures: "Features", navInd: "Industries", navPlans: "Plans", navFaq: "FAQ", ctaDemo: "Book a free demo", ctaLive: "Try the live demo",
-    heroEyebrow: "Operations software for growing businesses in Jordan",
+    heroEyebrow: "Operations software for companies in Jordan",
     heroTitle: "Your whole operation, <em>on one screen.</em>",
     heroLead: "Jreebs watches your orders, visits and complaints, warns your team before a customer notices, and turns every follow-up into one click.",
     heroNote: "No app to install. Set up for you in about a week. Arabic and English.",
     mockTitle: "Needs attention", mockK1: "orders today", mockK2: "on time", mockK3: "late now",
     mockFoot: "<b>⚡ 3 rules</b> flagged these automatically. One click sends the update.",
-    painEyebrow: "Sound familiar?", painTitle: "Most small teams find problems when the customer calls to complain.",
+    painEyebrow: "Sound familiar?", painTitle: "Most teams find problems when the customer calls to complain.",
+    beforeTitle: "Without an ops desk", afterTitle: "With Jreebs",
+    valEyebrow: "What it gets you", valTitle: "What your team feels in the first week.",
+    themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode",
     howEyebrow: "How it works", howTitle: "We set it up around how your team already works.", howLead: "No long software project. You talk to someone who has run operations teams, not a salesperson.",
     featEyebrow: "What you get", featTitle: "Everything your coordinators do by hand, in one place.",
     indEyebrow: "Who it's for", indTitle: "Built for teams that move fast and talk to customers all day.", indLead: "Each business gets its own private workspace with rules made for its work.",
@@ -382,13 +427,16 @@ const T = {
   },
   ar: {
     navFeatures: "المزايا", navInd: "القطاعات", navPlans: "الباقات", navFaq: "أسئلة", ctaDemo: "احجز عرضاً مجانياً", ctaLive: "جرّب النسخة التجريبية",
-    heroEyebrow: "نظام عمليات للشركات النامية في الأردن",
+    heroEyebrow: "نظام عمليات للشركات في الأردن",
     heroTitle: "عملياتك كلّها <em>على شاشة وحدة.</em>",
     heroLead: "مغطينك يراقب طلباتك وزياراتك وشكاوى العملاء، وينبّه فريقك قبل ما ينتبه العميل، ويخلّي كل متابعة بكبسة زر.",
     heroNote: "بدون تطبيق تنزّله. نجهّزه إلك خلال أسبوع تقريباً. عربي وإنجليزي.",
     mockTitle: "بحاجة لانتباه", mockK1: "طلب اليوم", mockK2: "بالوقت", mockK3: "متأخر الآن",
     mockFoot: "<b>⚡ ٣ قواعد</b> رصدت هاي الحالات تلقائياً. كبسة وحدة بتبعث التحديث.",
-    painEyebrow: "مألوف؟", painTitle: "أغلب الفرق الصغيرة بتكتشف المشكلة لما يتصل العميل يشتكي.",
+    painEyebrow: "مألوف؟", painTitle: "أغلب الفرق بتكتشف المشكلة لما يتصل العميل يشتكي.",
+    beforeTitle: "بدون نظام عمليات", afterTitle: "مع مغطينك",
+    valEyebrow: "شو بتستفيد", valTitle: "اللي بيحسّه فريقك من أول أسبوع.",
+    themeToDark: "الوضع الداكن", themeToLight: "الوضع الفاتح",
     howEyebrow: "كيف بيشتغل", howTitle: "منجهّزه على طريقة شغل فريقك الحالية.", howLead: "مش مشروع برمجي طويل. بتحكي مع شخص أدار فرق عمليات، مش مندوب مبيعات.",
     featEyebrow: "شو بتحصل", featTitle: "كل الشغل اليدوي اللي بيعمله المنسّقين، بمكان واحد.",
     indEyebrow: "لمين", indTitle: "مصمم للفرق السريعة اللي بتتعامل مع العملاء طول اليوم.", indLead: "كل شركة إلها مساحة خاصة فيها، بقواعد مصممة لطبيعة شغلها.",
@@ -407,9 +455,17 @@ const T = {
   }
 };
 
-const PAINS = {
-  en: [["“Wait, which orders are late?”", "Someone finds out when the customer calls. By then it's already a complaint."], ["“I copy the number, open WhatsApp, type the message…”", "Your coordinators spend hours a day on clicks a system could do."], ["“How did we do this week?”", "Nobody knows until someone builds a spreadsheet at the end of the month."]],
-  ar: [["«استنى، أي طلبات متأخرة؟»", "بتعرف لما يتصل العميل. وقتها صارت شكوى."], ["«بنسخ الرقم، بفتح واتساب، بكتب الرسالة…»", "المنسّقين بيضيّعوا ساعات كل يوم على كبسات ممكن النظام يعملها."], ["«كيف كان أداءنا هالأسبوع؟»", "ولا حدا بيعرف لآخر الشهر لما حدا يعمل ملف إكسل."]]
+const BEFORE = {
+  en: ["Orders tracked across WhatsApp, Excel and memory", "Late orders nobody notices until the customer complains", "Every update and apology typed out by hand", "No record of who contacted the customer, or when", "A new hire needs a week of shadowing"],
+  ar: ["الطلبات موزّعة بين واتساب وإكسل والذاكرة", "الطلب المتأخر ما حدا بينتبهله لحد ما يشتكي العميل", "كل تحديث واعتذار بينكتب باليد", "ما في سجل مين تواصل مع العميل أو إمتى", "الموظف الجديد بدّه أسبوع ليتعلّم"]
+};
+const AFTER = {
+  en: ["One screen, every order, updated live", "Late and at-risk orders flagged before the customer calls", "Ready WhatsApp messages in Arabic or English, one click to send", "Every action logged, with who and when", "A new hire opens the screen and knows what to do first"],
+  ar: ["شاشة وحدة، كل الطلبات، بتتحدّث مباشرة", "الطلبات المتأخرة بتنكشف قبل ما يتصل العميل", "رسائل واتساب جاهزة بالعربي أو الإنجليزي، بكبسة", "كل حركة مسجّلة، مين عملها وإمتى", "الموظف الجديد بيفتح الشاشة وبيعرف شو أول شي يعمله"]
+};
+const VALUES = {
+  en: [["Minutes, not hours", "A customer update goes from five manual steps to one click."], ["Nothing slips through", "Late orders and unconfirmed visits are flagged before anyone has to ask."], ["One source of truth", "No more “did anyone message the customer?” Every action is logged."], ["Your data stays yours", "Each company's data is fully separate. Export it any time."]],
+  ar: [["دقائق مش ساعات", "تحديث العميل بصير كبسة وحدة بدل خمس خطوات يدوية."], ["ولا إشي بيفلت", "الطلبات المتأخرة والزيارات غير المؤكدة بتنكشف قبل ما حدا يسأل."], ["مصدر واحد للحقيقة", "خلص «حدا حكى مع العميل؟». كل حركة مسجّلة."], ["بياناتك إلك", "بيانات كل شركة منفصلة تماماً، وبتقدر تصدّرها بأي وقت."]]
 };
 const STEPS = {
   en: [["Free check-up", "Day 1–2", "We sit with your team, see how orders, calls and follow-ups really flow, and show you where time is lost."], ["Set up for you", "Within a week", "We build your workspace: your statuses, your rules, your WhatsApp messages, your team's logins."], ["Runs every day", "Ongoing", "Your team works from one screen. We watch the numbers with you and improve the rules each month."]],
@@ -465,7 +521,10 @@ function render() {
   $("#email").textContent = EMAIL;
 
   $("#mockRows").innerHTML = MOCK[lang].map(([s, a, p, d], i) => `<div class="mock-row ${i === 0 ? "new" : ""}"><i class="${s}"></i><div style="min-width:0"><div class="t">${esc(a)}<span class="pill ${s}">${esc(p)}</span></div><div class="d">${esc(d)}</div></div><span class="wa">${IC.wa}<span>${lang === "ar" ? "إرسال" : "Send"}</span></span></div>`).join("");
-  $("#pains").innerHTML = PAINS[lang].map(([q, p]) => `<div class="pain"><q>${esc(q)}</q><p>${esc(p)}</p></div>`).join("");
+  $("#beforeList").innerHTML = BEFORE[lang].map(s => `<li><b aria-hidden="true">✕</b><span>${esc(s)}</span></li>`).join("");
+  $("#afterList").innerHTML = AFTER[lang].map(s => `<li><b aria-hidden="true">✓</b><span>${esc(s)}</span></li>`).join("");
+  $("#tiles").innerHTML = VALUES[lang].map(([h, p]) => `<div class="tile"><b>${esc(h)}</b><span>${esc(p)}</span></div>`).join("");
+  renderTheme();
   $("#steps").innerHTML = STEPS[lang].map(([h, w, p]) => `<div class="step"><h3>${esc(h)}</h3><span class="when">${esc(w)}</span><p class="muted">${esc(p)}</p></div>`).join("");
   $("#feats").innerHTML = FEATS[lang].map(([ic, h, p]) => `<div class="feat"><span class="ic">${IC[ic]}</span><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("");
   $("#inds").innerHTML = INDS[lang].map(([h, list]) => `<div class="ind"><h3>${esc(h)}</h3><ul>${list.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("");
@@ -486,8 +545,24 @@ function render() {
   $("#faqList").innerHTML = FAQ[lang].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
 }
 
+const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => { const a = document.documentElement.getAttribute("data-theme"); return a ? a === "dark" : darkMQ.matches; };
+function renderTheme() {
+  const b = $("#themeBtn"), dark = isDark();
+  b.innerHTML = dark ? IC.sun : IC.moon;
+  const label = dark ? T[lang].themeToLight : T[lang].themeToDark;
+  b.setAttribute("aria-label", label); b.title = label;
+}
+darkMQ.addEventListener("change", renderTheme);
+
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "themeBtn") {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("jreebs-theme", next); } catch (err) {}
+    return renderTheme();
+  }
   if (b.id === "langBtn") { lang = lang === "ar" ? "en" : "ar"; try { localStorage.setItem("rasd-site-lang", lang); } catch (err) {} return render(); }
   if (b.dataset.bill) { bill = b.dataset.bill; return render(); }
   if (b.id === "copyEmail") {
