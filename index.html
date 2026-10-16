@@ -188,10 +188,14 @@ html[lang="ar"] .side h3 { font-family: var(--sans); letter-spacing: 0; font-siz
 .ind li::before { content: "⚡"; color: var(--accent); flex: none; }
 
 /* plans */
-.billing { display: inline-flex; background: var(--surface-2); border-radius: 11px; padding: 4px; gap: 2px; margin-bottom: 26px; }
-.billing button { border: 0; background: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; color: var(--muted); font-size: 14.5px; }
-.billing button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.billing small { color: var(--good); font-weight: 600; }
+.billing { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 26px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px; }
+.billing > span { color: var(--muted); transition: color .2s; }
+.billing[aria-checked="false"] .bm, .billing[aria-checked="true"] .by { color: var(--ink); }
+.billing small { color: var(--good); font-weight: 600; font-size: 13px; }
+.track { position: relative; width: 46px; height: 26px; border-radius: 99px; background: var(--line); flex: none; transition: background .2s; }
+.billing[aria-checked="true"] .track { background: var(--accent); }
+.track i { position: absolute; top: 3px; inset-inline-start: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: inset-inline-start .2s; }
+.billing[aria-checked="true"] .track i { inset-inline-start: 23px; }
 .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 .plan { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px; display: grid; gap: 16px; align-content: start; position: relative; }
 .plan.hot { border: 2px solid var(--accent); }
@@ -339,7 +343,7 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
   <section id="plans" style="background:var(--surface-2)">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="planEyebrow"></p><h2 data-t="planTitle"></h2><p data-t="planLead"></p></div>
-      <div class="billing" role="group" aria-label="Billing period"><button type="button" data-bill="m" aria-pressed="true" data-t="billM"></button><button type="button" data-bill="y" aria-pressed="false"><span data-t="billY"></span> <small data-t="billSave"></small></button></div>
+      <button type="button" class="billing" id="billSwitch" role="switch" aria-checked="false"><span class="bm" data-t="billM"></span><span class="track" aria-hidden="true"><i></i></span><span class="by"><span data-t="billY"></span> <small data-t="billSave"></small></span></button>
       <div class="plans" id="plans-grid"></div>
       <p class="plans-note" data-t="planNote"></p>
     </div>
@@ -416,7 +420,7 @@ const T = {
     billM: "Monthly", billY: "Yearly", billSave: "2 months free",
     planNote: "Prices in Jordanian dinars, excluding tax. Cancel any time on monthly plans, and you take your data with you.",
     perMonth: "/ month", perYear: "/ year", from: "from", setup: "One-time setup", custom: "quoted after the free check-up",
-    choose: "Start with", talk: "Talk to us", popular: "Most popular",
+    choose: "Start with", popular: "Most popular",
     founderEyebrow: "Why Jreebs", founderQuote: "I spent 8 years inside delivery and customer operations. I built Jreebs for the problems I fixed by hand every day.",
     founderWho: "Mohammad Al-Khateeb, founder. Former Operations Team Lead and QA Specialist.",
     faqEyebrow: "Questions", faqTitle: "Things people ask before they start",
@@ -444,7 +448,7 @@ const T = {
     billM: "شهري", billY: "سنوي", billSave: "شهرين مجاناً",
     planNote: "الأسعار بالدينار الأردني وغير شاملة الضريبة. بالباقات الشهرية بتقدر تلغي بأي وقت وبتاخذ بياناتك معك.",
     perMonth: "/ شهرياً", perYear: "/ سنوياً", from: "يبدأ من", setup: "رسوم تجهيز لمرة واحدة", custom: "حسب الفحص المجاني",
-    choose: "ابدأ بباقة", talk: "تواصل معنا", popular: "الأكثر طلباً",
+    choose: "ابدأ بباقة", popular: "الأكثر طلباً",
     founderEyebrow: "ليش مغطينك", founderQuote: "قضيت ٨ سنين جوّا عمليات التوصيل وخدمة العملاء. بنيت مغطينك للمشاكل اللي كنت أحلّها بإيدي كل يوم.",
     founderWho: "محمد الخطيب، المؤسس. قائد فريق عمليات وأخصائي ضبط جودة سابقاً.",
     faqEyebrow: "أسئلة", faqTitle: "أسئلة بتنسأل قبل البداية",
@@ -537,10 +541,10 @@ function render() {
       <div class="price">${p.from ? `<span>${esc(t.from)}</span>` : ""}<b>${num(price)}</b><span>${lang === "ar" ? "د.أ" : "JOD"} ${bill === "m" ? t.perMonth : t.perYear}</span></div>
       <div class="setup">${esc(setup)}</div>
       <ul>${p.feats.map(([ok, f]) => `<li class="${ok ? "yes" : "no"}">${ok ? IC.yes : IC.lock}<span>${esc(f)}</span></li>`).join("")}</ul>
-      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${p.id === "pro" ? esc(t.talk) : esc(t.choose + " " + p.name)}</a>
+      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${esc(t.choose + " " + p.name)}</a>
     </div>`;
   }).join("");
-  document.querySelectorAll("[data-bill]").forEach(b => b.setAttribute("aria-pressed", b.dataset.bill === bill));
+  $("#billSwitch").setAttribute("aria-checked", bill === "y");
   $("#facts").innerHTML = FACTS[lang].map(([b, s]) => `<div class="fact"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
   $("#faqList").innerHTML = FAQ[lang].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
 }
@@ -564,7 +568,7 @@ document.addEventListener("click", async e => {
     return renderTheme();
   }
   if (b.id === "langBtn") { lang = lang === "ar" ? "en" : "ar"; try { localStorage.setItem("rasd-site-lang", lang); } catch (err) {} return render(); }
-  if (b.dataset.bill) { bill = b.dataset.bill; return render(); }
+  if (b.id === "billSwitch") { bill = bill === "m" ? "y" : "m"; return render(); }
   if (b.id === "copyEmail") {
     const el = $("#toast");
     try { await navigator.clipboard.writeText(EMAIL); el.textContent = T[lang].copied; }
