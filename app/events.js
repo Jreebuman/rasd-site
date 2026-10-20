@@ -1,11 +1,37 @@
 /* All clicks and form inputs. Each action writes to the database first, then updates the screen. */
-function reopenDrawer() { if (!DRAWER) return; const d = DRAWER; if (d.type === "item") itemDrawer(d.id); else if (d.type === "cust") custDrawer(d.id); else if (d.type === "sop") sopDrawer(d.id); }
+function reopenDrawer() { if (!DRAWER) return; const d = DRAWER; if (d.type === "item") itemDrawer(d.id); else if (d.type === "cust") custDrawer(d.id); else if (d.type === "sop") sopDrawer(d.id); else if (d.type === "pvc") clientDrawer(d.id); }
+
+/* Every table can be sorted by clicking a column header, and long tables show 50 rows at a time. */
+function enhanceTables() {
+  $$("#content table.t").forEach((tb, ti) => {
+    const body = tb.tBodies[0]; if (!body || !tb.tHead) return;
+    const rows = [...body.rows]; if (rows.length < 2) return;
+    const key = view + ":" + ti, s = ui.sort && ui.sort.key === key ? ui.sort : null;
+    [...tb.tHead.rows[0].cells].forEach((th, ci) => {
+      if (!th.textContent.trim() || th.querySelector("input")) return;
+      th.classList.add("sortable"); th.tabIndex = 0;
+      if (s && s.col === ci) th.setAttribute("aria-sort", s.dir > 0 ? "ascending" : "descending");
+      th.onclick = () => { ui.sort = { key, col: ci, dir: s && s.col === ci ? -s.dir : 1 }; render(); };
+      th.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); th.onclick(); } };
+    });
+    if (s) {
+      const v = r => { const t = (r.cells[s.col]?.textContent || "").trim(); const n = parseFloat(t.replace(/[^\d.-]/g, "")); return /^[-+−\d.,%\s$]*(JOD|min|h)?[\s\d/.,%]*$/i.test(t) && !isNaN(n) ? n : t.toLowerCase(); };
+      rows.sort((a, b) => { const x = v(a), y = v(b); return (typeof x === typeof y ? (x > y ? 1 : x < y ? -1 : 0) : typeof x === "number" ? -1 : 1) * s.dir; }).forEach(r => body.appendChild(r));
+    }
+    const per = 50, shown = ui.page[key] || per;
+    if (rows.length > shown + 10) {
+      [...body.rows].forEach((r, i) => { r.hidden = i >= shown; });
+      (tb.closest(".tw") || tb).insertAdjacentHTML("afterend", `<div class="more"><span>Showing ${shown} of ${rows.length}</span><button class="btn sm" type="button" data-more="${key}">Show ${Math.min(per, rows.length - shown)} more</button><button class="btn sm" type="button" data-more="${key}" data-all="${rows.length}">Show all</button></div>`);
+    }
+  });
+}
 const val = s => ($(s) ? $(s).value.trim() : "");
 async function act(fn) { try { await fn(); } catch (e) { console.error(e); toast(errMsg(e)); } }
 
 function bindView() {
   const refocus = (sel, key) => { const el = $(sel); if (el) el.oninput = e => { ui[key] = e.target.value; const pos = e.target.selectionStart; render(); const n = $(sel); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (err) {} } }; };
-  refocus("#oq", "q"); refocus("#cq", "cq"); refocus("#sopq", "sopq"); refocus("#accq", "accq");
+  refocus("#oq", "q"); refocus("#cq", "cq"); refocus("#sopq", "sopq"); refocus("#accq", "accq"); refocus("#emq", "emq");
+  enhanceTables();
   const on = (sel, fn) => { const el = $(sel); if (el) el.onchange = fn; };
   on("#fArea", e => { ui.area = e.target.value; render(); });
   on("#deptSel", e => { ui.dept = e.target.value; render(); });
@@ -23,17 +49,45 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "dAgent" && t.value) act(async () => { const it = itemById(t.dataset.item); await patchItem(it, { assigned_to: t.value }, `Handled by ${memberName(t.value)}`); await logAct(`${it.ext_id} given to ${memberName(t.value)}`, "item"); toast("Updated."); render(); itemDrawer(it.id); });
   if (t.id === "dStage" && t.value) act(async () => { const it = itemById(t.dataset.item); await setStage(it, t.value); toast(`${it.ext_id}: ${stageName(t.value)}`); render(); itemDrawer(it.id); });
+  /* email */
+  if (t.id === "emBox") { ui.emBox = t.value; return render(); }
+  if (t.id === "emCust" || t.id === "emAsg" || t.id === "emItem") act(async () => {
+    const e = S.emails.find(x => x.id === t.dataset.id); let patch;
+    if (t.id === "emCust") patch = { customer_id: t.value || null };
+    if (t.id === "emAsg") patch = { assignee: t.value || null };
+    if (t.id === "emItem") { const ref = t.value.trim().toUpperCase(); const it = ref ? ITEMS.find(i => i.ext_id.toUpperCase() === ref) : null; if (ref && !it) return toast(`No ${WDEF.item.toLowerCase()} ${ref} found.`); patch = { item_id: it ? it.id : null, ...(it && !e.customer_id && it.customer_id ? { customer_id: it.customer_id } : {}) }; }
+    putRow(S.emails, await DB.update("emails", e.id, patch)); await logAct(`Email "${e.subject.slice(0, 50)}" ${t.id === "emAsg" ? (t.value ? "given to " + memberName(t.value) : "unassigned") : "linked"}`, "email"); toast("Saved."); render();
+  });
+});
+document.addEventListener("input", e => {
+  if (!e.target.matches("[data-q]")) return;
+  if ($("#qOut")) { ui.qo = readQuote("qq"); $("#qOut").innerHTML = quoteBox(quote(ui.qo)); }
+  if ($("#ncQuote")) $("#ncQuote").innerHTML = quoteBox(quote(readQuote("nq")));
 });
 
 document.addEventListener("click", e => {
   const t = e.target;
   if (t.matches("[data-sel]")) { t.checked ? ui.sel.add(t.dataset.sel) : ui.sel.delete(t.dataset.sel); return render(); }
   if (t.matches("[data-selall]")) { $$("[data-sel]").forEach(x => t.checked ? ui.sel.add(x.dataset.sel) : ui.sel.delete(x.dataset.sel)); return render(); }
-  const b = t.closest("button, a, tr[data-oo], tr[data-cu], tr[data-modal]");
+  const b = t.closest("button, a, tr[data-oo], tr[data-cu], tr[data-modal], tr[data-pvc]");
   if (!$("#pop").hidden && !t.closest("#pop") && !(b && b.dataset.act === "notif")) $("#pop").hidden = true;
   if (!b) return;
   const d = b.dataset;
   if (b.tagName === "A") { if (b.id === "waGo") $("#modal [data-logsent]")?.classList.add("go"); return; }
+  /* assistant */
+  if (d.act === "ask") return toggleAI();
+  if (d.aiclose) return toggleAI(false);
+  if (d.ainew) { AI.msgs = []; AI.turns = []; return renderAI(); }
+  if (d.aiq) return askAI(d.aiq);
+  /* provider */
+  if (d.pvc) { closeModal(); return clientDrawer(d.pvc); }
+  if (d.pvf) { ui.pvf = d.pvf; return render(); }
+  if (d.copyquote) return copyText(quoteText(quote(ui.qo)));
+  if (d.more) { ui.page[d.more] = d.all ? +d.all : (ui.page[d.more] || 50) + 50; return render(); }
+  /* email */
+  if (d.em) { ui.emSel = d.em; const e = S.emails.find(x => x.id === d.em); if (e && ui.emf !== "all" && e.status !== ui.emf && ui.emf !== "mine") ui.emf = e.status; closeDrawer(); return view === "email" ? render() : go("email"); }
+  if (d.emf) { ui.emf = d.emf; return render(); }
+  if (d.mbox) return mailboxModal();
   if (b.tagName === "INPUT" || b.tagName === "SELECT") return;
 
   /* login */
@@ -94,7 +148,7 @@ document.addEventListener("click", e => {
       case "sop": closeDrawer(); return sopModal(d.sid);
       case "rule": return ruleModal();
       case "tpl": return tplModal(d.tid);
-      case "newclient": return newClientModal();
+      case "newclient": return newClientModal(!!d.fromquote);
     }
   }
   if (d.msg !== undefined) return msgModal(d.msg, d.tpl);
@@ -142,7 +196,14 @@ async function action(b, d) {
   if (d.savecust) { const tags = val("#cuTags").split(",").map(s => s.trim()).filter(Boolean); putRow(S.cust, await DB.update("customers", d.savecust, { name: val("#cuName"), phone: val("#cuPhone"), area: val("#cuArea") || null, lang: val("#cuLang") || null, tags, notes: val("#cuNotes") })); toast("Customer saved."); render(); return custDrawer(d.savecust); }
 
   /* team */
-  if (d.doinvite) { const email = val("#ie"); if (!email) return toast("Add their email first."); await DB.rpc("client_invite_user", { p_client_id: CLIENT.id, p_email: email, p_role: val("#ir") }); await logAct(`Invited ${email} as ${ROLES[val("#ir")].label}`, "team"); S.team = await DB.rpc("client_team", { p_client_id: CLIENT.id }); await seedStarter(); closeModal(); toast(`${email} added. They'll see your company next time they sign in.`); return render(); }
+  if (d.doinvite) { const email = val("#ie"); if (!email) return toast("Add their email first."); const st = await DB.rpc("invite_by_email", { p_client_id: CLIENT.id, p_email: email, p_role: val("#ir") }); await logAct(`Invited ${email} as ${ROLES[val("#ir")].label}`, "team"); S.team = await DB.rpc("client_team", { p_client_id: CLIENT.id }); if (can(4)) S.invites = await DB.list("pending_invites", { eq: { client_id: CLIENT.id }, order: ["created_at", false] }); await seedStarter(); closeModal(); toast(st === "pending" ? `Invite saved. Send ${email} the sign-up link; they join your company as soon as they create their account.` : `${email} added. They'll see your company next time they sign in.`); return render(); }
+  if (d.delinv) { await DB.remove("pending_invites", d.delinv); S.invites = S.invites.filter(i => i.id !== d.delinv); toast("Invite cancelled."); return render(); }
+
+  /* email */
+  if (d.emst) { const e = S.emails.find(x => x.id === d.id); putRow(S.emails, await DB.update("emails", e.id, { status: d.emst })); await logAct(`Email "${e.subject.slice(0, 50)}" marked ${EM_ST[d.emst][0].toLowerCase()}`, "email"); return render(); }
+  if (d.em2case) { const e = S.emails.find(x => x.id === d.em2case); const c = (await DB.insert("cases", { client_id: CLIENT.id, customer_id: e.customer_id, item_id: e.item_id, subject: e.subject.slice(0, 120) || "Email", channel: "Email", kind: "Question", status: "open", assignee: e.assignee || ME.id }))[0]; S.cases.unshift(c); await addMsg(c.id, "in", `${e.from_name || e.from_addr}: ${e.body_text.slice(0, 3000)}`); putRow(S.emails, await DB.update("emails", e.id, { status: "done" })); await logAct(`Email turned into a conversation: ${e.subject.slice(0, 50)}`, "case"); ui.convo = c.id; ui.cfilter = "open"; toast("Conversation created in the Inbox."); return go("inbox"); }
+  if (d.savemb) { const address = val("#mb1"); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) return toast("Enter the mailbox's email address."); const row = (await DB.insert("mailboxes", { client_id: CLIENT.id, address: address.toLowerCase(), label: val("#mb2"), min_lvl: +val("#mb3") }))[0]; if (DEMO) row.inbound_token = row.inbound_token || uid().replace(/-/g, "") + uid().replace(/-/g, ""); S.mbFull.push(row); S.mailboxes = await DB.rpc("mailbox_list", { p_client_id: CLIENT.id }); await logAct(`Mailbox added: ${address}`, "settings"); toast("Mailbox added. Copy its forwarding address."); render(); return mailboxModal(); }
+  if (d.delmb) { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.innerHTML = "Sure?"; return; } await DB.remove("mailboxes", d.delmb); S.mbFull = S.mbFull.filter(m => m.id !== d.delmb); S.mailboxes = S.mailboxes.filter(m => m.id !== d.delmb); S.emails = S.emails.filter(e => e.mailbox_id !== d.delmb); render(); return mailboxModal(); }
   if (d.rmuser) { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Press again to remove"; return; } await DB.rpc("client_remove_user", { p_client_id: CLIENT.id, p_user_id: d.rmuser }); await logAct(`Removed ${d.nm}'s login`, "team"); S.team = S.team.filter(m => m.auth_user_id !== d.rmuser); toast(`${d.nm} can no longer sign in to your company.`); return render(); }
   if (d.shift) { const [pid, day] = d.shift.split("|"), codes = SHIFT_CODES(), cur = S.shifts.find(s => s.person_id === pid && s.day === day); const next = cur ? codes[(codes.indexOf(cur.shift) + 1) % (codes.length + 1)] : codes[0];
     if (!next) { await DB.remove("shifts", cur.id); S.shifts = S.shifts.filter(s => s.id !== cur.id); } else if (cur) putRow(S.shifts, await DB.update("shifts", cur.id, { shift: next })); else S.shifts.push(...await DB.insert("shifts", { client_id: CLIENT.id, person_id: pid, day, shift: next }));
@@ -201,8 +262,26 @@ async function action(b, d) {
 
   /* Jreebs admin */
   if (d.admreload) { ADM.loaded = false; return render(); }
-  if (d.saveclient) { const name = val("#ncn"); if (!name) return toast("Add the company name."); const slug = (val("#ncs") || name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); await DB.insert("clients", { name, slug, workspace_type: val("#nct"), plan: val("#ncp"), config: {} }); closeModal(); toast(`${name} created. Now link the owner's email.`); ADM.loaded = false; return render(); }
-  if (d.link) { const email = $(`[data-linkemail="${d.link}"]`).value.trim(), role = $(`[data-linkrole="${d.link}"]`).value; if (!email) return toast("Type their email first."); await DB.rpc("admin_link_user", { p_client_id: d.link, p_email: email, p_role: role }); toast(`Linked ${email} as ${ROLES[role].label}.`); ADM.loaded = false; return render(); }
+  if (d.saveclient) {
+    const name = val("#ncn"), email = val("#nce").toLowerCase(), phone = val("#ncph"), contact = val("#ncc");
+    if (!name) return toast("Add the company name."); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return toast("Add the owner's email.");
+    const qo = readQuote("nq"), q = quote(qo); let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "client";
+    if (ADM.clients.some(c => c.slug === slug)) slug += "-" + Date.now().toString(36).slice(-4);
+    const starts = val("#ncs") || isoDay(new Date()), r = new Date(starts + "T12:00:00"); r.setFullYear(r.getFullYear() + 1);
+    const c = (await DB.insert("clients", { name, slug, workspace_type: val("#nct"), plan: planKey(qo.plan), config: {} }))[0];
+    await DB.insert("client_accounts", { client_id: c.id, status: "onboarding", users_included: q.users, annual_price: q.price, setup_fee: q.setup, starts_on: starts, renews_on: isoDay(r), owner_email: email, contact_name: contact, contact_phone: phone, addons: { connectors: qo.connectors, channels: qo.channels, ai_packs: qo.aiPacks, discount: qo.discount, ai_limit: q.aiLimit, deep_limit: q.deepLimit }, checklist: { quote: true } });
+    const st = await DB.rpc("invite_by_email", { p_client_id: c.id, p_email: email, p_role: "owner" });
+    await loadAdmin(); render(); return clientCreatedModal(c, email, phone, contact, st);
+  }
+  if (d.saveacct) {
+    const id = d.saveacct, a = acctOf(id), c = ADM.clients.find(x => x.id === id);
+    const row = { client_id: id, status: val("#ca1"), users_included: +val("#ca3") || 1, annual_price: +val("#ca4") || 0, setup_fee: +val("#ca5") || 0, starts_on: val("#ca6") || null, renews_on: val("#ca7") || null, contact_name: val("#ca8"), contact_phone: val("#ca9"), owner_email: val("#ca10"), notes: val("#ca13"), addons: { ...(a.addons || {}), ai_limit: +val("#ca11"), deep_limit: +val("#ca12") }, checklist: a.checklist || {}, updated_at: new Date().toISOString() };
+    await DB.upsert("client_accounts", row, "client_id");
+    if (val("#ca2") !== c.plan) await DB.update("clients", id, { plan: val("#ca2") });
+    await loadAdmin(); render(); toast("Contract saved."); return clientDrawer(id);
+  }
+  if (d.chk) { const a = acctOf(d.id), on = !a.checklist?.[d.chk]; await DB.upsert("client_accounts", { ...a, client_id: d.id, checklist: { ...(a.checklist || {}), [d.chk]: on }, ...(d.chk === "live" && on ? { status: "active" } : {}), updated_at: new Date().toISOString() }, "client_id"); if (d.chk === "live" && on) toast("Marked live and active."); await loadAdmin(); render(); return clientDrawer(d.id); }
+  if (d.pvinvite) { const email = val("#pvInv"); if (!email) return toast("Type their email first."); const role = val("#pvRole"); const st = await DB.rpc("invite_by_email", { p_client_id: d.pvinvite, p_email: email, p_role: role }); toast(st === "linked" ? `${email} already had an account and is now linked as ${ROLES[role].label}.` : `Invited. ${email} joins as ${ROLES[role].label} when they sign up. Copy the invite below.`); await loadAdmin(); render(); return clientDrawer(d.pvinvite); }
 }
 
 async function switchCompany() {
@@ -215,16 +294,21 @@ async function switchCompany() {
 $("#loginForm").addEventListener("submit", onLoginSubmit);
 $("#mscrim").onclick = closeModal;
 $("#scrim").onclick = closeDrawer;
-document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#modal").hidden) closeModal(); else if (!$("#drawer").hidden) closeDrawer(); else $("#pop").hidden = true; } });
-$("#q").addEventListener("keydown", e => { if (e.key === "Enter" && !ADMIN && lvl() > 0) { ui.q = e.target.value.trim(); ui.orderTab = "all"; ui.saved = null; go("orders"); } });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if (!$("#modal").hidden) closeModal(); else if (!$("#drawer").hidden) closeDrawer(); else if (AI.open) toggleAI(false); else $("#pop").hidden = true; }
+  if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || "") && ME && !ADMIN) { e.preventDefault(); $("#q").focus(); }
+});
+$("#q").addEventListener("keydown", e => { if (e.key === "Enter" && !ADMIN && ME) { const q = e.target.value.trim(); if (!q) return; runSearch(q); go("search"); } });
 $("#qIcon").innerHTML = ic("search");
 $("#menuBtn").innerHTML = ic("menu");
 $("#bellBtn").innerHTML = ic("bell") + '<span class="dot"></span>';
+$("#askBtn").innerHTML = ic("spark") + "<span>Ask</span>";
+$("#q").placeholder = "Search everything";
 setInterval(() => { if (ME && !ADMIN && !document.hidden) softRender(); }, 60000);
 (async () => {
   if (DEMO) return boot();
   sb.auth.onAuthStateChange(ev => { if (ev === "PASSWORD_RECOVERY") showLogin("reset"); });
   const { data: { session } } = await sb.auth.getSession();
   if (location.hash.includes("type=recovery")) return showLogin("reset");
-  if (session) await boot(); else showLogin("signin");
+  if (session) await boot(); else showLogin(new URLSearchParams(location.search).has("signup") ? "signup" : "signin");
 })();

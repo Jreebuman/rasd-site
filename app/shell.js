@@ -1,17 +1,17 @@
 /* Jreebs app shell: sign-in, boot, navigation, live updates, presence, theme. */
 const NAV = [
-  { g: "Work", items: [["home", "Home", "home", 0], ["orders", "Orders", "box", 1], ["inbox", "Inbox", "inbox", 1], ["customers", "Customers", "contact", 1]] },
+  { g: "Work", items: [["home", "Home", "home", 0], ["orders", "Orders", "box", 1], ["inbox", "Inbox", "inbox", 1], ["email", "Email", "mail", 1], ["customers", "Customers", "contact", 1]] },
   { g: "Team", items: [["team", "Team & shifts", "team", 2], ["quality", "Quality (QA)", "star", 1]] },
   { g: "Company", items: [["company", "Company profile", "building", 1], ["systems", "Systems & tools", "grid", 1], ["access", "People & access", "key", 4], ["sops", "SOPs", "book", 0]] },
   { g: "Insights", items: [["reports", "Reports", "chart", 1]] },
   { g: "Setup", items: [["automations", "Automations", "bolt", 2], ["templates", "Message templates", "msg", 1], ["integrations", "Integrations", "plug", 4], ["data", "Import & export", "swap", 4]] },
   { g: "Admin", items: [["settings", "Settings", "gear", 0], ["audit", "Audit log", "shield", 4]] }
 ];
-const ADMIN_NAV = [{ g: "Jreebs admin", items: [["clients", "Clients", "building", 0], ["tickets", "Support tickets", "inbox", 0]] }];
-const TITLES = { home: "Home", inbox: "Inbox", customers: "Customers", team: "Team & shifts", quality: "Quality (QA)", company: "Company profile", systems: "Systems & tools", access: "People & access", sops: "SOPs", reports: "Reports", automations: "Automations", templates: "Message templates", integrations: "Integrations", data: "Import & export", settings: "Settings", audit: "Audit log", clients: "Clients", tickets: "Support tickets" };
+const ADMIN_NAV = [{ g: "Jreebs", items: [["pv_home", "Overview", "home", 0], ["clients", "Clients", "building", 0], ["quote", "Quote calculator", "chart", 0], ["tickets", "Support tickets", "inbox", 0], ["pv_usage", "Assistant usage", "spark", 0]] }];
+const TITLES = { pv_home: "Overview", quote: "Quote calculator", pv_usage: "Assistant usage", email: "Email", search: "Search", home: "Home", inbox: "Inbox", customers: "Customers", team: "Team & shifts", quality: "Quality (QA)", company: "Company profile", systems: "Systems & tools", access: "People & access", sops: "SOPs", reports: "Reports", automations: "Automations", templates: "Message templates", integrations: "Integrations", data: "Import & export", settings: "Settings", audit: "Audit log", clients: "Clients", tickets: "Support tickets" };
 const VIEWS = {}; // filled by the view files
 let view = "home", ADMIN = false;
-const ui = { orderTab: "active", q: "", area: "all", saved: null, mine: true, sel: new Set(), cfilter: "open", convo: null, report: null, range: 14, teamTab: "members", setTab: "company", intCat: "All", imp: null, cq: "", ctag: "All", auditUser: "All", sopCat: "All", sopMine: false, sopq: "", accq: "", dept: "All", week: 0 };
+const ui = { emf: "open", emBox: "all", emSel: null, emq: "", pvf: "all", sort: null, page: {}, orderTab: "active", q: "", area: "all", saved: null, mine: true, sel: new Set(), cfilter: "open", convo: null, report: null, range: 14, teamTab: "members", setTab: "company", intCat: "All", imp: null, cq: "", ctag: "All", auditUser: "All", sopCat: "All", sopMine: false, sopq: "", accq: "", dept: "All", week: 0 };
 const navMin = id => { for (const g of NAV) for (const it of g.items) if (it[0] === id) return it[3]; return 0; };
 
 /* ---------- sign-in ---------- */
@@ -20,7 +20,7 @@ function showLogin(mode, msg) {
   if (mode) loginMode = mode; loginMsg = msg || null;
   $("#shell").hidden = true; $("#login").hidden = false;
   const m = loginMode, box = loginMsg ? `<div class="msgbox ${loginMsg[0]}">${esc(loginMsg[1])}</div>` : "";
-  const T = { signin: ["Sign in", "Your operations desk"], signup: ["Create your account", "Your company admin links you to your workspace after this."], forgot: ["Reset your password", "We'll email you a link to set a new one."], reset: ["Set a new password", "Choose a password with at least 8 characters."], mfa: ["Two-step sign-in", "Enter the 6-digit code from your authenticator app."] }[m];
+  const T = { signin: ["Sign in", "Your operations desk"], signup: ["Create your account", "Use the email you were invited with and you'll land in your company's workspace."], forgot: ["Reset your password", "We'll email you a link to set a new one."], reset: ["Set a new password", "Choose a password with at least 8 characters."], mfa: ["Two-step sign-in", "Enter the 6-digit code from your authenticator app."] }[m];
   $("#loginForm").innerHTML = `<div class="lbrand"><i>ج</i><b>Jreebs</b></div><h1>${T[0]}</h1><p class="sub">${T[1]}</p>${box}
     ${["signin", "signup", "forgot"].includes(m) ? `<div class="field"><label for="lEmail">Email</label><input class="in" id="lEmail" type="email" autocomplete="username" required></div>` : ""}
     ${["signin", "signup", "reset"].includes(m) ? `<div class="field"><label for="lPass">${m === "reset" ? "New password" : "Password"}</label><input class="in" id="lPass" type="password" autocomplete="${m === "signin" ? "current-password" : "new-password"}" required minlength="${m === "signin" ? 6 : 8}"></div>` : ""}
@@ -28,7 +28,9 @@ function showLogin(mode, msg) {
     <button class="btn go" type="submit" id="lBtn">${{ signin: "Sign in", signup: "Create account", forgot: "Email me a link", reset: "Save password", mfa: "Verify" }[m]}</button>
     <p class="lfoot">${m === "signin" ? `<button class="linkbtn" type="button" data-lmode="forgot">Forgot password?</button> · New here? <button class="linkbtn" type="button" data-lmode="signup">Create an account</button>` : m === "mfa" ? `<button class="linkbtn" type="button" data-act="signout">Use a different account</button>` : `<button class="linkbtn" type="button" data-lmode="signin">Back to sign in</button>`}</p>
     <p class="lfoot"><a href="?demo" class="linkbtn">Try the demo with sample data</a></p>`;
-  const f = $("#loginForm input"); if (f) f.focus();
+  const pre = new URLSearchParams(location.search).get("email");
+  if (pre && $("#lEmail") && !$("#lEmail").value) $("#lEmail").value = pre;
+  const f = $("#loginForm input" + (pre && m === "signup" ? "[type=password]" : "")); if (f) f.focus();
 }
 async function onLoginSubmit(e) {
   e.preventDefault();
@@ -82,9 +84,9 @@ async function boot() {
   const { data: memberships } = await sb.from("client_users").select("client_id, role");
   if (adminRow && !(memberships || []).length) {
     ADMIN = true; ME = { id: user.id, email: user.email, role: "owner", lvl: 5 };
-    return startShell("clients");
+    return startShell("pv_home");
   }
-  if (!memberships || !memberships.length) return showLogin("signin", ["err", "Your account isn't linked to a company yet. Ask your company's owner or manager to invite you, then sign in again."]);
+  if (!memberships || !memberships.length) return showLogin("signin", ["err", "Your account isn't linked to a company yet. If you were invited, confirm your email from the message we sent, then sign in again. Otherwise ask your company's owner or manager to invite you."]);
   let pick = memberships[0];
   try { const saved = localStorage.getItem("jreebs-client"); const m = memberships.find(x => x.client_id === saved); if (m) pick = m; } catch (e) {}
   ME = { id: user.id, email: user.email, role: pick.role, lvl: ROLES[pick.role].lvl, memberships, admin: !!adminRow };
@@ -105,9 +107,12 @@ async function openClient(client) {
 function startShell(v) {
   $("#login").hidden = true; $("#shell").hidden = false;
   $("#wsName").textContent = ADMIN ? "Jreebs admin" : CLIENT.name;
-  $("#wsSub").textContent = ADMIN ? "All client companies" : `${WDEF.items} desk · ${CLIENT.plan[0].toUpperCase() + CLIENT.plan.slice(1)} plan`;
-  $("#roleSel").parentElement.hidden = !DEMO;
+  $("#wsSub").textContent = ADMIN ? "All client companies" : `${WDEF.items} desk · ${PLANS[planKey(CLIENT.plan)].name} plan`;
+  $("#roleSel").parentElement.hidden = !DEMO || ADMIN;
   $("#demoTag").hidden = !DEMO;
+  $("#demoTag").textContent = ADMIN ? "Provider demo · sample clients" : "Demo · sample data";
+  $("#askBtn").hidden = ADMIN;
+  $("#q").closest(".search").hidden = ADMIN;
   view = v; render();
 }
 
@@ -126,7 +131,8 @@ function renderNav() {
     if (!items.length) return "";
     return `<div><p class="ng-t">${g.g}</p>${items.map(([id, label, icon, min]) => {
       const lk = !ADMIN && lvl() < min;
-      const badge = !lk && id === "orders" && flagged ? `<span class="ct">${flagged}</span>` : !lk && id === "inbox" && openCv ? `<span class="ct q">${openCv}</span>` : "";
+      const openEm = id === "email" && !ADMIN ? new Set(S.emails.filter(e => e.status === "open" && canMail(e)).map(e => (e.mailbox_id || "") + "|" + (e.thread_key || e.id))).size : 0;
+      const badge = !lk && id === "orders" && flagged ? `<span class="ct">${flagged}</span>` : !lk && id === "inbox" && openCv ? `<span class="ct q">${openCv}</span>` : !lk && openEm ? `<span class="ct q">${openEm}</span>` : "";
       return `<button type="button" class="ni${view === id ? " on" : ""}${lk ? " locked" : ""}" data-nav="${id}" ${lk ? `title="For ${NEED[min]}"` : ""} ${view === id ? 'aria-current="page"' : ""}>${ic(icon)}<span>${navLabel(id, label)}</span>${lk ? ic("lock", "lk") : badge}</button>`;
     }).join("")}</div>`;
   }).join("");
@@ -139,7 +145,8 @@ function render() {
   if (!ADMIN) refreshItems();
   renderNav();
   const min = ADMIN ? 0 : navMin(view);
-  $("#title").textContent = view === "home" || view === "orders" ? navLabel(view) : TITLES[view] || "";
+  const grp = (ADMIN ? ADMIN_NAV : NAV).find(g => g.items.some(it => it[0] === view))?.g || "";
+  $("#title").innerHTML = `<span class="crumb">${esc(ADMIN ? "Jreebs" : CLIENT.name)}${grp && !ADMIN ? ` <i>/</i> ${esc(grp)}` : ""} <i>/</i></span> ${esc(view === "home" || view === "orders" ? navLabel(view) : TITLES[view] || "")}`;
   const fn = VIEWS[view];
   try { $("#content").innerHTML = (!ADMIN && (lvl() < min || (lvl() === 0 && min > 0))) ? lockedView(min || 1) : fn ? fn() : ""; }
   catch (e) { console.error(e); $("#content").innerHTML = `<div class="locked-v"><h2>This page hit a problem.</h2><p>${esc(e.message)}</p><button class="btn" type="button" data-nav="home">Back to Home</button></div>`; }

@@ -14,8 +14,8 @@ VIEWS.team = function () {
           <td>${editable ? `<select class="sel" data-chrole="${esc(m.email)}" aria-label="Role for ${esc(n)}" style="height:30px">${ROLE_ORDER.filter(r => r !== "owner" && (lvl() >= 5 || r !== "manager")).map(r => `<option value="${r}" ${m.role === r ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select>` : pill(ROLES[m.role].label, m.role === "owner" ? "cta" : m.role === "manager" ? "acc" : "")}</td>
           <td><span class="row" style="gap:6px"><span class="dot-s ${on ? "online" : ""}"></span>${on ? "Online" : "Offline"}</span></td><td class="r num">${today}</td>
           ${mgr ? `<td>${editable ? `<button class="btn sm ghost danger" type="button" data-rmuser="${m.auth_user_id}" data-nm="${esc(n)}">Remove</button>` : ""}</td>` : ""}</tr>`;
-      }).join("")}</tbody></table></div>
-      <div class="card-b small muted" style="border-top:1px solid var(--line)">To add someone: they create an account at jreebs.com/app (or the link you send them), then you invite their email here. Field staff and drivers get the simple "My stops" screen.</div>`;
+      }).join("")}${mgr ? S.invites.filter(i => !i.accepted_at).map(i => `<tr><td><div class="who">${av(i.email)}<div><b>${esc(i.email)}</b><span>Invited ${ago(i.created_at)} · hasn't signed up yet</span></div></div></td><td>${pill(ROLES[i.role]?.label || i.role)}</td><td>${pill("Invited", "warn")}</td><td class="r"><button class="btn sm" type="button" data-copy="${esc(location.origin + location.pathname + "?signup&email=" + encodeURIComponent(i.email))}">Copy sign-up link</button></td><td><button class="btn sm ghost danger" type="button" data-delinv="${i.id}">Cancel</button></td></tr>`).join("") : ""}</tbody></table></div>
+      <div class="card-b small muted" style="border-top:1px solid var(--line)">Invite anyone by email, even before they have an account. Send them their sign-up link; they join your company as soon as they create their account. Field staff and drivers get the simple "My stops" screen.</div>`;
   } else if (t === "live") {
     const office = S.team.filter(m => m.role !== "driver"), field = fieldPeople();
     body = `<div class="card-b stack"><div><span class="lbl">Office team</span><div class="board" style="margin-top:8px">${office.map(m => { const n = memberName(m.auth_user_id), on = ONLINE.has(m.auth_user_id); return `<div class="card mem"><div class="row">${av(n)}<b class="grow">${esc(n)}</b><span class="dot-s ${on ? "online" : ""}"></span></div><span class="small muted">${esc(ROLES[m.role].label)} · ${on ? "online now" : "offline"}</span><div class="row small"><span class="grow">Open conversations</span><b class="num">${S.cases.filter(c => c.assignee === m.auth_user_id && c.status === "open").length}</b></div><div class="row small"><span class="grow">${WDEF.items} today</span><b class="num">${ITEMS.filter(i => i.assigned_to === m.auth_user_id && i.created >= todayStart()).length}</b></div></div>`; }).join("") || empty("No office team yet.")}</div></div>
@@ -42,10 +42,9 @@ VIEWS.team = function () {
 };
 function inviteModal() {
   openModal(`${mHead("Invite a team member")}<div class="m-b form">
-    <div class="note-box">${ic("info")}<span>Ask them to create an account first at <b>${esc(location.origin + location.pathname)}</b> ("Create an account"). Then invite the same email here.</span></div>
     <div class="field"><label for="ie">Their email</label><input class="in" id="ie" type="email" placeholder="name@company.com"></div>
     <div class="field"><label for="ir">Role</label><select class="sel" id="ir">${ROLE_ORDER.filter(r => r !== "owner" && (lvl() >= 5 || r !== "manager")).map(r => `<option value="${r}" ${r === "agent" ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select></div>
-    <div class="row"><button class="btn sm" type="button" data-copy="${esc(location.origin + location.pathname)}">Copy sign-up link</button></div></div>
+    <div class="note-box">${ic("info")}<span>If they don't have an account yet, they join your company as soon as they sign up with this email. After inviting, copy their sign-up link from the Members list and send it to them.</span></div></div>
     <div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-doinvite="1">Invite</button></div>`);
 }
 function shiftCodesModal() {

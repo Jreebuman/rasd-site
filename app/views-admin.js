@@ -25,7 +25,7 @@ VIEWS.settings = function () {
       <div class="optrow"><div><b>Two-step sign-in</b><span>A code from an authenticator app (Google Authenticator, Microsoft Authenticator) each time you sign in.</span></div><button class="btn" type="button" data-mfa="1">Set up or manage</button></div>
       <div class="optrow"><div><b>Change my password</b><span>At least 8 characters.</span></div><div class="row"><input class="in" id="newpw" type="password" autocomplete="new-password" placeholder="New password" style="width:180px"><button class="btn" type="button" data-setpw="1">Save</button></div></div>
       <div class="optrow"><div><b>Sign out everywhere</b><span>Ends your sessions on every phone and computer.</span></div><button class="btn danger" type="button" data-signoutall="1">Sign out everywhere</button></div></div>`); break;
-    case "billing": { const seats = S.team.filter(m => m.role !== "driver").length, cap = { starter: 3, growth: 10, pro: 999 }[CLIENT.plan] || 10, price = { starter: 49, growth: 99, pro: 199 }[CLIENT.plan]; body = card("Plan & billing", `<div class="form"><div class="row"><div class="grow"><span class="lbl">Current plan</span><div style="font-family:var(--display);font-size:24px;font-weight:600">${esc(CLIENT.plan[0].toUpperCase() + CLIENT.plan.slice(1))}${price ? ` · ${CLIENT.plan === "pro" ? "from " : ""}${price} JOD / month` : ""}</div></div><button class="btn go" type="button" data-modal="ticket" data-subject="Change my plan">Change plan</button></div>
+    case "billing": { const seats = S.team.filter(m => m.role !== "driver").length, P = PLANS[planKey(CLIENT.plan)], cap = P.users, price = P.price; body = card("Plan & billing", `<div class="form"><div class="row"><div class="grow"><span class="lbl">Current plan</span><div style="font-family:var(--display);font-size:24px;font-weight:600">${esc(P.name)}${price ? ` · ${fmtN(price)} JOD / year` : ""}</div></div><button class="btn go" type="button" data-modal="ticket" data-subject="Change my plan">Change plan</button></div>
       <div style="display:grid;gap:6px"><div class="row small"><span class="grow">Office logins</span><span class="num">${seats}${cap < 100 ? " of " + cap : ""}</span></div>${cap < 100 ? prog(seats, cap) : ""}<span class="small muted">Drivers and field staff don't count.</span></div>
       <p class="small muted">Invoices are sent by Jreebs each month. Questions about a bill? Open a ticket.</p></div>`); break; }
     case "privacy": body = card("Data & privacy", `<div class="form">
@@ -61,28 +61,3 @@ VIEWS.audit = function () {
   <div class="tw"><table class="t"><thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead><tbody>${list.map(a => `<tr><td class="num">${dShort(a.at)} ${hm(mins(new Date(a.at)))}</td><td><div class="who">${av(nameOf(a.actor_email || "System"))}<b>${esc(nameOf(a.actor_email || "System"))}</b></div></td><td class="wrap">${esc(a.text)}</td></tr>`).join("") || `<tr><td colspan="3">${empty("Nothing yet.")}</td></tr>`}</tbody></table></div></section>`;
 };
 
-/* ---------- JREEBS ADMIN ---------- */
-let ADM = { clients: [], members: [], tickets: [], counts: {} };
-async function loadAdmin() {
-  const [clients, members, tickets, items] = await Promise.all([DB.list("clients", { order: ["created_at", false] }), DB.list("client_users"), DB.list("tickets", { order: ["created_at", false] }), DB.list("items", { select: "client_id", limit: 20000 })]);
-  ADM = { clients, members, tickets, counts: {} };
-  items.forEach(i => ADM.counts[i.client_id] = (ADM.counts[i.client_id] || 0) + 1);
-}
-VIEWS.clients = function () {
-  if (!ADM.loaded) { ADM.loaded = true; loadAdmin().then(render); return `<div class="loading">Loading clients…</div>`; }
-  return `${head("Clients", `${ADM.clients.length} companies on Jreebs`, `<button class="btn" type="button" data-admreload="1">${ic("refresh")}Refresh</button><button class="btn go" type="button" data-modal="newclient">${ic("plus")}New client</button>`)}
-  <section class="card"><div class="tw"><table class="t"><thead><tr><th>Company</th><th>Type</th><th>Plan</th><th class="r">Logins</th><th class="r">Items</th><th>Link a login</th></tr></thead><tbody>${ADM.clients.map(c => `<tr><td><b>${esc(c.name)}</b><div class="small muted">${esc(c.slug)} · since ${dShort(c.created_at)}</div></td><td>${esc(c.workspace_type)}</td><td>${pill(c.plan, "acc")}</td><td class="r num">${ADM.members.filter(m => m.client_id === c.id).length}</td><td class="r num">${ADM.counts[c.id] || 0}</td>
-    <td><div class="row" style="flex-wrap:nowrap"><input class="in" type="email" placeholder="their@email.com" data-linkemail="${c.id}" style="width:170px;height:30px"><select class="sel" data-linkrole="${c.id}" style="height:30px">${ROLE_ORDER.map(r => `<option value="${r}">${ROLES[r].label}</option>`).join("")}</select><button class="btn sm" type="button" data-link="${c.id}">Link</button></div></td></tr>`).join("") || `<tr><td colspan="6">${empty("No clients yet.")}</td></tr>`}</tbody></table></div></section>
-  <div class="note-box">${ic("info")}<span>To onboard a company: 1) New client. 2) Ask the owner to create an account at ${esc(location.origin + location.pathname)}. 3) Link their email as Owner. They can then invite the rest of their team themselves.</span></div>`;
-};
-VIEWS.tickets = function () {
-  if (!ADM.loaded) { ADM.loaded = true; loadAdmin().then(render); return `<div class="loading">Loading tickets…</div>`; }
-  const name = id => ADM.clients.find(c => c.id === id)?.name || "—";
-  return `${head("Support tickets", "Requests from your clients.", `<button class="btn" type="button" data-admreload="1">${ic("refresh")}Refresh</button>`)}
-  <section class="card"><div class="tw"><table class="t"><thead><tr><th>When</th><th>Company</th><th>Request</th><th>From</th><th>Status</th></tr></thead><tbody>${ADM.tickets.map(t => `<tr><td>${ago(t.created_at)}</td><td><b>${esc(name(t.client_id))}</b></td><td class="wrap"><b>${esc(t.subject)}</b>${t.details ? `<div class="small muted">${esc(t.details)}</div>` : ""}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}</td><td>${esc(t.created_by_email || "")}</td><td><select class="sel" data-tkstatus="${t.id}" style="height:30px">${["Open", "In progress", "Done"].map(s => `<option ${t.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td></tr>`).join("") || `<tr><td colspan="5">${empty("No tickets yet.")}</td></tr>`}</tbody></table></div></section>`;
-};
-function newClientModal() {
-  openModal(`${mHead("New client")}<div class="m-b form"><div class="f2"><div class="field"><label for="nc1">Company name</label><input class="in" id="ncn" placeholder="e.g. Swift Delivery"></div><div class="field"><label for="ncs">Short name (no spaces)</label><input class="in" id="ncs" placeholder="swift-delivery"></div></div>
-    <div class="f2"><div class="field"><label for="nct">Workspace type</label><select class="sel" id="nct"><option value="delivery">Delivery</option><option value="lab">Home-visit lab</option><option value="kitchen">Cloud kitchen / complaints</option></select></div><div class="field"><label for="ncp">Plan</label><select class="sel" id="ncp"><option value="starter">Starter</option><option value="growth" selected>Growth</option><option value="pro">Pro</option></select></div></div></div>
-    <div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-saveclient="1">Create</button></div>`);
-}

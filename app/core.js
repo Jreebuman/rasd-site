@@ -52,6 +52,7 @@ const ICON = {
   building: P("M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M8 7h4M8 11h4M8 15h4M2 21h20"),
   grid: P("M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"),
   book: P("M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"),
+  mail: P("M3 5h18v14H3zM3 6l9 7 9-7"), spark: P("M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4zM19 3v4M17 5h4M5 17v4M3 19h4"),
   out: P("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"), trash: P("M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"),
   edit: P("M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"), refresh: P("M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"),
   wa: '<path fill="currentColor" stroke="none" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/>'
@@ -173,7 +174,7 @@ const nextStage = it => { if (isTerm(it)) return null; const i = WDEF.stages.fin
 
 /* ---------- state ---------- */
 let ME = null, CLIENT = null, WDEF = WS.delivery, CFG = {};
-const S = { items: [], rules: [], act: [], cust: [], cases: [], msgs: [], people: [], shifts: [], qa: [], profile: null, docs: [], plats: [], links: [], sops: [], reads: [], tpls: [], tickets: [], team: [] };
+const S = { items: [], rules: [], act: [], cust: [], cases: [], msgs: [], people: [], shifts: [], qa: [], profile: null, docs: [], plats: [], links: [], sops: [], reads: [], tpls: [], tickets: [], team: [], emails: [], mailboxes: [], mbFull: [], invites: [] };
 const ONLINE = new Map();
 const lvl = () => ME ? ME.lvl : -1;
 const can = n => lvl() >= n;
@@ -224,13 +225,18 @@ async function loadAll() {
     q("sop_reads"),
     L >= 1 ? q("templates") : none,
     L >= 1 ? q("tickets", { order: ["created_at", false] }) : none,
-    DB.rpc("client_team", { p_client_id: cid }).catch(() => [])
+    DB.rpc("client_team", { p_client_id: cid }).catch(() => []),
+    L >= 1 ? q("emails", { order: ["received_at", false], limit: 600 }) : none,
+    DB.rpc("mailbox_list", { p_client_id: cid }).catch(() => []),
+    L >= 4 ? q("mailboxes") : none,
+    L >= 4 ? q("pending_invites", { order: ["created_at", false] }) : none
   ]);
   const seen = new Set(); S.items = [...res[0], ...res[1]].filter(r => !seen.has(r.id) && seen.add(r.id));
   [, , S.rules, S.act, S.cust, S.cases, S.msgs, S.people, S.shifts, S.qa] = res;
   S.profile = res[10][0] || null;
   [S.docs, S.plats, S.links, S.sops, S.reads, S.tpls, S.tickets] = res.slice(11, 18);
   S.team = res[18] || [];
+  [S.emails, S.mailboxes, S.mbFull, S.invites] = [res[19] || [], res[20] || [], res[21] || [], res[22] || []];
   if (L >= 4) await seedStarter();
 }
 

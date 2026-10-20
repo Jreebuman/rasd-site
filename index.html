@@ -3,270 +3,308 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Jreebs — operations software for growing businesses in Jordan</title>
-<meta name="description" content="Jreebs watches your orders, visits and complaints, warns your team before a customer notices, and turns every follow-up into one click. Built for delivery, home healthcare, cloud kitchens and service teams in Jordan.">
+<title>Jreebs — the operations workspace for companies in Jordan</title>
+<meta name="description" content="Orders, customer conversations, email, team, SOPs and reports in one workspace, with an assistant that answers questions from your own data. Built for delivery, home healthcare, kitchens and service teams in Jordan.">
 <meta name="theme-color" content="#0E5A73">
 <script>try{var t=localStorage.getItem("jreebs-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Jreebs">
-<meta property="og:title" content="Jreebs — your whole operation, on one screen">
-<meta property="og:description" content="Operations software for growing businesses in Jordan: alerts, one-click WhatsApp, automations you control, and live numbers.">
+<meta property="og:title" content="Jreebs — every team, every customer, every number in one workspace">
+<meta property="og:description" content="The operations workspace for companies in Jordan: orders, conversations, email, team, SOPs, reports and an assistant that knows your data.">
 <meta property="og:url" content="https://jreebs.com/">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ar_JO">
 <meta property="og:image" content="https://jreebs.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jreebs: your whole operation, on one screen">
+<meta property="og:image:alt" content="Jreebs: your whole operation in one workspace">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jreebs.com/og.png">
 <link rel="canonical" href="https://jreebs.com/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230E5A73'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Tahoma,sans-serif' fill='white' text-anchor='middle'%3E%D8%AC%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230E5A73'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Tahoma,sans-serif' fill='white' text-anchor='middle'%3E%D8%AC%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: B2B product landing page. Hero with a live-looking "needs attention" card, before/after contrast, how it works, features, value tiles, industries, plans with a monthly/yearly switch, founder note, FAQ, closing CTA. Arabic (RTL) and English, light/dark toggle. */
+/* Layout: B2B product site. Hero with a product frame, what it replaces, the foundation modules,
+   a view per role, the assistant, how setup works, industries, integrations, a savings estimate,
+   security, annual plans, founder, FAQ, closing call. Arabic (RTL) and English, light and dark. */
 :root {
-  --bg: #F4F6F7;
-  --surface: #FFFFFF;
-  --surface-2: #E9EEF0;
-  --ink: #122028;
-  --muted: #5B6E76;
-  --line: #D7E0E3;
-  --accent: #0E5A73;
-  --accent-ink: #FFFFFF;
-  --accent-soft: #DCEBF0;
-  --cta: #E2640F;
-  --cta-ink: #FFFFFF;
-  --deep: #0A3F52;
-  --deep-ink: #EEF6F8;
-  --deep-accent: #8FD0E6;
-  --good: #1C8A5C; --good-soft: #DCF3E6;
-  --warn: #9E5C00; --warn-soft: #FBEED6;
-  --crit: #B3261E; --crit-soft: #F9E0DE;
-  --chaos: #8E9BA2; --chaos-soft: #E7EBEC;
-  --wa: #128C4A;
-  --shadow: 0 24px 60px rgba(10, 40, 52, .16);
+  --bg: #F5F7F8; --surface: #FFFFFF; --surface-2: #EBF0F2; --ink: #122028; --muted: #56686F; --faint: #8A9BA2; --line: #D9E1E4;
+  --accent: #0E5A73; --accent-ink: #FFFFFF; --accent-soft: #DCEBF0; --cta: #D9600E; --cta-ink: #FFFFFF;
+  --deep: #0A3F52; --deep-ink: #EEF6F8; --deep-accent: #8FD0E6;
+  --good: #1C7A52; --good-soft: #DCF3E6; --warn: #8F5300; --warn-soft: #FBEED6; --crit: #A8261E; --crit-soft: #F9E0DE; --wa: #128C4A;
+  --shadow: 0 18px 50px rgba(10, 40, 52, .14);
   --display: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
   --sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --line: #28404A;
-    --accent: #5FB3CE; --accent-ink: #0F1A1F; --accent-soft: #1B3942; --cta: #F2873D; --cta-ink: #14181A;
-    --deep: #0A2530; --deep-ink: #E9F1F3; --deep-accent: #8FD0E6;
-    --good: #4FC98B; --good-soft: #143327; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
-    --chaos: #6B7D85; --chaos-soft: #1C2A2F;
-    --shadow: 0 24px 60px rgba(0,0,0,.5);
-  }
-}
-:root[data-theme="dark"] {
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   color-scheme: dark;
-  --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --line: #28404A;
+  --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --faint: #6E848C; --line: #28404A;
   --accent: #5FB3CE; --accent-ink: #0F1A1F; --accent-soft: #1B3942; --cta: #F2873D; --cta-ink: #14181A;
   --deep: #0A2530; --deep-ink: #E9F1F3; --deep-accent: #8FD0E6;
   --good: #4FC98B; --good-soft: #143327; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
-  --chaos: #6B7D85; --chaos-soft: #1C2A2F;
-  --shadow: 0 24px 60px rgba(0,0,0,.5);
-}
+  --shadow: 0 18px 50px rgba(0,0,0,.5); } }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0F1A1F; --surface: #15232A; --surface-2: #1C2D35; --ink: #E9F1F3; --muted: #9DB1B9; --faint: #6E848C; --line: #28404A;
+  --accent: #5FB3CE; --accent-ink: #0F1A1F; --accent-soft: #1B3942; --cta: #F2873D; --cta-ink: #14181A;
+  --deep: #0A2530; --deep-ink: #E9F1F3; --deep-accent: #8FD0E6;
+  --good: #4FC98B; --good-soft: #143327; --warn: #E6AE52; --warn-soft: #33270F; --crit: #F08A82; --crit-soft: #3A1B19; --wa: #4CD08A;
+  --shadow: 0 18px 50px rgba(0,0,0,.5); }
 html[lang="ar"] { --display: "IBM Plex Sans Arabic", "Outfit", system-ui, sans-serif; --sans: "IBM Plex Sans Arabic", "Figtree", system-ui, sans-serif; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+html { scroll-padding-top: 72px; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; margin: 0; }
 a { color: inherit; }
-button { font: inherit; color: inherit; cursor: pointer; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.wrap { max-width: 1160px; margin: 0 auto; padding-inline: 20px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
-.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-html[lang="ar"] .eyebrow { letter-spacing: 0; }
+p { margin: 0; }
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+html[lang="ar"] .eyebrow { letter-spacing: 0; font-size: 14px; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-section { padding-block: 72px; }
-.sec-head { display: grid; gap: 10px; max-width: 680px; margin-bottom: 36px; }
-.sec-head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
-html[lang="ar"] .sec-head h2 { letter-spacing: 0; line-height: 1.35; }
-.sec-head p { margin: 0; color: var(--muted); font-size: 17px; }
+section { padding-block: 76px; }
+.sec-head { display: grid; gap: 10px; max-width: 720px; margin-bottom: 34px; }
+.sec-head h2 { font-size: clamp(27px, 3.6vw, 38px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+html[lang="ar"] .sec-head h2 { letter-spacing: 0; line-height: 1.4; }
+.sec-head p { color: var(--muted); font-size: 17px; }
+.alt { background: var(--surface-2); }
 
 /* nav */
-nav.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-.nav-in { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+nav.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.nav-in { display: flex; align-items: center; gap: 16px; padding-block: 11px; }
 .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; margin-inline-end: auto; }
-.logo i { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-style: normal; font-family: "IBM Plex Sans Arabic", sans-serif; font-weight: 600; font-size: 17px; }
-.logo b { font-family: "Outfit", sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -.01em; }
-.links { display: flex; gap: 20px; font-size: 15px; }
+.logo i { width: 30px; height: 30px; border-radius: 6px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-style: normal; font-family: "IBM Plex Sans Arabic", sans-serif; font-weight: 600; font-size: 16px; }
+.logo b { font-family: "Outfit", sans-serif; font-weight: 700; font-size: 20px; }
+html[lang="ar"] .logo b { font-family: "IBM Plex Sans Arabic", sans-serif; }
+.links { display: flex; gap: 18px; font-size: 14.5px; }
 .links a { text-decoration: none; color: var(--muted); }
 .links a:hover { color: var(--ink); }
-.lang { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; height: 36px; padding-inline: 11px; font-weight: 600; font-size: 14px; }
-.theme { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; }
+.ghostbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; height: 36px; padding-inline: 11px; font-weight: 600; font-size: 14px; }
+.theme { width: 36px; padding: 0; display: grid; place-items: center; }
 .theme svg { width: 18px; height: 18px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding-inline: 20px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-decoration: none; white-space: nowrap; font-size: 15.5px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding-inline: 20px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-decoration: none; white-space: nowrap; font-size: 15.5px; }
 .btn:hover { border-color: var(--muted); }
 .btn.primary { background: var(--cta); color: var(--cta-ink); border-color: var(--cta); }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.sm { height: 38px; padding-inline: 14px; font-size: 14.5px; border-radius: 9px; }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.navy { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.sm { height: 36px; padding-inline: 13px; font-size: 14px; border-radius: 6px; }
 .btn svg { width: 18px; height: 18px; flex: none; }
 
 /* hero */
-.hero { padding-block: 64px 56px; }
-.hero-in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: center; }
-.hero h1 { font-size: clamp(38px, 6vw, 64px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
-html[lang="ar"] .hero h1 { letter-spacing: 0; line-height: 1.25; font-weight: 700; }
+.hero { padding-block: 60px 44px; }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 44px; align-items: center; }
+.hero h1 { font-size: clamp(36px, 5.2vw, 58px); font-weight: 800; letter-spacing: -.03em; line-height: 1.04; }
+html[lang="ar"] .hero h1 { letter-spacing: 0; line-height: 1.3; font-weight: 700; }
 .hero h1 em { font-style: normal; color: var(--accent); }
-.hero .lead { font-size: 19px; color: var(--muted); margin: 20px 0 28px; max-width: 34em; }
-.ctas { display: flex; gap: 12px; flex-wrap: wrap; }
-.hero .note { margin-top: 16px; font-size: 14px; color: var(--muted); }
-.mock { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
-.mock-h { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
-.mock-h b { font-family: var(--display); font-size: 16px; }
-.mock-h span { font-size: 12.5px; color: var(--muted); }
-.mock-k { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
-.mock-k div { padding: 12px 16px; display: grid; }
-.mock-k div + div { border-inline-start: 1px solid var(--line); }
-.mock-k b { font-family: "Outfit", sans-serif; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.mock-k span { font-size: 12px; color: var(--muted); }
-.mock-row { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--line); }
-html[dir="rtl"] .mock-row { padding: 12px 0 12px 16px; }
-.mock-row:last-child { border-bottom: 0; }
-.mock-row i { align-self: stretch; border-radius: 0 3px 3px 0; }
-html[dir="rtl"] .mock-row i { border-radius: 3px 0 0 3px; }
-.mock-row i.c { background: var(--crit); } .mock-row i.w { background: var(--warn); }
-.mock-row .t { font-weight: 600; font-size: 14.5px; }
-.mock-row .d { font-size: 12.5px; color: var(--muted); }
-.mock-row .wa { font-size: 12.5px; font-weight: 600; color: var(--wa); border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
-.mock-row .wa svg { width: 14px; height: 14px; }
-.pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-inline-start: 6px; }
-.pill.c { background: var(--crit-soft); color: var(--crit); } .pill.w { background: var(--warn-soft); color: var(--warn); }
-.mock-foot { padding: 10px 16px; font-size: 12.5px; color: var(--muted); background: var(--surface-2); }
-.mock-foot b { color: var(--accent); }
+.hero .lead { font-size: 18.5px; color: var(--muted); margin: 18px 0 26px; max-width: 34em; }
+.ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero .note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+/* product frame */
+.frame { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; font-size: 12.5px; }
+.fbar { display: flex; gap: 6px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.fbar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.fbar span { margin-inline-start: 8px; color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.fbody { display: grid; grid-template-columns: 128px minmax(0, 1fr) minmax(0, 200px); min-height: 330px; }
+.fside { background: var(--deep); color: var(--deep-ink); padding: 10px 8px; display: grid; gap: 2px; align-content: start; }
+.fside b { font-size: 11.5px; padding: 2px 6px 8px; }
+.fside span { padding: 5px 6px; border-radius: 4px; color: color-mix(in srgb, var(--deep-ink) 75%, transparent); display: flex; justify-content: space-between; }
+.fside span.on { background: color-mix(in srgb, var(--deep-ink) 14%, transparent); color: var(--deep-ink); }
+.fside em { font-style: normal; font-family: var(--mono); font-size: 10px; background: var(--cta); color: #fff; border-radius: 3px; padding: 0 4px; }
+.fmain { padding: 12px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.fk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.fk div { background: var(--surface); padding: 7px 9px; display: grid; }
+.fk b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.fk small { color: var(--muted); font-size: 10.5px; }
+.frow { display: grid; grid-template-columns: 3px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 8px 7px 0; border: 1px solid var(--line); border-radius: 6px; }
+html[dir="rtl"] .frow { padding: 7px 0 7px 8px; }
+.frow i { align-self: stretch; } .frow i.c { background: var(--crit); } .frow i.w { background: var(--warn); }
+.frow .t { font-weight: 600; } .frow .d { color: var(--muted); font-size: 11px; }
+.tagp { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 0 6px; border-radius: 3px; margin-inline-start: 5px; }
+.tagp.c { background: var(--crit-soft); color: var(--crit); } .tagp.w { background: var(--warn-soft); color: var(--warn); }
+.frow .wa { font-size: 11px; font-weight: 600; color: var(--wa); border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; }
+.fai { border-inline-start: 1px solid var(--line); padding: 10px; display: grid; gap: 8px; align-content: start; background: var(--surface); }
+.fai > b { font-size: 12px; }
+.fq { justify-self: end; background: var(--accent); color: var(--accent-ink); padding: 5px 8px; border-radius: 6px 6px 2px 6px; font-size: 11.5px; max-width: 95%; }
+.fa { font-size: 11.5px; display: grid; gap: 5px; }
+.fa table { border-collapse: collapse; width: 100%; font-size: 10.5px; }
+.fa td { border-bottom: 1px solid var(--line); padding: 3px 2px; }
+.fa .how { color: var(--muted); font-size: 10.5px; }
 
-/* before / after contrast */
-.contrast { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.side { padding: 30px 28px; }
-.side.before { background: var(--chaos-soft); }
-.side.after { background: var(--surface); }
-.side h3 { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-html[lang="ar"] .side h3 { font-family: var(--sans); letter-spacing: 0; font-size: 15px; }
-.side.before h3 { color: var(--chaos); }
-.side.after h3 { color: var(--good); }
-.side ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 14px; }
-.side li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; font-size: 15px; align-items: start; }
-.side.before li { color: var(--muted); }
-.side.after li { font-weight: 500; }
-.side li b { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; margin-top: 1px; }
-.side.before li b { color: var(--chaos); }
-.side.after li b { background: var(--good-soft); color: var(--good); }
+/* what it replaces */
+.replace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.replace > div { padding: 26px; }
+.replace .before { background: color-mix(in srgb, var(--surface-2) 70%, var(--bg)); }
+.replace h3 { font-size: 14px; font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+html[lang="ar"] .replace h3 { font-family: var(--sans); letter-spacing: 0; font-size: 15px; }
+.replace .after h3 { color: var(--good); }
+.replace ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; }
+.replace li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; font-size: 15px; }
+.replace .before li { color: var(--muted); }
+.replace li b { width: 20px; height: 20px; border-radius: 4px; display: grid; place-items: center; font-size: 12px; }
+.replace .after li b { background: var(--good-soft); color: var(--good); }
 
-/* value tiles */
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.tile { background: var(--deep); color: var(--deep-ink); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; }
-.tile b { font-family: var(--display); font-size: 21px; font-weight: 700; line-height: 1.2; }
-.tile span { font-size: 14px; color: color-mix(in srgb, var(--deep-ink) 78%, transparent); }
+/* modules */
+.mods { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.mod { background: var(--surface); padding: 18px; display: grid; gap: 10px; align-content: start; }
+.mod h3 { font-size: 13px; font-family: var(--sans); text-transform: uppercase; letter-spacing: .07em; color: var(--accent); }
+html[lang="ar"] .mod h3 { letter-spacing: 0; font-size: 15px; }
+.mod ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.mod li b { display: block; font-size: 15px; }
+.mod li span { font-size: 13.5px; color: var(--muted); }
+.foundation-note { margin-top: 16px; color: var(--muted); font-size: 15px; max-width: 70ch; }
+
+/* roles */
+.roles { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.rtabs { display: grid; align-content: start; border-inline-end: 1px solid var(--line); background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
+.rtabs button { text-align: start; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 14px 18px; display: grid; gap: 2px; }
+.rtabs button b { font-size: 16px; }
+.rtabs button span { font-size: 13px; color: var(--muted); }
+.rtabs button[aria-selected="true"] { background: var(--surface); box-shadow: inset 3px 0 0 var(--cta); }
+html[dir="rtl"] .rtabs button[aria-selected="true"] { box-shadow: inset -3px 0 0 var(--cta); }
+.rpanel { padding: 24px 26px; display: grid; gap: 14px; align-content: start; }
+.rpanel h3 { font-size: 22px; font-weight: 700; }
+.rpanel ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.rpanel li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; font-size: 15.5px; }
+.rpanel li b { color: var(--accent); }
+.rpanel .sees { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+
+/* assistant */
+.asst { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.qa { display: grid; gap: 10px; }
+.qa div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; }
+.qa b { font-size: 15px; }
+.qa span { color: var(--muted); font-size: 14px; }
+.trust { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.trust li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+.trust li .ic { width: 34px; height: 34px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.trust li .ic svg { width: 18px; height: 18px; }
+.trust li b { display: block; }
+.trust li span { color: var(--muted); font-size: 14.5px; }
 
 /* steps */
 .dark { background: var(--deep); color: var(--deep-ink); }
 .dark .sec-head p, .dark .muted { color: color-mix(in srgb, var(--deep-ink) 72%, transparent); }
 .dark .eyebrow { color: var(--deep-accent); }
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: s; }
-.step { display: grid; gap: 8px; align-content: start; border-top: 2px solid color-mix(in srgb, var(--deep-ink) 25%, transparent); padding-top: 18px; }
-.step::before { counter-increment: s; content: counter(s); font-family: "Outfit", sans-serif; font-size: 15px; font-weight: 700; color: var(--deep-accent); }
-.step h3 { font-size: 21px; font-weight: 600; }
-.step p { margin: 0; font-size: 15.5px; }
-.step .when { font-family: var(--mono); font-size: 13px; color: var(--deep-accent); }
-
-/* features */
-.feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.feat { padding: 22px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
-.feat .ic { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
-.feat .ic svg { width: 20px; height: 20px; }
-.feat h3 { font-size: 18px; font-weight: 600; }
-.feat p { margin: 0; color: var(--muted); font-size: 15px; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.step { display: grid; gap: 8px; align-content: start; border-top: 2px solid color-mix(in srgb, var(--deep-ink) 25%, transparent); padding-top: 16px; }
+.step .n { font-family: var(--mono); font-size: 13px; color: var(--deep-accent); }
+.step h3 { font-size: 20px; font-weight: 600; }
+.step p { font-size: 15px; }
 
 /* industries */
-.inds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.ind { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 10px; align-content: start; }
-.ind h3 { font-size: 20px; font-weight: 600; }
-.ind ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-.ind li { font-size: 14.5px; display: flex; gap: 8px; }
-.ind li::before { content: "⚡"; color: var(--accent); flex: none; }
+.inds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ind { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 10px; align-content: start; }
+.ind h3 { font-size: 17px; font-weight: 600; }
+.ind ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.ind li { font-size: 14px; color: var(--muted); padding-inline-start: 14px; position: relative; }
+.ind li::before { content: ""; position: absolute; inset-inline-start: 0; top: .6em; width: 6px; height: 6px; border-radius: 1px; background: var(--accent); }
+
+/* integrations */
+.ints { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.intg { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.intg h3 { font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.intg h3 i { width: 9px; height: 9px; border-radius: 50%; }
+.intg.now h3 i { background: var(--good); } .intg.setup h3 i { background: var(--accent); } .intg.ask h3 i { background: var(--faint); }
+.intg p { font-size: 13.5px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { border: 1px solid var(--line); border-radius: 4px; padding: 3px 9px; font-size: 13.5px; background: var(--bg); }
+
+/* savings */
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.calc-in { padding: 24px; display: grid; gap: 16px; border-inline-end: 1px solid var(--line); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.field label output { font-family: var(--mono); color: var(--accent); }
+.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+.field small { color: var(--muted); font-size: 12.5px; }
+.calc-out { padding: 24px; display: grid; gap: 14px; align-content: start; background: color-mix(in srgb, var(--surface-2) 50%, var(--surface)); }
+.big { font-family: var(--display); font-size: clamp(30px, 4vw, 42px); font-weight: 800; color: var(--accent); line-height: 1.05; font-variant-numeric: tabular-nums; }
+.calc-out dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; margin: 0; font-size: 14.5px; }
+.calc-out dt { color: var(--muted); } .calc-out dd { margin: 0; font-family: var(--mono); text-align: end; }
+.calc-out .fine { font-size: 12.5px; color: var(--muted); }
+
+/* security */
+.sec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sec-item { border-top: 2px solid var(--accent); padding-top: 14px; display: grid; gap: 6px; }
+.sec-item b { font-size: 16px; }
+.sec-item span { color: var(--muted); font-size: 14.5px; }
 
 /* plans */
-.billing { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 26px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px; }
-.billing > span { color: var(--muted); transition: color .2s; }
-.billing[aria-checked="false"] .bm, .billing[aria-checked="true"] .by { color: var(--ink); }
-.billing small { color: var(--good); font-weight: 600; font-size: 13px; }
-.track { position: relative; width: 46px; height: 26px; border-radius: 99px; background: var(--line); flex: none; transition: background .2s; }
-.billing[aria-checked="true"] .track { background: var(--accent); }
-.track i { position: absolute; top: 3px; inset-inline-start: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: inset-inline-start .2s; }
-.billing[aria-checked="true"] .track i { inset-inline-start: 23px; }
-.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
-.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px; display: grid; gap: 16px; align-content: start; position: relative; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: grid; gap: 14px; align-content: start; position: relative; }
 .plan.hot { border: 2px solid var(--accent); }
-.plan .tag { position: absolute; top: -12px; inset-inline-start: 24px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
-.plan h3 { font-size: 22px; font-weight: 700; }
-.plan .for { color: var(--muted); font-size: 14.5px; margin: -8px 0 0; }
+.plan .tag { position: absolute; top: -11px; inset-inline-start: 22px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 4px; }
+.plan h3 { font-size: 21px; font-weight: 700; }
+.plan .for { color: var(--muted); font-size: 14.5px; margin-top: -8px; }
 .price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
-.price b { font-family: "Outfit", sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.price b { font-family: "Outfit", sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
 .price span { color: var(--muted); font-size: 14.5px; }
-.setup { font-size: 13.5px; color: var(--muted); margin-top: -8px; }
-.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 14.5px; }
+.permo { font-size: 13.5px; color: var(--muted); margin-top: -8px; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; }
 .plan li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
-.plan li svg { width: 16px; height: 16px; margin-top: 3px; }
-.plan li.yes svg { color: var(--good); }
-.plan li.no { color: var(--muted); }
-.plan li.no svg { color: var(--muted); }
+.plan li svg { width: 16px; height: 16px; margin-top: 3px; color: var(--good); }
 .plan .btn { width: 100%; margin-top: auto; }
-.plans-note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+.plans-note { margin-top: 16px; font-size: 14px; color: var(--muted); max-width: 80ch; }
 
 /* founder */
-.founder { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: center; }
-.quote { font-family: var(--display); font-size: clamp(22px, 3vw, 30px); font-weight: 600; line-height: 1.3; letter-spacing: -.01em; }
-html[lang="ar"] .quote { letter-spacing: 0; line-height: 1.5; }
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
-.fact b { font-family: "Outfit", sans-serif; font-size: 30px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.founder { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; }
+.quote { font-family: var(--display); font-size: clamp(21px, 2.6vw, 28px); font-weight: 600; line-height: 1.35; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.fact { background: var(--surface); padding: 18px; display: grid; gap: 4px; }
+.fact b { font-family: "Outfit", sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); line-height: 1.1; }
 .fact span { font-size: 13.5px; color: var(--muted); }
-.founder .who { margin-top: 18px; color: var(--muted); font-size: 15px; }
+.founder .who { margin-top: 16px; color: var(--muted); font-size: 15px; }
 
 /* faq */
-.faq { display: grid; gap: 10px; max-width: 820px; }
-.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
-.faq summary { font-weight: 600; cursor: pointer; font-size: 16.5px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq { display: grid; gap: 8px; max-width: 840px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 15px 18px; }
+.faq summary { font-weight: 600; cursor: pointer; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
 .faq summary::after { content: "+"; color: var(--accent); font-weight: 700; }
 .faq details[open] summary::after { content: "–"; }
 .faq summary::-webkit-details-marker { display: none; }
-.faq p { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+.faq p { margin-top: 10px; color: var(--muted); font-size: 15px; }
 
-/* final cta */
+/* final */
 .final { text-align: center; display: grid; gap: 16px; justify-items: center; }
-.final h2 { font-size: clamp(30px, 4.5vw, 46px); font-weight: 800; letter-spacing: -.02em; }
+.final h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -.02em; }
 html[lang="ar"] .final h2 { letter-spacing: 0; }
+.final .btn:not(.primary) { background: transparent; color: var(--deep-ink); border-color: color-mix(in srgb, var(--deep-ink) 35%, transparent); }
 .contact { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 15px; }
 .contact .mono { user-select: all; }
-.copy { border: 1px solid color-mix(in srgb, var(--deep-ink) 30%, transparent); background: transparent; color: inherit; border-radius: 8px; padding: 4px 10px; font-size: 13px; }
-footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
-.draft { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); inset-inline-start: 14px; z-index: 40; background: var(--warn-soft); color: var(--warn); font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 99px; }
-.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; max-width: 380px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 10px; font-size: 14px; text-align: center; }
+.copy { border: 1px solid color-mix(in srgb, var(--deep-ink) 30%, transparent); background: transparent; color: inherit; border-radius: 5px; padding: 4px 10px; font-size: 13px; }
+footer { padding-block: 26px calc(26px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+.toast { position: fixed; z-index: 60; inset-inline: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; max-width: 380px; background: var(--ink); color: var(--bg); padding: 11px 14px; border-radius: 8px; font-size: 14px; text-align: center; }
 
+@media (max-width: 1080px) {
+  .mods { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .inds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fbody { grid-template-columns: 110px minmax(0, 1fr); } .fai { display: none; }
+}
 @media (max-width: 960px) {
-  .hero-in, .founder { grid-template-columns: minmax(0, 1fr); }
-  .contrast, .feats, .plans, .steps { grid-template-columns: minmax(0, 1fr); }
-  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .inds { grid-template-columns: minmax(0, 1fr); }
+  .hero-in, .founder, .asst, .calc { grid-template-columns: minmax(0, 1fr); }
+  .calc-in { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  .replace, .plans, .steps, .ints, .sec-grid { grid-template-columns: minmax(0, 1fr); }
+  .roles { grid-template-columns: minmax(0, 1fr); }
+  .rtabs { grid-template-columns: repeat(4, minmax(0, 1fr)); border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  .rtabs button { border-bottom: 0; border-inline-end: 1px solid var(--line); padding: 10px; }
+  .rtabs button span { display: none; }
+  .rtabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 var(--cta) !important; }
   .links { display: none; }
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   section { padding-block: 52px; }
-  .facts, .tiles { grid-template-columns: minmax(0, 1fr); }
-  .nav-cta { display: none; }
-  .mock-row .wa span { display: none; }
+  .mods, .inds, .facts { grid-template-columns: minmax(0, 1fr); }
+  .nav-demo { display: none; }
+  .fbody { grid-template-columns: minmax(0, 1fr); } .fside { display: none; }
+  .rtabs button b { font-size: 14px; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .mock-row.new { animation: slide .6s ease-out; }
-  @keyframes slide { from { background: var(--accent-soft); } to { background: transparent; } }
-}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
@@ -274,10 +312,11 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
 <nav class="top" aria-label="Main">
   <div class="wrap nav-in">
     <a class="logo" href="#top" aria-label="Jreebs home"><i aria-hidden="true">ج</i><b data-brand></b></a>
-    <div class="links"><a href="#features" data-t="navFeatures"></a><a href="#industries" data-t="navInd"></a><a href="#plans" data-t="navPlans"></a><a href="#faq" data-t="navFaq"></a></div>
-    <button class="theme" type="button" id="themeBtn"></button>
-    <button class="lang" type="button" id="langBtn"></button>
-    <a class="btn sm primary nav-cta" data-wa="demo" target="_blank" rel="noopener" data-t="ctaDemo"></a>
+    <div class="links"><a href="#product" data-t="navProduct"></a><a href="#roles" data-t="navRoles"></a><a href="#integrations" data-t="navInt"></a><a href="#plans" data-t="navPlans"></a><a href="#faq" data-t="navFaq"></a></div>
+    <button class="ghostbtn theme" type="button" id="themeBtn"></button>
+    <button class="ghostbtn" type="button" id="langBtn"></button>
+    <a class="btn sm nav-demo" href="/app/?demo" data-t="ctaTry"></a>
+    <a class="btn sm primary" data-wa="demo" target="_blank" rel="noopener" data-t="ctaBook"></a>
   </div>
 </nav>
 
@@ -289,31 +328,41 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
         <h1 data-th="heroTitle"></h1>
         <p class="lead" data-t="heroLead"></p>
         <div class="ctas">
-          <a class="btn primary" data-wa="demo" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg><span data-t="ctaDemo"></span></a>
-          <a class="btn" href="/demo/" target="_blank" rel="noopener" data-t="ctaLive"></a>
+          <a class="btn primary" href="/app/?demo" data-t="ctaTryLong"></a>
+          <a class="btn" data-wa="demo" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg><span data-t="ctaBookLong"></span></a>
         </div>
         <p class="note" data-t="heroNote"></p>
       </div>
-      <div class="mock" aria-label="Product preview">
-        <div class="mock-h"><b data-t="mockTitle"></b><span class="mono">14:15</span></div>
-        <div class="mock-k">
-          <div><b>42</b><span data-t="mockK1"></span></div>
-          <div><b style="color:var(--good)">91%</b><span data-t="mockK2"></span></div>
-          <div><b style="color:var(--crit)">3</b><span data-t="mockK3"></span></div>
-        </div>
-        <div id="mockRows"></div>
-        <div class="mock-foot" data-th="mockFoot"></div>
-      </div>
+      <div class="frame" aria-label="Product preview" id="frame"></div>
     </div>
   </section>
 
-  <section style="padding-top:24px">
+  <section style="padding-top:20px">
     <div class="wrap">
-      <div class="sec-head"><p class="eyebrow" data-t="painEyebrow"></p><h2 data-t="painTitle"></h2></div>
-      <div class="contrast">
-        <div class="side before"><h3 data-t="beforeTitle"></h3><ul id="beforeList"></ul></div>
-        <div class="side after"><h3 data-t="afterTitle"></h3><ul id="afterList"></ul></div>
-      </div>
+      <div class="sec-head"><p class="eyebrow" data-t="repEyebrow"></p><h2 data-t="repTitle"></h2></div>
+      <div class="replace"><div class="before"><h3 data-t="beforeTitle"></h3><ul id="beforeList"></ul></div><div class="after"><h3 data-t="afterTitle"></h3><ul id="afterList"></ul></div></div>
+    </div>
+  </section>
+
+  <section id="product" class="alt">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="modEyebrow"></p><h2 data-t="modTitle"></h2><p data-t="modLead"></p></div>
+      <div class="mods" id="mods"></div>
+      <p class="foundation-note" data-t="modNote"></p>
+    </div>
+  </section>
+
+  <section id="roles">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="roleEyebrow"></p><h2 data-t="roleTitle"></h2><p data-t="roleLead"></p></div>
+      <div class="roles"><div class="rtabs" role="tablist" id="rtabs"></div><div class="rpanel" role="tabpanel" id="rpanel"></div></div>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="aiEyebrow"></p><h2 data-t="aiTitle"></h2><p data-t="aiLead"></p></div>
+      <div class="asst"><div class="qa" id="qa"></div><ul class="trust" id="trust"></ul></div>
     </div>
   </section>
 
@@ -324,48 +373,58 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
     </div>
   </section>
 
-  <section id="features">
-    <div class="wrap">
-      <div class="sec-head"><p class="eyebrow" data-t="featEyebrow"></p><h2 data-t="featTitle"></h2></div>
-      <div class="feats" id="feats"></div>
-    </div>
-  </section>
-
-  <section style="padding-top:24px">
-    <div class="wrap">
-      <div class="sec-head"><p class="eyebrow" data-t="valEyebrow"></p><h2 data-t="valTitle"></h2></div>
-      <div class="tiles" id="tiles"></div>
-    </div>
-  </section>
-
-  <section id="industries" style="padding-top:24px">
+  <section id="industries">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="indEyebrow"></p><h2 data-t="indTitle"></h2><p data-t="indLead"></p></div>
       <div class="inds" id="inds"></div>
     </div>
   </section>
 
-  <section id="plans" style="background:var(--surface-2)">
+  <section id="integrations" class="alt">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="intEyebrow"></p><h2 data-t="intTitle"></h2><p data-t="intLead"></p></div>
+      <div class="ints" id="ints"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="calcEyebrow"></p><h2 data-t="calcTitle"></h2><p data-t="calcLead"></p></div>
+      <div class="calc">
+        <div class="calc-in">
+          <div class="field"><label for="cAgents"><span data-t="cAgents"></span><output id="oAgents"></output></label><input type="range" id="cAgents" min="2" max="80" value="10"></div>
+          <div class="field"><label for="cSalary"><span data-t="cSalary"></span><output id="oSalary"></output></label><input type="range" id="cSalary" min="300" max="1500" step="25" value="550"><small data-t="cSalaryHint"></small></div>
+          <div class="field"><label for="cHours"><span data-t="cHours"></span><output id="oHours"></output></label><input type="range" id="cHours" min="0.5" max="5" step="0.5" value="2"><small data-t="cHoursHint"></small></div>
+          <div class="field"><label for="cShare"><span data-t="cShare"></span><output id="oShare"></output></label><input type="range" id="cShare" min="10" max="60" step="5" value="30"><small data-t="cShareHint"></small></div>
+        </div>
+        <div class="calc-out" id="calcOut" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow" data-t="secEyebrow"></p><h2 data-t="secTitle"></h2></div>
+      <div class="sec-grid" id="secGrid"></div>
+    </div>
+  </section>
+
+  <section id="plans">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="planEyebrow"></p><h2 data-t="planTitle"></h2><p data-t="planLead"></p></div>
-      <button type="button" class="billing" id="billSwitch" role="switch" aria-checked="false"><span class="bm" data-t="billM"></span><span class="track" aria-hidden="true"><i></i></span><span class="by"><span data-t="billY"></span> <small data-t="billSave"></small></span></button>
       <div class="plans" id="plans-grid"></div>
       <p class="plans-note" data-t="planNote"></p>
     </div>
   </section>
 
-  <section>
+  <section class="alt">
     <div class="wrap founder">
-      <div>
-        <p class="eyebrow" data-t="founderEyebrow"></p>
-        <p class="quote" data-t="founderQuote"></p>
-        <p class="who" data-t="founderWho"></p>
-      </div>
+      <div><p class="eyebrow" data-t="founderEyebrow"></p><p class="quote" data-t="founderQuote" style="margin-top:10px"></p><p class="who" data-t="founderWho"></p></div>
       <div class="facts" id="facts"></div>
     </div>
   </section>
 
-  <section id="faq" style="padding-top:24px">
+  <section id="faq">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="faqEyebrow"></p><h2 data-t="faqTitle"></h2></div>
       <div class="faq" id="faqList"></div>
@@ -375,14 +434,14 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
   <section class="dark">
     <div class="wrap final">
       <h2 data-t="finalTitle"></h2>
-      <p class="muted" data-t="finalLead" style="margin:0;font-size:18px;max-width:36em"></p>
-      <a class="btn primary" data-wa="demo" target="_blank" rel="noopener" data-t="ctaDemo"></a>
+      <p class="muted" data-t="finalLead" style="font-size:18px;max-width:38em"></p>
+      <div class="ctas" style="justify-content:center"><a class="btn primary" href="/app/?demo" data-t="ctaTryLong"></a><a class="btn" data-wa="demo" target="_blank" rel="noopener" data-t="ctaBookLong"></a></div>
       <div class="contact"><span data-t="orEmail"></span> <span class="mono" id="email"></span> <button class="copy" type="button" id="copyEmail" data-t="copy"></button></div>
     </div>
   </section>
 </main>
 
-<div class="wrap"><footer><span>© 2026 <span data-brand></span> · <span data-t="footerLoc"></span></span><span data-t="footerData"></span> · <a href="/privacy.html" data-t="footerPrivacy"></a></footer></div>
+<div class="wrap"><footer><span>© 2026 <span data-brand></span> · <span data-t="footerLoc"></span></span><span><span data-t="footerData"></span> · <a href="/privacy.html" data-t="footerPrivacy"></a></span></footer></div>
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
@@ -390,137 +449,189 @@ footer { padding-block: 28px; border-top: 1px solid var(--line); color: var(--mu
 const BRAND = { en: "Jreebs", ar: "مغطينك" };
 const PHONE = "962795384541";
 const EMAIL = "hello@jreebs.com";
-const PRICES = { starter: [49, 490], growth: [99, 990], pro: [199, 1990] };
+const PLAN_PRICES = { starter: [490, 5, 60, 150], professional: [1190, 15, 50, 350], business: [2490, 40, 40, 750] }; // per year, users included, extra user, setup
 
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const IC = {
-  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
-  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>',
-  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>',
-  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
-  yes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>',
-  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>',
-  wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/></svg>'
+  yes: svg('<path d="m5 12 5 5L20 7"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon: svg('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>'),
+  eye: svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  list: svg('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),
+  hand: svg('<path d="M9 11V5a2 2 0 0 1 4 0v6M13 10V4a2 2 0 0 1 4 0v8M17 11a2 2 0 0 1 4 0v3a8 8 0 0 1-8 8h-1a8 8 0 0 1-7-4l-2.5-4.5a2 2 0 0 1 3.4-2L9 14V8"/>'),
+  gauge: svg('<path d="M12 14l4-4M3.3 17a9 9 0 1 1 17.4 0"/>')
 };
 
 const T = {
   en: {
-    navFeatures: "Features", navInd: "Industries", navPlans: "Plans", navFaq: "FAQ", ctaDemo: "Book a free demo", ctaLive: "Try the live demo",
-    heroEyebrow: "Operations software for companies in Jordan",
-    heroTitle: "Your whole operation, <em>on one screen.</em>",
-    heroLead: "Jreebs watches your orders, visits and complaints, warns your team before a customer notices, and turns every follow-up into one click.",
-    heroNote: "No app to install. Set up for you in about a week. Arabic and English.",
-    mockTitle: "Needs attention", mockK1: "orders today", mockK2: "on time", mockK3: "late now",
-    mockFoot: "<b>⚡ 3 rules</b> flagged these automatically. One click sends the update.",
-    painEyebrow: "Sound familiar?", painTitle: "Most teams find problems when the customer calls to complain.",
-    beforeTitle: "Without an ops desk", afterTitle: "With Jreebs",
-    valEyebrow: "What it gets you", valTitle: "What your team feels in the first week.",
-    themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode",
-    howEyebrow: "How it works", howTitle: "We set it up around how your team already works.", howLead: "No long software project. You talk to someone who has run operations teams, not a salesperson.",
-    featEyebrow: "What you get", featTitle: "Everything your coordinators do by hand, in one place.",
-    indEyebrow: "Who it's for", indTitle: "Built for teams that move fast and talk to customers all day.", indLead: "Each business gets its own private workspace with rules made for its work.",
-    planEyebrow: "Plans", planTitle: "Pick a plan. Upgrade when you grow.", planLead: "Every plan includes setup help, training for your team, and support in Arabic and English.",
-    billM: "Monthly", billY: "Yearly", billSave: "2 months free",
-    planNote: "Prices in Jordanian dinars, excluding tax. Cancel any time on monthly plans, and you take your data with you.",
-    perMonth: "/ month", perYear: "/ year", from: "from", setup: "One-time setup", custom: "quoted after the free check-up",
-    choose: "Start with", popular: "Most popular",
+    navProduct: "Product", navRoles: "Who uses it", navInt: "Integrations", navPlans: "Pricing", navFaq: "FAQ",
+    ctaTry: "Try the demo", ctaTryLong: "Try the live demo", ctaBook: "Book a demo", ctaBookLong: "Book a 20-minute walkthrough",
+    heroEyebrow: "The operations workspace for companies in Jordan",
+    heroTitle: "Every team, every customer, every number. <em>One workspace.</em>",
+    heroLead: "Orders, customer conversations, shared email, shifts, quality reviews, SOPs and reports in one place, for agents, team leads, managers and owners. With an assistant that answers questions from your own data.",
+    heroNote: "Runs in the browser. Set up with you in about a week. Arabic and English. The demo needs no sign-up.",
+    repEyebrow: "What it replaces", repTitle: "Most teams run on WhatsApp groups, spreadsheets and memory.",
+    beforeTitle: "Today", afterTitle: "With Jreebs",
+    modEyebrow: "The foundation", modTitle: "The basics every company needs, built in. Shaped to how yours works.", modLead: "Every workspace starts with the same solid foundation. Your statuses, time limits, message templates, rules and SOPs are set up for your business, and you switch on what you need.",
+    modNote: "Need something specific to your work? Custom fields, rules, reports and connections are added during setup.",
+    roleEyebrow: "From CSR to owner", roleTitle: "Each person opens the screen built for their job.", roleLead: "Access is set by role in the database, so people only ever see what their role allows.",
+    aiEyebrow: "The assistant", aiTitle: "Ask your data a question. Get a straight answer.", aiLead: "The assistant reads your orders, conversations, emails, team and SOPs, and answers in plain Arabic or English with the records it used. It saves the digging, not the judgement.",
+    howEyebrow: "How setup works", howTitle: "We set it up around how your team already works.", howLead: "No long software project. You deal with someone who has run operations teams.",
+    indEyebrow: "Who it's for", indTitle: "Built for teams that move fast and talk to customers all day.", indLead: "One foundation, a template for your industry on top.",
+    intEyebrow: "Integrations", intTitle: "Works with the tools you already pay for.", intLead: "Jreebs sits next to your accounting, HR and POS systems. It doesn't replace them. Every system can export to Excel, so every company can start on day one.",
+    calcEyebrow: "Estimate", calcTitle: "What manual follow-up costs you now.", calcLead: "Move the sliders to match your team. The numbers are your own estimate, not a promise.",
+    cAgents: "People in your operations team", cSalary: "Average monthly salary (JOD)", cSalaryHint: "Include social security if you like.", cHours: "Hours each spends a day on manual chasing", cHoursHint: "Copying between WhatsApp and Excel, building reports, asking who did what.", cShare: "Share of that time you'd expect to save", cShareHint: "Your own estimate. Start low.",
+    outHours: "hours a month back to your team", outValue: "Value of that time per year", outPlan: "Matching plan per year", outNet: "Difference per year", outFine: "Value = hours saved × hourly cost from the salary you entered (22 working days, 8 hours). Plan prices exclude 16% sales tax.",
+    secEyebrow: "Security and data", secTitle: "Your data stays yours, and stays separate.",
+    planEyebrow: "Pricing", planTitle: "Billed yearly. Priced by the size of your team.", planLead: "Every plan includes setup help, training for your team, the assistant, and support in Arabic and English.",
+    perYear: "JOD / year", perMonthEq: "≈ {m} JOD a month, billed yearly", usersInc: "{n} users included · extra users {x} JOD a year", setupFee: "One-time setup {s} JOD", from: "from",
+    choose: "Talk to us about {p}", popular: "Most chosen",
+    planNote: "Prices in Jordanian dinars, excluding 16% sales tax. Need a different mix of users, channels or connections? Ask for a quote. If you leave, you take all your data with you.",
     founderEyebrow: "Why Jreebs", founderQuote: "I spent 8 years inside delivery and customer operations. I built Jreebs for the problems I fixed by hand every day.",
     founderWho: "Mohammad Al-Khateeb, founder. Former Operations Team Lead and QA Specialist.",
     faqEyebrow: "Questions", faqTitle: "Things people ask before they start",
-    finalTitle: "See it running on your own operation.", finalLead: "Book a free 20-minute demo. We'll look at how your team works today and show you where Jreebs saves time.",
+    finalTitle: "See it running before you decide.", finalLead: "Open the live demo and switch between an agent, a team lead and an owner. Then book a walkthrough and we'll look at how your team works today.",
     orEmail: "Or email", copy: "Copy", copied: "Email copied",
     footerLoc: "Amman, Jordan", footerData: "Your data stays yours. Export it any time.", footerPrivacy: "Privacy",
-    waDemo: "Hello, I'd like to book a free demo of Jreebs.", waPlan: "Hello, I'm interested in the Jreebs {plan} plan. Can we book a demo?"
+    waDemo: "Hello, I'd like a walkthrough of Jreebs for my company.", waPlan: "Hello, I'm interested in the Jreebs {plan} plan for my company."
   },
   ar: {
-    navFeatures: "المزايا", navInd: "القطاعات", navPlans: "الباقات", navFaq: "أسئلة", ctaDemo: "احجز عرضاً مجانياً", ctaLive: "جرّب النسخة التجريبية",
-    heroEyebrow: "نظام عمليات للشركات في الأردن",
-    heroTitle: "عملياتك كلّها <em>على شاشة وحدة.</em>",
-    heroLead: "مغطينك يراقب طلباتك وزياراتك وشكاوى العملاء، وينبّه فريقك قبل ما ينتبه العميل، ويخلّي كل متابعة بكبسة زر.",
-    heroNote: "بدون تطبيق تنزّله. نجهّزه إلك خلال أسبوع تقريباً. عربي وإنجليزي.",
-    mockTitle: "بحاجة لانتباه", mockK1: "طلب اليوم", mockK2: "بالوقت", mockK3: "متأخر الآن",
-    mockFoot: "<b>⚡ ٣ قواعد</b> رصدت هاي الحالات تلقائياً. كبسة وحدة بتبعث التحديث.",
-    painEyebrow: "مألوف؟", painTitle: "أغلب الفرق بتكتشف المشكلة لما يتصل العميل يشتكي.",
-    beforeTitle: "بدون نظام عمليات", afterTitle: "مع مغطينك",
-    valEyebrow: "شو بتستفيد", valTitle: "اللي بيحسّه فريقك من أول أسبوع.",
-    themeToDark: "الوضع الداكن", themeToLight: "الوضع الفاتح",
-    howEyebrow: "كيف بيشتغل", howTitle: "منجهّزه على طريقة شغل فريقك الحالية.", howLead: "مش مشروع برمجي طويل. بتحكي مع شخص أدار فرق عمليات، مش مندوب مبيعات.",
-    featEyebrow: "شو بتحصل", featTitle: "كل الشغل اليدوي اللي بيعمله المنسّقين، بمكان واحد.",
-    indEyebrow: "لمين", indTitle: "مصمم للفرق السريعة اللي بتتعامل مع العملاء طول اليوم.", indLead: "كل شركة إلها مساحة خاصة فيها، بقواعد مصممة لطبيعة شغلها.",
-    planEyebrow: "الباقات", planTitle: "اختار باقتك، وكبّر لما تكبر.", planLead: "كل الباقات فيها مساعدة بالتجهيز، تدريب للفريق، ودعم بالعربي والإنجليزي.",
-    billM: "شهري", billY: "سنوي", billSave: "شهرين مجاناً",
-    planNote: "الأسعار بالدينار الأردني وغير شاملة الضريبة. بالباقات الشهرية بتقدر تلغي بأي وقت وبتاخذ بياناتك معك.",
-    perMonth: "/ شهرياً", perYear: "/ سنوياً", from: "يبدأ من", setup: "رسوم تجهيز لمرة واحدة", custom: "حسب الفحص المجاني",
-    choose: "ابدأ بباقة", popular: "الأكثر طلباً",
+    navProduct: "المنتج", navRoles: "مين بيستخدمه", navInt: "الربط", navPlans: "الأسعار", navFaq: "أسئلة",
+    ctaTry: "جرّب العرض", ctaTryLong: "جرّب النسخة التجريبية", ctaBook: "احجز عرض", ctaBookLong: "احجز عرض ٢٠ دقيقة",
+    heroEyebrow: "مساحة العمليات للشركات في الأردن",
+    heroTitle: "كل فريق، كل عميل، كل رقم. <em>بمساحة وحدة.</em>",
+    heroLead: "الطلبات، محادثات العملاء، الإيميل المشترك، الشفتات، تقييم الجودة، الإجراءات والتقارير بمكان واحد، للموظف وقائد الفريق والمدير وصاحب الشركة. ومعها مساعد بيجاوب على أسئلتك من بياناتك انت.",
+    heroNote: "بيشتغل على المتصفح. منجهّزه معك خلال أسبوع تقريباً. عربي وإنجليزي. العرض التجريبي بدون تسجيل.",
+    repEyebrow: "شو بيستبدل", repTitle: "أغلب الفرق شغالة على قروبات واتساب وملفات إكسل والذاكرة.",
+    beforeTitle: "اليوم", afterTitle: "مع مغطينك",
+    modEyebrow: "الأساس", modTitle: "الأساسيات اللي بتحتاجها كل شركة، جاهزة. ومفصّلة على طريقة شغلك.", modLead: "كل مساحة بتبدأ بنفس الأساس المتين. حالاتك، أوقات الالتزام، الرسائل الجاهزة، القواعد والإجراءات بتنجهز لشغلك، وبتشغّل اللي بتحتاجه.",
+    modNote: "بدك إشي خاص بشغلك؟ الحقول والقواعد والتقارير والربط الخاص بنضيفهم وقت التجهيز.",
+    roleEyebrow: "من موظف خدمة العملاء لصاحب الشركة", roleTitle: "كل شخص بيفتح الشاشة المصممة لشغله.", roleLead: "الصلاحيات حسب الدور ومحمية بقاعدة البيانات، فكل شخص بيشوف بس اللي بيسمحله دوره.",
+    aiEyebrow: "المساعد", aiTitle: "اسأل بياناتك سؤال، وخذ جواب واضح.", aiLead: "المساعد بيقرأ الطلبات والمحادثات والإيميلات والفريق والإجراءات، وبيجاوب بالعربي أو الإنجليزي ومعه السجلات اللي اعتمد عليها. بيوفر عليك البحث، والقرار بضل إلك.",
+    howEyebrow: "كيف منجهّزه", howTitle: "منجهّزه على طريقة شغل فريقك الحالية.", howLead: "مش مشروع برمجي طويل. بتتعامل مع شخص أدار فرق عمليات.",
+    indEyebrow: "لمين", indTitle: "مصمم للفرق السريعة اللي بتتعامل مع العملاء طول اليوم.", indLead: "أساس واحد، وفوقه قالب لقطاعك.",
+    intEyebrow: "الربط", intTitle: "بيشتغل مع الأنظمة اللي بتدفع عليها أصلاً.", intLead: "مغطينك بيشتغل جنب أنظمة المحاسبة والموارد البشرية ونقاط البيع، مش بدالها. وكل نظام بيصدّر لإكسل، فأي شركة بتقدر تبدأ من أول يوم.",
+    calcEyebrow: "تقدير", calcTitle: "قديش بتكلفك المتابعة اليدوية هلأ.", calcLead: "حرّك الأشرطة لتناسب فريقك. الأرقام تقديرك انت، مش وعد منا.",
+    cAgents: "عدد فريق العمليات", cSalary: "متوسط الراتب الشهري (دينار)", cSalaryHint: "ممكن تضيف الضمان الاجتماعي.", cHours: "ساعات المتابعة اليدوية لكل شخص باليوم", cHoursHint: "نسخ بين واتساب وإكسل، تجهيز تقارير، سؤال مين عمل شو.", cShare: "نسبة الوقت اللي بتتوقع توفّرها", cShareHint: "تقديرك انت. ابدأ بنسبة قليلة.",
+    outHours: "ساعة بالشهر بترجع لفريقك", outValue: "قيمة هالوقت بالسنة", outPlan: "الباقة المناسبة بالسنة", outNet: "الفرق بالسنة", outFine: "القيمة = الساعات الموفّرة × كلفة الساعة من الراتب اللي دخلته (٢٢ يوم عمل، ٨ ساعات). أسعار الباقات غير شاملة ضريبة المبيعات ١٦٪.",
+    secEyebrow: "الأمان والبيانات", secTitle: "بياناتك إلك، ومنفصلة عن غيرها.",
+    planEyebrow: "الأسعار", planTitle: "اشتراك سنوي، والسعر حسب حجم فريقك.", planLead: "كل الباقات فيها مساعدة بالتجهيز، تدريب للفريق، المساعد، ودعم بالعربي والإنجليزي.",
+    perYear: "د.أ / سنوياً", perMonthEq: "≈ {m} د.أ بالشهر، دفع سنوي", usersInc: "{n} مستخدمين ضمن الباقة · المستخدم الإضافي {x} د.أ بالسنة", setupFee: "رسوم تجهيز لمرة واحدة {s} د.أ", from: "يبدأ من",
+    choose: "احكي معنا عن باقة {p}", popular: "الأكثر اختياراً",
+    planNote: "الأسعار بالدينار الأردني وغير شاملة ضريبة المبيعات ١٦٪. بدك عدد مستخدمين أو قنوات أو ربط مختلف؟ اطلب عرض سعر. وإذا وقفت، بتاخذ كل بياناتك معك.",
     founderEyebrow: "ليش مغطينك", founderQuote: "قضيت ٨ سنين جوّا عمليات التوصيل وخدمة العملاء. بنيت مغطينك للمشاكل اللي كنت أحلّها بإيدي كل يوم.",
     founderWho: "محمد الخطيب، المؤسس. قائد فريق عمليات وأخصائي ضبط جودة سابقاً.",
     faqEyebrow: "أسئلة", faqTitle: "أسئلة بتنسأل قبل البداية",
-    finalTitle: "شوفه شغّال على عملياتك انت.", finalLead: "احجز عرض مجاني ٢٠ دقيقة. منشوف كيف بيشتغل فريقك اليوم ومنورجيك وين مغطينك بيوفّر وقت.",
+    finalTitle: "شوفه شغّال قبل ما تقرر.", finalLead: "افتح النسخة التجريبية وبدّل بين موظف وقائد فريق وصاحب شركة. بعدين احجز عرض ومنشوف مع بعض كيف بيشتغل فريقك اليوم.",
     orEmail: "أو راسلنا على", copy: "نسخ", copied: "تم نسخ الإيميل",
     footerLoc: "عمّان، الأردن", footerData: "بياناتك إلك. بتقدر تصدّرها بأي وقت.", footerPrivacy: "الخصوصية",
-    waDemo: "مرحبا، حابب أحجز عرض مجاني لنظام مغطينك.", waPlan: "مرحبا، مهتم بباقة {plan} من مغطينك. ممكن نحجز عرض؟"
+    waDemo: "مرحبا، حابب عرض لنظام مغطينك لشركتي.", waPlan: "مرحبا، مهتم بباقة {plan} من مغطينك لشركتي."
   }
 };
 
 const BEFORE = {
-  en: ["Orders tracked across WhatsApp, Excel and memory", "Late orders nobody notices until the customer complains", "Every update and apology typed out by hand", "No record of who contacted the customer, or when", "A new hire needs a week of shadowing"],
-  ar: ["الطلبات موزّعة بين واتساب وإكسل والذاكرة", "الطلب المتأخر ما حدا بينتبهله لحد ما يشتكي العميل", "كل تحديث واعتذار بينكتب باليد", "ما في سجل مين تواصل مع العميل أو إمتى", "الموظف الجديد بدّه أسبوع ليتعلّم"]
+  en: ["Orders and complaints spread across WhatsApp groups, Excel and memory", "Customer emails sit in one person's inbox", "Reports rebuilt by hand every week, with three versions of the same number", "SOPs in a PDF nobody opens, and no record of who read them", "No one can say who has access to which system after someone leaves"],
+  ar: ["الطلبات والشكاوى موزّعة بين قروبات واتساب وإكسل والذاكرة", "إيميلات العملاء قاعدة بإيميل شخص واحد", "التقارير بتنعمل باليد كل أسبوع، وبيطلع ثلاث أرقام لنفس الإشي", "الإجراءات بملف PDF ما حدا بيفتحه، وما في سجل مين قرأها", "ما حدا بيعرف مين معه صلاحية على أي نظام بعد ما يطلع موظف"]
 };
 const AFTER = {
-  en: ["One screen, every order, updated live", "Late and at-risk orders flagged before the customer calls", "Ready WhatsApp messages in Arabic or English, one click to send", "Every action logged, with who and when", "A new hire opens the screen and knows what to do first"],
-  ar: ["شاشة وحدة، كل الطلبات، بتتحدّث مباشرة", "الطلبات المتأخرة بتنكشف قبل ما يتصل العميل", "رسائل واتساب جاهزة بالعربي أو الإنجليزي، بكبسة", "كل حركة مسجّلة، مين عملها وإمتى", "الموظف الجديد بيفتح الشاشة وبيعرف شو أول شي يعمله"]
+  en: ["Every order, conversation and email in one live queue, with who is handling it", "Late and at-risk work flagged before the customer calls", "Reports and live numbers built from the same data, by role", "SOPs with read confirmations, checklists and review dates", "A people and access list that flags leavers and extra access"],
+  ar: ["كل طلب ومحادثة وإيميل بقائمة وحدة مباشرة، وواضح مين ماسكه", "الشغل المتأخر أو المعرّض للتأخير بينكشف قبل ما يتصل العميل", "التقارير والأرقام المباشرة من نفس البيانات، حسب الدور", "إجراءات مع تأكيد قراءة وقوائم تحقق ومواعيد مراجعة", "قائمة موظفين وصلاحيات بتنبّهك عن اللي طلعوا والصلاحيات الزايدة"]
 };
-const VALUES = {
-  en: [["Minutes, not hours", "A customer update goes from five manual steps to one click."], ["Nothing slips through", "Late orders and unconfirmed visits are flagged before anyone has to ask."], ["One source of truth", "No more “did anyone message the customer?” Every action is logged."], ["Your data stays yours", "Each company's data is fully separate. Export it any time."]],
-  ar: [["دقائق مش ساعات", "تحديث العميل بصير كبسة وحدة بدل خمس خطوات يدوية."], ["ولا إشي بيفلت", "الطلبات المتأخرة والزيارات غير المؤكدة بتنكشف قبل ما حدا يسأل."], ["مصدر واحد للحقيقة", "خلص «حدا حكى مع العميل؟». كل حركة مسجّلة."], ["بياناتك إلك", "بيانات كل شركة منفصلة تماماً، وبتقدر تصدّرها بأي وقت."]]
+const MODS = {
+  en: [["Work", [["Orders, visits or complaints", "Live queue with stages, time limits and alerts"], ["Inbox", "Customer conversations with reply timers"], ["Email", "Shared mailboxes linked to customers and orders"], ["Customers", "One record per customer, built from phone numbers"]]],
+    ["Team", [["Team and shifts", "Members, roles, weekly rota, live board"], ["Quality", "Reviews with your own checklist and scores"], ["People and access", "Who can open which system, and leavers to remove"]]],
+    ["Company", [["Company profile", "Licences and files with expiry reminders"], ["Systems and tools", "Every tool and subscription with renewal dates"], ["SOPs", "Procedures with read tracking and reviews"]]],
+    ["Insights", [["Reports", "On-time, response time, team, customers, areas"], ["Assistant", "Questions answered from your own data"], ["Audit log", "Who did what, and when"]]],
+    ["Setup", [["Automations", "Your own rules: when, which, then what"], ["Message templates", "Arabic and English, filled in automatically"], ["Import and export", "Excel and CSV in, everything out, any time"]]]],
+  ar: [["الشغل", [["الطلبات أو الزيارات أو الشكاوى", "قائمة مباشرة بمراحل وأوقات التزام وتنبيهات"], ["المحادثات", "محادثات العملاء مع مؤقت للرد"], ["الإيميل", "صناديق بريد مشتركة مربوطة بالعملاء والطلبات"], ["العملاء", "سجل واحد لكل عميل، من رقم الهاتف"]]],
+    ["الفريق", [["الفريق والشفتات", "الأعضاء، الأدوار، جدول الأسبوع، اللوحة المباشرة"], ["الجودة", "تقييمات بقائمة معاييرك ونتائج"], ["الموظفين والصلاحيات", "مين بيفتح أي نظام، ومين لازم تنشال صلاحيته"]]],
+    ["الشركة", [["ملف الشركة", "الرخص والملفات مع تذكير قبل الانتهاء"], ["الأنظمة والأدوات", "كل أداة واشتراك مع موعد التجديد"], ["الإجراءات", "إجراءات مع تتبع القراءة والمراجعة"]]],
+    ["التحليل", [["التقارير", "الالتزام بالوقت، سرعة الرد، الفريق، العملاء، المناطق"], ["المساعد", "أجوبة من بياناتك انت"], ["سجل الحركات", "مين عمل شو وإمتى"]]],
+    ["الإعداد", [["الأتمتة", "قواعدك: إمتى، على شو، وبعدها شو"], ["الرسائل الجاهزة", "عربي وإنجليزي، بتتعبى تلقائياً"], ["الاستيراد والتصدير", "إكسل وCSV للداخل، وكل شي للخارج بأي وقت"]]]]
+};
+const ROLES = {
+  en: [["Agent / CSR", "My day", ["A personal queue: what's late, what's assigned, who's waiting for a reply", "Ready messages in Arabic or English, sent from WhatsApp in one click", "Customer history on one screen before answering", "The SOP for the task, one click away"], "Sees their own work and the shared queues. Can't open settings, reports or other people's reviews."],
+    ["Team lead", "Live board", ["Who is online, who is overloaded, what's slipping right now", "Reassign orders and conversations in bulk", "Quality reviews and coaching notes per agent", "Shift rota and daily targets"], "Sees the whole team's work and quality scores. Can't change billing or company settings."],
+    ["Manager", "Reports and rules", ["On-time rate, response time and volume by day, area and person", "Automations and time limits for the whole operation", "Imports, exports and shared mailboxes", "People and access review: leavers, contractors, extra access"], "Sees everything operational and sets the rules. Can't remove the owner."],
+    ["Owner", "Company health", ["One page: volume, on-time rate, open complaints, revenue", "Licences, insurance and subscriptions before they expire", "What each tool costs and who owns it", "The audit log of every action"], "Sees everything and decides who can see what."]],
+  ar: [["موظف خدمة العملاء", "يومي", ["قائمة شخصية: شو متأخر، شو معي، مين بيستنى رد", "رسائل جاهزة بالعربي أو الإنجليزي، بتنبعت من واتساب بكبسة", "تاريخ العميل كله بشاشة وحدة قبل الرد", "الإجراء الخاص بالمهمة، على بعد كبسة"], "بيشوف شغله والقوائم المشتركة. ما بيفتح الإعدادات أو التقارير أو تقييمات غيره."],
+    ["قائد الفريق", "اللوحة المباشرة", ["مين أونلاين، مين مضغوط، شو عم يفلت هلأ", "إعادة توزيع الطلبات والمحادثات دفعة وحدة", "تقييمات الجودة وملاحظات التدريب لكل موظف", "جدول الشفتات والأهداف اليومية"], "بيشوف شغل الفريق كله ونتائج الجودة. ما بيغيّر الاشتراك أو إعدادات الشركة."],
+    ["المدير", "التقارير والقواعد", ["الالتزام بالوقت وسرعة الرد والحجم حسب اليوم والمنطقة والشخص", "الأتمتة وأوقات الالتزام للعمليات كلها", "الاستيراد والتصدير وصناديق البريد المشتركة", "مراجعة الموظفين والصلاحيات: اللي طلعوا، المتعاقدين، الصلاحيات الزايدة"], "بيشوف كل الشغل وبيحط القواعد. ما بيقدر يشيل صاحب الشركة."],
+    ["صاحب الشركة", "صحة الشركة", ["صفحة وحدة: الحجم، الالتزام بالوقت، الشكاوى المفتوحة، الإيراد", "الرخص والتأمين والاشتراكات قبل ما تنتهي", "قديش بتكلف كل أداة ومين مسؤول عنها", "سجل كل حركة صارت"], "بيشوف كل شي وبيقرر مين بيشوف شو."]]
+};
+const QA = {
+  en: [["Which orders are late right now?", "A table of late orders with minutes late and the driver, plus buttons to open each one or send the apology."], ["What's our on-time rate by driver this week?", "Counted from finished orders, against your target."], ["Summarize the email from Burger Lab and list what they need.", "The request, the deadline and the action items, from the whole thread."], ["Any data problems I should fix?", "Duplicate customers, missing phone numbers, people who left but still have access."], ["كيف وضعنا اليوم؟", "ملخص اليوم بالعربي: الطلبات، المتأخر، المحادثات اللي بتستنى رد."]],
+  ar: [["شو الطلبات المتأخرة هلأ؟", "جدول بالطلبات المتأخرة وكم دقيقة والسائق، مع أزرار لفتح كل طلب أو إرسال الاعتذار."], ["قديش نسبة الالتزام بالوقت لكل سائق هالأسبوع؟", "محسوبة من الطلبات المنتهية، مقارنة بالهدف تبعك."], ["لخّصلي إيميل Burger Lab وشو المطلوب.", "الطلب والموعد النهائي والمهام، من المحادثة كاملة."], ["في مشاكل بالبيانات لازم أصلحها؟", "عملاء مكررين، أرقام ناقصة، موظفين طلعوا وصلاحياتهم لسا شغالة."], ["How are we doing today?", "A summary in English: orders, what's late, conversations waiting for a reply."]]
+};
+const TRUST = {
+  en: [["eye", "It only sees what you can see", "Every lookup runs with your own login. An agent's assistant can't read finance email; a driver's sees only their own stops."], ["list", "It shows how it found each answer", "Each answer lists the lookups it ran and links to the records, so you can check it."], ["hand", "It can't change anything on its own", "Assigning, changing a status or replying is offered as a button. Nothing happens until a person clicks it."], ["gauge", "Usage is capped per plan", "Each plan includes a monthly allowance of questions, so there are no surprise bills. Your data isn't used to train AI models."]],
+  ar: [["eye", "بيشوف بس اللي انت بتشوفه", "كل بحث بيصير بحسابك انت. مساعد الموظف ما بيقرأ إيميلات المالية، ومساعد السائق بيشوف طلباته بس."], ["list", "بيورجيك كيف وصل للجواب", "كل جواب فيه البحث اللي عمله وروابط للسجلات، عشان تتأكد بنفسك."], ["hand", "ما بيغيّر إشي لحاله", "التوزيع وتغيير الحالة والرد بيطلعوا كزر. ما بيصير إشي إلا لما شخص يكبس."], ["gauge", "الاستخدام محدود حسب الباقة", "كل باقة فيها عدد أسئلة شهري، فما في فواتير مفاجئة. وبياناتك ما بتستخدم لتدريب نماذج الذكاء الاصطناعي."]]
 };
 const STEPS = {
-  en: [["Free check-up", "Day 1–2", "We sit with your team, see how orders, calls and follow-ups really flow, and show you where time is lost."], ["Set up for you", "Within a week", "We build your workspace: your statuses, your rules, your WhatsApp messages, your team's logins."], ["Runs every day", "Ongoing", "Your team works from one screen. We watch the numbers with you and improve the rules each month."]],
-  ar: [["فحص مجاني", "اليوم ١–٢", "منقعد مع فريقك، منشوف كيف بتمشي الطلبات والمكالمات والمتابعات فعلياً، ومنورجيك وين بيضيع الوقت."], ["منجهّزه إلك", "خلال أسبوع", "منبني مساحتك: حالاتك، قواعدك، رسائل الواتساب، وحسابات فريقك."], ["شغّال كل يوم", "مستمر", "فريقك بيشتغل من شاشة وحدة. منتابع الأرقام معك ومنحسّن القواعد كل شهر."]]
-};
-const FEATS = {
-  en: [["bell", "Needs-attention alerts", "Late orders, unconfirmed visits and unanswered complaints rise to the top on their own."], ["chat", "One-click WhatsApp and calls", "Ready messages in Arabic or English, with the customer's name, time and order filled in."], ["bolt", "Automations you control", "Auto-assign drivers, escalate after 30 minutes, remind before visits. Switch each rule on or off."], ["chart", "Live numbers", "On-time rate, response time, no-shows and team targets, updated as work happens."], ["users", "Your whole team", "Coordinators, agents and managers each see what they need, with their own login."], ["lock", "Your data stays yours", "We never ask for your passwords. Connections use keys you can switch off, and you can export everything any time."]],
-  ar: [["bell", "تنبيهات «بحاجة لانتباه»", "الطلبات المتأخرة والزيارات غير المؤكدة والشكاوى بلا رد بتطلع لفوق لحالها."], ["chat", "واتساب واتصال بكبسة", "رسائل جاهزة بالعربي أو الإنجليزي، فيها اسم العميل والوقت والطلب تلقائياً."], ["bolt", "أتمتة تحت سيطرتك", "توزيع السواقين تلقائياً، تصعيد بعد ٣٠ دقيقة، تذكير قبل الزيارة. وكل قاعدة بتشغّلها أو بتطفيها."], ["chart", "أرقام مباشرة", "نسبة الالتزام بالوقت، سرعة الرد، الغيابات وأهداف الفريق، بتتحدّث أول بأول."], ["users", "فريقك كامل", "المنسّقين والموظفين والمدراء، كل واحد بيشوف اللي بيلزمه بحسابه الخاص."], ["lock", "بياناتك إلك", "ما منطلب كلمات السر أبداً. الربط بمفاتيح بتقدر توقفها، وبتقدر تصدّر كل شي بأي وقت."]]
+  en: [["Free check-up", "Day 1–2", "We sit with your team, see how orders, conversations and reports really flow, and agree what to set up."], ["Set up with you", "Within a week", "Your statuses, rules, templates, SOPs and team logins. We import your customers and open work from Excel."], ["Runs every day", "Ongoing", "Your team works from one screen. We review the numbers with you and adjust the rules as you grow."]],
+  ar: [["فحص مجاني", "اليوم ١–٢", "منقعد مع فريقك، منشوف كيف بتمشي الطلبات والمحادثات والتقارير فعلياً، ومنتفق شو بدنا نجهّز."], ["منجهّزه معك", "خلال أسبوع", "حالاتك، قواعدك، رسائلك، إجراءاتك وحسابات فريقك. ومنستورد العملاء والشغل المفتوح من إكسل."], ["شغّال كل يوم", "مستمر", "فريقك بيشتغل من شاشة وحدة. منراجع الأرقام معك ومنعدّل القواعد كل ما تكبر."]]
 };
 const INDS = {
-  en: [["Delivery and q-commerce", ["Late-order alerts with a ready apology message", "Auto-assign orders to the least busy driver", "On-time rate per driver and per area"]], ["Home healthcare and labs", ["Reminder when a patient hasn't confirmed", "Alert when no team has left 30 minutes before a visit", "No-show rebooking in one click"]], ["Cloud kitchens and restaurants", ["Complaints from Talabat, Careem and direct in one queue", "15-minute reply promise, escalation to the brand manager", "Repeat-customer flags"]], ["Call centers and service teams", ["Daily targets per agent", "Follow-up lists that build themselves", "Quality checks and coaching notes"]]],
-  ar: [["التوصيل والتجارة السريعة", ["تنبيه الطلبات المتأخرة مع رسالة اعتذار جاهزة", "توزيع الطلبات تلقائياً على أقل سائق مشغول", "نسبة الالتزام بالوقت لكل سائق ومنطقة"]], ["الرعاية المنزلية والمختبرات", ["تذكير لما المريض ما أكّد الموعد", "تنبيه إذا ما طلع الفريق قبل الزيارة بـ ٣٠ دقيقة", "إعادة حجز الغياب بكبسة"]], ["المطابخ السحابية والمطاعم", ["شكاوى طلبات وكريم والطلب المباشر بقائمة وحدة", "وعد رد خلال ١٥ دقيقة وتصعيد لمدير البراند", "تمييز العملاء المتكررين"]], ["مراكز الاتصال وفرق الخدمة", ["أهداف يومية لكل موظف", "قوائم متابعة بتنبني لحالها", "تقييم جودة وملاحظات تدريب"]]]
+  en: [["Delivery and q-commerce", ["Late-order alerts with a ready apology", "Driver stops on their phone", "On-time rate per driver and area"]], ["Home healthcare and labs", ["Unconfirmed visit reminders", "Team-not-dispatched alerts", "No-show rebooking in one click"]], ["Cloud kitchens and restaurants", ["Complaints from every app in one queue", "15-minute reply promise", "Repeat-customer flags"]], ["Call centers and service teams", ["Queues with reply timers", "Quality reviews and coaching", "Daily targets per agent"]]],
+  ar: [["التوصيل والتجارة السريعة", ["تنبيه الطلبات المتأخرة مع اعتذار جاهز", "طلبات السائق على موبايله", "الالتزام بالوقت لكل سائق ومنطقة"]], ["الرعاية المنزلية والمختبرات", ["تذكير بالزيارات غير المؤكدة", "تنبيه إذا الفريق ما طلع", "إعادة حجز الغياب بكبسة"]], ["المطابخ السحابية والمطاعم", ["شكاوى كل التطبيقات بقائمة وحدة", "وعد رد خلال ١٥ دقيقة", "تمييز العملاء المتكررين"]], ["مراكز الاتصال وفرق الخدمة", ["قوائم مع مؤقت للرد", "تقييم جودة وتدريب", "أهداف يومية لكل موظف"]]]
+};
+const INTS = {
+  en: [["now", "Available today", "Works from day one, no extra cost.", ["Excel and CSV import", "Export everything", "WhatsApp one-click messages", "Phone calls from the app", "Google Maps links"]],
+    ["setup", "Set up with Jreebs", "We build the connection with you during setup or as a paid add-on. Timing depends on the system and its access rules.", ["Shared email forwarding", "WhatsApp Business API", "Google Sheets", "Outlook and Microsoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
+    ["ask", "On request", "For larger companies, built with your system's partner.", ["SAP Business One", "Microsoft Dynamics", "Your own internal system", "Delivery apps through your POS"]]],
+  ar: [["now", "متاح اليوم", "بيشتغل من أول يوم، بدون كلفة إضافية.", ["استيراد إكسل وCSV", "تصدير كل شي", "رسائل واتساب بكبسة", "اتصال من التطبيق", "روابط خرائط جوجل"]],
+    ["setup", "منربطه معك", "منبني الربط معك وقت التجهيز أو كإضافة مدفوعة. المدة بتعتمد على النظام وشروط الوصول له.", ["تحويل الإيميل المشترك", "WhatsApp Business API", "Google Sheets", "Outlook وMicrosoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
+    ["ask", "حسب الطلب", "للشركات الأكبر، بالتعاون مع شريك نظامك.", ["SAP Business One", "Microsoft Dynamics", "نظامك الداخلي", "تطبيقات التوصيل عن طريق نقطة البيع"]]]
+};
+const SECURITY = {
+  en: [["Separate by design", "Each company's data is isolated in the database itself, not just hidden on screen. We test this on the live database."], ["Access by role", "Six roles from owner to driver. Managers can't promote themselves; drivers see only their own stops."], ["Two-step sign-in", "Every user can turn on authenticator codes and sign themselves out of every device at once."], ["Everything logged", "An audit log records who changed what, and when."], ["Never your passwords", "We never ask for passwords to your other systems. Connections use keys you can switch off."], ["Leave with your data", "Export every record to Excel any time. If you stop, we hand everything over and delete the rest."]],
+  ar: [["منفصلة من الأساس", "بيانات كل شركة معزولة بقاعدة البيانات نفسها، مش بس مخفية عالشاشة. ومنختبر هالشي على قاعدة البيانات الحية."], ["صلاحيات حسب الدور", "ستة أدوار من صاحب الشركة للسائق. المدير ما بيرقّي حاله، والسائق بيشوف طلباته بس."], ["تسجيل دخول بخطوتين", "كل مستخدم بيقدر يفعّل رموز التطبيق ويطلع من كل أجهزته بكبسة وحدة."], ["كل شي مسجّل", "سجل الحركات بيحفظ مين غيّر شو وإمتى."], ["ما منطلب كلمات سرك", "ما منطلب كلمات السر لأنظمتك الثانية. الربط بمفاتيح بتقدر توقفها."], ["بتطلع ومعك بياناتك", "صدّر كل سجل لإكسل بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذف الباقي."]]
 };
 const PLANS = {
-  en: [
-    { id: "starter", name: "Starter", for: "One team getting organised", setup: 150, feats: [[1, "One workspace, up to 3 users"], [1, "One-click WhatsApp and calls"], [1, "Ready message templates (Arabic and English)"], [1, "Daily numbers dashboard"], [0, "Automations and alerts"], [0, "Weekly performance report"], [0, "Several branches or brands"]] },
-    { id: "growth", name: "Growth", for: "Busy teams that want the system to do the chasing", setup: 300, hot: true, feats: [[1, "Everything in Starter"], [1, "Up to 10 users"], [1, "Automations: alerts, auto-assign, escalation"], [1, "Needs-attention list"], [1, "Weekly performance report"], [1, "Monthly rules review with us"], [0, "Several branches or brands"]] },
-    { id: "pro", name: "Pro", for: "Several branches, brands or teams", setup: null, from: true, feats: [[1, "Everything in Growth"], [1, "Unlimited users"], [1, "Several branches or brands"], [1, "Connections to your own systems"], [1, "Custom dashboards and reports"], [1, "Priority support"]] }
-  ],
-  ar: [
-    { id: "starter", name: "الأساسية", for: "فريق واحد بدّه يرتّب شغله", setup: 150, feats: [[1, "مساحة وحدة، لحد ٣ مستخدمين"], [1, "واتساب واتصال بكبسة"], [1, "رسائل جاهزة (عربي وإنجليزي)"], [1, "لوحة أرقام يومية"], [0, "الأتمتة والتنبيهات"], [0, "تقرير أداء أسبوعي"], [0, "عدة فروع أو براندات"]] },
-    { id: "growth", name: "النمو", for: "فرق مشغولة بدها النظام يلاحق عنها", setup: 300, hot: true, feats: [[1, "كل شي بالأساسية"], [1, "لحد ١٠ مستخدمين"], [1, "أتمتة: تنبيهات، توزيع تلقائي، تصعيد"], [1, "قائمة «بحاجة لانتباه»"], [1, "تقرير أداء أسبوعي"], [1, "مراجعة شهرية للقواعد معنا"], [0, "عدة فروع أو براندات"]] },
-    { id: "pro", name: "المحترفة", for: "عدة فروع أو براندات أو فرق", setup: null, from: true, feats: [[1, "كل شي بالنمو"], [1, "مستخدمين بلا حدود"], [1, "عدة فروع أو براندات"], [1, "ربط مع أنظمتك الخاصة"], [1, "لوحات وتقارير مخصصة"], [1, "دعم بأولوية"]] }
-  ]
+  en: [{ id: "starter", name: "Starter", for: "One team getting organised", feats: ["The full foundation: work, team, company, reports", "1 shared mailbox", "Assistant: 1,500 questions a month", "Excel and CSV import and export", "Setup, data import and training"] },
+    { id: "professional", name: "Professional", for: "Growing teams with several roles", hot: true, feats: ["Everything in Starter", "3 shared mailboxes", "Assistant: 6,000 questions and 100 deep analyses a month", "1 connection to a system you already use", "Quarterly review of your rules and numbers"] },
+    { id: "business", name: "Business", for: "Several branches, brands or teams", from: true, feats: ["Everything in Professional", "Several branches or brands", "Assistant: 20,000 questions and 400 deep analyses a month", "3 connections to your systems", "Priority support"] }],
+  ar: [{ id: "starter", name: "الأساسية", for: "فريق واحد بدّه يرتّب شغله", feats: ["الأساس الكامل: الشغل، الفريق، الشركة، التقارير", "صندوق بريد مشترك واحد", "المساعد: ١٬٥٠٠ سؤال بالشهر", "استيراد وتصدير إكسل وCSV", "تجهيز واستيراد بيانات وتدريب"] },
+    { id: "professional", name: "المهنية", for: "فرق بتكبر وفيها أكثر من دور", hot: true, feats: ["كل شي بالأساسية", "٣ صناديق بريد مشتركة", "المساعد: ٦٬٠٠٠ سؤال و١٠٠ تحليل معمّق بالشهر", "ربط واحد مع نظام بتستخدمه", "مراجعة ربع سنوية لقواعدك وأرقامك"] },
+    { id: "business", name: "الأعمال", for: "عدة فروع أو براندات أو فرق", from: true, feats: ["كل شي بالمهنية", "عدة فروع أو براندات", "المساعد: ٢٠٬٠٠٠ سؤال و٤٠٠ تحليل معمّق بالشهر", "٣ ربطات مع أنظمتك", "دعم بأولوية"] }]
 };
 const FACTS = { en: [["70%", "faster on a daily task I automated (10 min → 3)"], ["2×", "team output after that tool: 100 → 200 a day"], ["8 yrs", "in delivery, contact-center and healthcare operations"]], ar: [["٧٠٪", "أسرع بمهمة يومية أتمتتها (١٠ دقائق ← ٣)"], ["٢×", "إنتاجية الفريق بعد الأداة: ١٠٠ ← ٢٠٠ يومياً"], ["٨ سنين", "بعمليات التوصيل ومراكز الاتصال والرعاية الصحية"]] };
 const FAQ = {
-  en: [["Do we need to install anything?", "No. Jreebs runs in the browser on any computer, tablet or phone. Your team gets a link and a login."], ["Do you need our passwords?", "Never. WhatsApp messages open from your own phone or computer. Connections to other systems use access keys you create and can switch off at any time."], ["Who owns the data?", "You do. If you stop, we hand you everything as a spreadsheet and switch the service off. We don't use your data for anything else."], ["What does the setup fee cover?", "The free check-up, building your workspace (statuses, rules, messages), adding your team, and training them. Most setups take about a week."], ["Is there a contract?", "Monthly plans can be cancelled any time. Yearly plans give you 2 months free."], ["Our process is unusual. Will it fit?", "That's the point of the check-up. We shape the workspace around how you already work, not the other way round."]],
-  ar: [["لازم ننزّل إشي؟", "لا. مغطينك بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["بتحتاجوا كلمات السر تبعتنا؟", "أبداً. رسائل الواتساب بتفتح من جهازك انت. والربط مع أي نظام ثاني بيكون بمفاتيح بتعملها انت وبتقدر توقفها بأي وقت."], ["لمين البيانات؟", "إلك. إذا وقفت، منسلّمك كل شي بملف إكسل ومنوقف الخدمة. وما منستخدم بياناتك لأي إشي ثاني."], ["شو بتغطي رسوم التجهيز؟", "الفحص المجاني، بناء مساحتك (الحالات والقواعد والرسائل)، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["في عقد؟", "الباقات الشهرية بتلغيها بأي وقت. والسنوية بتعطيك شهرين مجاناً."], ["طريقة شغلنا مختلفة، بيزبط؟", "هاد هدف الفحص المجاني. منفصّل المساحة على طريقة شغلك، مش العكس."]]
+  en: [["Can I see it before talking to anyone?", "Yes. The live demo runs the real app on a sample delivery company. Use “View as” to switch between owner, manager, team lead, agent and driver."], ["Do we need to install anything?", "No. Jreebs runs in the browser on any computer, tablet or phone. Your team gets a link and a login."], ["We already use Odoo, Zoho or Excel. Do we have to switch?", "No. Jreebs sits next to them. Most companies start by importing from Excel; direct connections are added when they're worth it."], ["What does the assistant do with our data?", "It reads only what the person asking is allowed to see, answers inside your workspace, and can't change records without a click. Your data isn't used to train AI models."], ["What does the setup fee cover?", "The check-up, building your workspace (statuses, rules, templates, SOPs), importing your data, adding your team and training them. Most setups take about a week."], ["How does billing work?", "Plans are billed yearly. Prices depend on the number of users, channels and connections you need, and exclude 16% sales tax."], ["Who owns the data?", "You do. Export everything any time. If you stop, we hand it all over and delete it from our side."]],
+  ar: [["بقدر أشوفه قبل ما أحكي مع حدا؟", "أكيد. النسخة التجريبية هي التطبيق الحقيقي على شركة توصيل تجريبية. استخدم «عرض كـ» لتبدّل بين صاحب الشركة والمدير وقائد الفريق والموظف والسائق."], ["لازم ننزّل إشي؟", "لا. مغطينك بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["إحنا شغالين على Odoo أو Zoho أو إكسل. لازم نغيّر؟", "لا. مغطينك بيشتغل جنبهم. أغلب الشركات بتبدأ باستيراد من إكسل، والربط المباشر بينضاف لما يستاهل."], ["شو بيعمل المساعد ببياناتنا؟", "بيقرأ بس اللي مسموح للشخص اللي بيسأل يشوفه، وبيجاوب جوّا مساحتك، وما بيغيّر أي سجل بدون كبسة. وبياناتك ما بتستخدم لتدريب نماذج الذكاء الاصطناعي."], ["شو بتغطي رسوم التجهيز؟", "الفحص، بناء مساحتك (الحالات والقواعد والرسائل والإجراءات)، استيراد بياناتك، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["كيف الدفع؟", "الباقات بدفع سنوي. السعر حسب عدد المستخدمين والقنوات والربط اللي بتحتاجه، وغير شامل ضريبة المبيعات ١٦٪."], ["لمين البيانات؟", "إلك. صدّر كل شي بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذفه من عنا."]]
 };
-const MOCK = {
-  en: [["c", "D-1063 · Majd R.", "Late 18 min", "Fresh Mart · Marj Al-Hamam · Saif"], ["w", "V-1121 · Lina K.", "Not confirmed", "Vitamin D · 16:30 · Khalda"], ["c", "C-1907 · Omar N.", "No reply 22 min", "Sushi Box · Cold food · Talabat"]],
-  ar: [["c", "D-1063 · مجد ر.", "متأخر ١٨ د", "فريش مارت · مرج الحمام · سيف"], ["w", "V-1121 · لينا خ.", "غير مؤكد", "فيتامين د · ١٦:٣٠ · خلدا"], ["c", "C-1907 · عمر ن.", "بلا رد ٢٢ د", "سوشي بوكس · أكل بارد · طلبات"]]
+const FRAME = {
+  en: { url: "jreebs.com/app", nav: [["Home", ""], ["Orders", "3"], ["Inbox", "4"], ["Email", "7"], ["Customers", ""], ["Team & shifts", ""], ["Reports", ""]], title: "Needs attention", k: [["34", "orders today"], ["81%", "on time"], ["3", "late now"]], rows: [["c", "D-1523 · Nadia H.", "Late 46 min", "Green Basket · Jabal Amman · Fadi"], ["c", "D-1525 · Maya R.", "VIP waiting", "Daily Bakery · Jubaiha · Khaled"], ["w", "Email · Burger Lab", "Needs reply", "Cold food complaints this week"]], send: "Send", ai: "Assistant", q: "Which orders are late right now?", a: "3 orders are late right now.", how: "How I got this · 1 lookup", tbl: [["D-1523", "46 min", "Fadi"], ["D-1525", "17 min", "Khaled"], ["D-1526", "3 min", "Rami"]] },
+  ar: { url: "jreebs.com/app", nav: [["الرئيسية", ""], ["الطلبات", "٣"], ["المحادثات", "٤"], ["الإيميل", "٧"], ["العملاء", ""], ["الفريق", ""], ["التقارير", ""]], title: "بحاجة لانتباه", k: [["٣٤", "طلب اليوم"], ["٨١٪", "بالوقت"], ["٣", "متأخر الآن"]], rows: [["c", "D-1523 · نادية ح.", "متأخر ٤٦ د", "جرين باسكت · جبل عمان · فادي"], ["c", "D-1525 · مايا ر.", "VIP بيستنى", "ديلي بيكري · الجبيهة · خالد"], ["w", "إيميل · Burger Lab", "بحاجة رد", "شكاوى أكل بارد هالأسبوع"]], send: "إرسال", ai: "المساعد", q: "شو الطلبات المتأخرة هلأ؟", a: "في ٣ طلبات متأخرة هلأ.", how: "كيف وصلت للجواب · بحث واحد", tbl: [["D-1523", "٤٦ د", "فادي"], ["D-1525", "١٧ د", "خالد"], ["D-1526", "٣ د", "رامي"]] }
 };
 
-let lang = "en", bill = "m";
+let lang = "en", role = 0;
 try { const s = localStorage.getItem("rasd-site-lang"); lang = s || ((navigator.language || "").startsWith("ar") ? "ar" : "en"); } catch (e) {}
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const num = n => lang === "ar" ? Number(n).toLocaleString("ar-EG") : Number(n).toLocaleString("en-US");
 const wa = text => "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(text);
+const fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 
+function renderRoles() {
+  const R = ROLES[lang][role];
+  $("#rtabs").innerHTML = ROLES[lang].map(([n, s], i) => `<button type="button" role="tab" aria-selected="${i === role}" data-role="${i}"><b>${esc(n)}</b><span>${esc(s)}</span></button>`).join("");
+  $("#rpanel").innerHTML = `<h3>${esc(R[1])}</h3><ul>${R[2].map(x => `<li><b aria-hidden="true">✓</b><span>${esc(x)}</span></li>`).join("")}</ul><p class="sees">${esc(R[3])}</p>`;
+}
+function renderCalc() {
+  const t = T[lang], a = +$("#cAgents").value, s = +$("#cSalary").value, h = +$("#cHours").value, p = +$("#cShare").value;
+  $("#oAgents").textContent = num(a); $("#oSalary").textContent = num(s); $("#oHours").textContent = num(h); $("#oShare").textContent = num(p) + "%";
+  const hoursMonth = a * h * 22 * p / 100, value = hoursMonth * 12 * (s / (22 * 8));
+  const plan = a <= 5 ? "starter" : a <= 15 ? "professional" : "business", P = PLAN_PRICES[plan];
+  const planYear = P[0] + Math.max(0, a - P[1]) * P[2];
+  const planName = PLANS[lang].find(x => x.id === plan).name;
+  $("#calcOut").innerHTML = `<div><div class="big">${num(Math.round(hoursMonth))}</div><div class="muted">${esc(t.outHours)}</div></div>
+    <dl><dt>${esc(t.outValue)}</dt><dd>${num(Math.round(value))} ${lang === "ar" ? "د.أ" : "JOD"}</dd><dt>${esc(t.outPlan)} (${esc(planName)})</dt><dd>${num(planYear)} ${lang === "ar" ? "د.أ" : "JOD"}</dd><dt><b>${esc(t.outNet)}</b></dt><dd><b>${num(Math.round(value - planYear))} ${lang === "ar" ? "د.أ" : "JOD"}</b></dd></dl>
+    <p class="fine">${esc(t.outFine)}</p>`;
+}
 function render() {
   const t = T[lang];
   document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-  document.title = BRAND[lang] === "مغطينك" ? "Jreebs" : BRAND[lang];
   document.querySelectorAll("[data-brand]").forEach(e => e.textContent = BRAND[lang]);
   document.querySelectorAll("[data-t]").forEach(e => { const k = e.dataset.t; if (t[k] != null) e.textContent = t[k]; });
   document.querySelectorAll("[data-th]").forEach(e => { const k = e.dataset.th; if (t[k] != null) e.innerHTML = t[k]; });
@@ -528,52 +639,47 @@ function render() {
   $("#langBtn").textContent = lang === "ar" ? "English" : "العربية";
   $("#langBtn").setAttribute("aria-label", lang === "ar" ? "Switch to English" : "التبديل إلى العربية");
   $("#email").textContent = EMAIL;
-
-  $("#mockRows").innerHTML = MOCK[lang].map(([s, a, p, d], i) => `<div class="mock-row ${i === 0 ? "new" : ""}"><i class="${s}"></i><div style="min-width:0"><div class="t">${esc(a)}<span class="pill ${s}">${esc(p)}</span></div><div class="d">${esc(d)}</div></div><span class="wa">${IC.wa}<span>${lang === "ar" ? "إرسال" : "Send"}</span></span></div>`).join("");
+  const F = FRAME[lang];
+  $("#frame").innerHTML = `<div class="fbar"><i></i><i></i><i></i><span>${F.url}</span></div><div class="fbody">
+    <div class="fside"><b>Swift Delivery</b>${F.nav.map(([n, c], i) => `<span class="${i === 1 ? "on" : ""}">${esc(n)}${c ? `<em>${c}</em>` : ""}</span>`).join("")}</div>
+    <div class="fmain"><div class="fk">${F.k.map(([v, l], i) => `<div><b style="${i === 2 ? "color:var(--crit)" : i === 1 ? "color:var(--warn)" : ""}">${v}</b><small>${esc(l)}</small></div>`).join("")}</div>
+      <b>${esc(F.title)}</b>${F.rows.map(([s, a, p, d]) => `<div class="frow"><i class="${s}"></i><div style="min-width:0"><div class="t">${esc(a)}<span class="tagp ${s}">${esc(p)}</span></div><div class="d">${esc(d)}</div></div><span class="wa">${esc(F.send)}</span></div>`).join("")}</div>
+    <div class="fai"><b>${esc(F.ai)}</b><div class="fq">${esc(F.q)}</div><div class="fa"><b>${esc(F.a)}</b><table>${F.tbl.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table><span class="how">${esc(F.how)}</span></div></div></div>`;
   $("#beforeList").innerHTML = BEFORE[lang].map(s => `<li><b aria-hidden="true">✕</b><span>${esc(s)}</span></li>`).join("");
   $("#afterList").innerHTML = AFTER[lang].map(s => `<li><b aria-hidden="true">✓</b><span>${esc(s)}</span></li>`).join("");
-  $("#tiles").innerHTML = VALUES[lang].map(([h, p]) => `<div class="tile"><b>${esc(h)}</b><span>${esc(p)}</span></div>`).join("");
-  renderTheme();
-  $("#steps").innerHTML = STEPS[lang].map(([h, w, p]) => `<div class="step"><h3>${esc(h)}</h3><span class="when">${esc(w)}</span><p class="muted">${esc(p)}</p></div>`).join("");
-  $("#feats").innerHTML = FEATS[lang].map(([ic, h, p]) => `<div class="feat"><span class="ic">${IC[ic]}</span><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("");
+  $("#mods").innerHTML = MODS[lang].map(([g, items]) => `<div class="mod"><h3>${esc(g)}</h3><ul>${items.map(([n, d]) => `<li><b>${esc(n)}</b><span>${esc(d)}</span></li>`).join("")}</ul></div>`).join("");
+  renderRoles();
+  $("#qa").innerHTML = QA[lang].map(([q, a]) => `<div><b>“${esc(q)}”</b><span>${esc(a)}</span></div>`).join("");
+  $("#trust").innerHTML = TRUST[lang].map(([ic, h, p]) => `<li><span class="ic">${IC[ic]}</span><div><b>${esc(h)}</b><span>${esc(p)}</span></div></li>`).join("");
+  $("#steps").innerHTML = STEPS[lang].map(([h, w, p], i) => `<div class="step"><span class="n">${num(i + 1)} · ${esc(w)}</span><h3>${esc(h)}</h3><p class="muted">${esc(p)}</p></div>`).join("");
   $("#inds").innerHTML = INDS[lang].map(([h, list]) => `<div class="ind"><h3>${esc(h)}</h3><ul>${list.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("");
+  $("#ints").innerHTML = INTS[lang].map(([k, h, p, list]) => `<div class="intg ${k}"><h3><i aria-hidden="true"></i>${esc(h)}</h3><p>${esc(p)}</p><div class="chips">${list.map(x => `<span>${esc(x)}</span>`).join("")}</div></div>`).join("");
+  $("#secGrid").innerHTML = SECURITY[lang].map(([h, p]) => `<div class="sec-item"><b>${esc(h)}</b><span>${esc(p)}</span></div>`).join("");
   $("#plans-grid").innerHTML = PLANS[lang].map(p => {
-    const [m, y] = PRICES[p.id];
-    const price = bill === "m" ? m : y;
-    const setup = p.setup ? `${t.setup}: ${num(p.setup)} ${lang === "ar" ? "د.أ" : "JOD"}` : `${t.setup}: ${t.custom}`;
+    const [price, users, extra, setup] = PLAN_PRICES[p.id];
     return `<div class="plan ${p.hot ? "hot" : ""}">${p.hot ? `<span class="tag">${esc(t.popular)}</span>` : ""}
       <h3>${esc(p.name)}</h3><p class="for">${esc(p.for)}</p>
-      <div class="price">${p.from ? `<span>${esc(t.from)}</span>` : ""}<b>${num(price)}</b><span>${lang === "ar" ? "د.أ" : "JOD"} ${bill === "m" ? t.perMonth : t.perYear}</span></div>
-      <div class="setup">${esc(setup)}</div>
-      <ul>${p.feats.map(([ok, f]) => `<li class="${ok ? "yes" : "no"}">${ok ? IC.yes : IC.lock}<span>${esc(f)}</span></li>`).join("")}</ul>
-      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${esc(t.choose + " " + p.name)}</a>
+      <div class="price">${p.from ? `<span>${esc(t.from)}</span>` : ""}<b>${num(price)}</b><span>${esc(t.perYear)}</span></div>
+      <div class="permo">${esc(fill(t.perMonthEq, { m: num(Math.round(price / 12)) }))}<br>${esc(fill(t.usersInc, { n: num(users), x: num(extra) }))}<br>${esc(fill(t.setupFee, { s: num(setup) }))}</div>
+      <ul>${p.feats.map(f => `<li>${IC.yes}<span>${esc(f)}</span></li>`).join("")}</ul>
+      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${esc(fill(t.choose, { p: p.name }))}</a>
     </div>`;
   }).join("");
-  $("#billSwitch").setAttribute("aria-checked", bill === "y");
   $("#facts").innerHTML = FACTS[lang].map(([b, s]) => `<div class="fact"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
   $("#faqList").innerHTML = FAQ[lang].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
+  renderCalc(); renderTheme();
 }
 
 const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
 const isDark = () => { const a = document.documentElement.getAttribute("data-theme"); return a ? a === "dark" : darkMQ.matches; };
-function renderTheme() {
-  const b = $("#themeBtn"), dark = isDark();
-  b.innerHTML = dark ? IC.sun : IC.moon;
-  const label = dark ? T[lang].themeToLight : T[lang].themeToDark;
-  b.setAttribute("aria-label", label); b.title = label;
-}
+function renderTheme() { const b = $("#themeBtn"), dark = isDark(); b.innerHTML = dark ? IC.sun : IC.moon; const l = lang === "ar" ? (dark ? "الوضع الفاتح" : "الوضع الداكن") : (dark ? "Switch to light mode" : "Switch to dark mode"); b.setAttribute("aria-label", l); b.title = l; }
 darkMQ.addEventListener("change", renderTheme);
-
+document.addEventListener("input", e => { if (e.target.matches(".calc input")) renderCalc(); });
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
-  if (b.id === "themeBtn") {
-    const next = isDark() ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try { localStorage.setItem("jreebs-theme", next); } catch (err) {}
-    return renderTheme();
-  }
+  if (b.id === "themeBtn") { const next = isDark() ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("jreebs-theme", next); } catch (err) {} return renderTheme(); }
   if (b.id === "langBtn") { lang = lang === "ar" ? "en" : "ar"; try { localStorage.setItem("rasd-site-lang", lang); } catch (err) {} return render(); }
-  if (b.id === "billSwitch") { bill = bill === "m" ? "y" : "m"; return render(); }
+  if (b.dataset.role) { role = +b.dataset.role; return renderRoles(); }
   if (b.id === "copyEmail") {
     const el = $("#toast");
     try { await navigator.clipboard.writeText(EMAIL); el.textContent = T[lang].copied; }

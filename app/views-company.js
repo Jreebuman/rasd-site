@@ -14,7 +14,7 @@ VIEWS.company = function () {
   const ppl = S.people.filter(p => p.active), tot = ppl.length;
   const byType = ["Full-time", "Part-time", "Contractor"].map(t => [t, ppl.filter(p => p.emp_type === t).length]);
   const depts = [...new Set(ppl.map(p => p.dept))].map(d => [d, ppl.filter(p => p.dept === d).length]).sort((a, b) => b[1] - a[1]);
-  const seats = S.team.filter(m => m.role !== "driver").length, seatCap = { starter: 3, growth: 10, pro: 999 }[CLIENT.plan] || 10;
+  const seats = S.team.filter(m => m.role !== "driver").length, seatCap = PLANS[planKey(CLIENT.plan)].users;
   return `${head("Company profile", "Who you are, who works here, and who to call at Jreebs.", own ? `<button class="btn" type="button" data-modal="profile">${ic("edit")}Edit details</button>` : "")}
   <div class="grid2e">
     ${card("Company information", P.legal_name || P.trade_name ? `<dl class="kv"><dt>Legal name</dt><dd>${esc(P.legal_name || "—")}</dd><dt>Trading as</dt><dd>${esc(P.trade_name || CLIENT.name)}</dd><dt>Registration no.</dt><dd class="num">${esc(P.reg_no || "—")}</dd><dt>Tax ID</dt><dd class="num">${esc(P.tax_id || "—")}</dd><dt>Address</dt><dd>${esc(P.address || "—")}</dd><dt>Founded</dt><dd>${esc(P.founded || "—")}</dd><dt>WhatsApp name</dt><dd>${esc(P.wa_sender || CLIENT.name)}</dd><dt>Jreebs plan</dt><dd>${pill(CLIENT.plan, "acc")}</dd></dl>` : `<p class="muted">${own ? "Add your legal name, registration and tax numbers, and address." : "The owner hasn't added company details yet."}</p>${own ? `<div class="row" style="margin-top:10px"><button class="btn primary" type="button" data-modal="profile">Add details</button></div>` : ""}`)}

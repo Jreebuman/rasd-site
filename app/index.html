@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css?v=3">
+<link rel="stylesheet" href="app.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
@@ -31,6 +31,7 @@
         <label class="search" for="q"><span id="qIcon"></span><input id="q" type="search" placeholder="Search and press Enter" autocomplete="off"></label>
         <span class="spacer"></span>
         <span class="tag-demo" id="demoTag" hidden>Demo · sample data</span>
+        <button class="btn ask" type="button" data-act="ask" id="askBtn" title="Ask about your data (press /)"></button>
         <label class="viewas" for="roleSel" hidden><span>View as</span>
           <select id="roleSel">
             <option value="owner">Owner · Rana</option>
@@ -48,6 +49,7 @@
     <main class="content" id="content"></main>
   </div>
 </div>
+<aside class="ai" id="ai" hidden aria-label="Assistant"></aside>
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden role="dialog" aria-modal="true"></aside>
 <div class="mscrim" id="mscrim" hidden></div>
@@ -55,15 +57,18 @@
 <div class="pop" id="pop" hidden></div>
 <div class="toast" id="toast" hidden role="status"></div>
 
-<script src="core.js?v=3"></script>
-<script src="shell.js?v=3"></script>
-<script src="views-work.js?v=3"></script>
-<script src="views-team.js?v=3"></script>
-<script src="views-company.js?v=3"></script>
-<script src="views-insights.js?v=3"></script>
-<script src="views-setup.js?v=3"></script>
-<script src="views-admin.js?v=3"></script>
-<script src="demo.js?v=3"></script>
-<script src="events.js?v=3"></script>
+<script src="core.js?v=4"></script>
+<script src="shell.js?v=4"></script>
+<script src="views-work.js?v=4"></script>
+<script src="views-team.js?v=4"></script>
+<script src="views-company.js?v=4"></script>
+<script src="views-insights.js?v=4"></script>
+<script src="views-setup.js?v=4"></script>
+<script src="views-admin.js?v=4"></script>
+<script src="views-ai.js?v=4"></script>
+<script src="views-email.js?v=4"></script>
+<script src="views-provider.js?v=4"></script>
+<script src="demo.js?v=4"></script>
+<script src="events.js?v=4"></script>
 </body>
 </html>
