@@ -87,7 +87,7 @@ async function boot() {
     if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") return showLogin("mfa");
   } catch (e) { /* MFA not enabled on this project */ }
   const { data: adminRow } = await sb.from("admins").select("auth_user_id").maybeSingle();
-  const { data: memberships } = await sb.from("client_users").select("client_id, role");
+  const { data: memberships } = await sb.from("client_users").select("client_id, role").eq("auth_user_id", user.id);
   if (adminRow && !(memberships || []).length) {
     ADMIN = true; ME = { id: user.id, email: user.email, role: "owner", lvl: 5 };
     return startShell("clients");
