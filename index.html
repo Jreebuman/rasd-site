@@ -198,7 +198,7 @@ html[dir="rtl"] .rtabs button[aria-selected="true"] { box-shadow: inset -3px 0 0
 .step p { font-size: 15px; }
 
 /* industries */
-.inds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.inds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .ind { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 10px; align-content: start; }
 .ind h3 { font-size: 17px; font-weight: 600; }
 .ind ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
@@ -237,6 +237,18 @@ html[dir="rtl"] .rtabs button[aria-selected="true"] { box-shadow: inset -3px 0 0
 
 /* plans */
 .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.est { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.est > div { padding: 24px; display: grid; gap: 12px; align-content: start; }
+.est > div + div { border-inline-start: 1px solid var(--line); }
+.est-main { background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+.est-big { font-family: "Outfit", sans-serif; font-size: clamp(36px, 5vw, 48px); font-weight: 800; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+.est-unit { color: var(--muted); font-size: 15px; margin-top: -4px; }
+.est-fine { font-size: 13px; color: var(--muted); }
+.est h3 { font-size: 16px; }
+.est ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; }
+.est li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
+.est li svg { width: 16px; height: 16px; margin-top: 3px; color: var(--good); }
+@media (max-width: 960px) { .est { grid-template-columns: minmax(0, 1fr); } .est > div + div { border-inline-start: 0; border-top: 1px solid var(--line); } }
 .plan { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: grid; gap: 14px; align-content: start; position: relative; }
 .plan.hot { border: 2px solid var(--accent); }
 .plan .tag { position: absolute; top: -11px; inset-inline-start: 22px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 4px; }
@@ -412,7 +424,7 @@ footer { padding-block: 26px calc(26px + env(safe-area-inset-bottom, 0px)); bord
   <section id="plans">
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow" data-t="planEyebrow"></p><h2 data-t="planTitle"></h2><p data-t="planLead"></p></div>
-      <div class="plans" id="plans-grid"></div>
+      <div id="plans-grid"></div>
       <p class="plans-note" data-t="planNote"></p>
     </div>
   </section>
@@ -449,7 +461,6 @@ footer { padding-block: 26px calc(26px + env(safe-area-inset-bottom, 0px)); bord
 const BRAND = { en: "Jreebs", ar: "مغطينك" };
 const PHONE = "962795384541";
 const EMAIL = "hello@jreebs.com";
-const PLAN_PRICES = { starter: [490, 5, 60, 150], professional: [1190, 15, 50, 350], business: [2490, 40, 40, 750] }; // per year, users included, extra user, setup
 
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const IC = {
@@ -481,12 +492,12 @@ const T = {
     intEyebrow: "Integrations", intTitle: "Works with the tools you already pay for.", intLead: "Jreebs sits next to your accounting, HR and POS systems. It doesn't replace them. Every system can export to Excel, so every company can start on day one.",
     calcEyebrow: "Estimate", calcTitle: "What manual follow-up costs you now.", calcLead: "Move the sliders to match your team. The numbers are your own estimate, not a promise.",
     cAgents: "People in your operations team", cSalary: "Average monthly salary (JOD)", cSalaryHint: "Include social security if you like.", cHours: "Hours each spends a day on manual chasing", cHoursHint: "Copying between WhatsApp and Excel, building reports, asking who did what.", cShare: "Share of that time you'd expect to save", cShareHint: "Your own estimate. Start low.",
-    outHours: "hours a month back to your team", outValue: "Value of that time per year", outPlan: "Matching plan per year", outNet: "Difference per year", outFine: "This is time your team gets back for other work. It only becomes money saved if you reassign people, cut overtime or avoid a new hire. Value = hours × hourly cost from the salary you entered (22 working days, 8 hours). Plan prices exclude 16% sales tax.",
+    outHours: "hours a month back to your team", outValue: "Value of that time per year", outFine: "This is time your team gets back for other work. It only becomes money saved if you reassign people, cut overtime or avoid a new hire. Value = hours × hourly cost from the salary you entered (22 working days, 8 hours).",
     secEyebrow: "Security and data", secTitle: "Your data stays yours, and stays separate.",
-    planEyebrow: "Pricing", planTitle: "Billed yearly. Priced by the size of your team.", planLead: "Every plan includes setup help, training for your team, the assistant, and support in Arabic and English.",
-    perYear: "JOD / year", perMonthEq: "≈ {m} JOD a month, billed yearly", usersInc: "{n} users included · extra users {x} JOD a year", setupFee: "One-time setup {s} JOD", from: "from",
-    choose: "Talk to us about {p}", popular: "Most chosen",
-    planNote: "Prices in Jordanian dinars, excluding 16% sales tax. Need a different mix of users, channels or connections? Ask for a quote. If you leave, you take all your data with you.",
+    planEyebrow: "Pricing", planTitle: "Priced for your company, not off a price list.", planLead: "Most companies pay around 4,000 JOD a year, and many pay less. The price depends on your team size, how many people need a login, and what we set up and connect for you.",
+    estBig: "≈ 4,000 JOD", estUnit: "a year, often less", estDepends: "What sets your price", estIncluded: "Always included", estCta: "Get your exact quote", estFine: "Free check-up first, then a written quote. Billed yearly, before 16% sales tax.",
+    estD: ["How many people need a login", "Which kinds of work and pages you use", "Connections to your other systems: Odoo, WhatsApp Business and others", "How much your team uses the assistant"], estI: ["Setup and data import", "Training for every role", "The assistant", "Support in Arabic and English", "Export all your data any time"],
+    planNote: "If you leave, you take all your data with you.",
     founderEyebrow: "Why Jreebs", founderQuote: "I spent 8 years inside delivery and customer operations. I built Jreebs for the problems I fixed by hand every day.",
     founderWho: "Mohammad Al-Khateeb, founder. Former Operations Team Lead and QA Specialist.",
     faqEyebrow: "Questions", faqTitle: "Things people ask before they start",
@@ -513,12 +524,12 @@ const T = {
     intEyebrow: "الربط", intTitle: "بيشتغل مع الأنظمة اللي بتدفع عليها أصلاً.", intLead: "مغطينك بيشتغل جنب أنظمة المحاسبة والموارد البشرية ونقاط البيع، مش بدالها. وكل نظام بيصدّر لإكسل، فأي شركة بتقدر تبدأ من أول يوم.",
     calcEyebrow: "تقدير", calcTitle: "قديش بتكلفك المتابعة اليدوية هلأ.", calcLead: "حرّك الأشرطة لتناسب فريقك. الأرقام تقديرك انت، مش وعد منا.",
     cAgents: "عدد فريق العمليات", cSalary: "متوسط الراتب الشهري (دينار)", cSalaryHint: "ممكن تضيف الضمان الاجتماعي.", cHours: "ساعات المتابعة اليدوية لكل شخص باليوم", cHoursHint: "نسخ بين واتساب وإكسل، تجهيز تقارير، سؤال مين عمل شو.", cShare: "نسبة الوقت اللي بتتوقع توفّرها", cShareHint: "تقديرك انت. ابدأ بنسبة قليلة.",
-    outHours: "ساعة بالشهر بترجع لفريقك", outValue: "قيمة هالوقت بالسنة", outPlan: "الباقة المناسبة بالسنة", outNet: "الفرق بالسنة", outFine: "القيمة = الساعات الموفّرة × كلفة الساعة من الراتب اللي دخلته (٢٢ يوم عمل، ٨ ساعات). أسعار الباقات غير شاملة ضريبة المبيعات ١٦٪.",
+    outHours: "ساعة بالشهر بترجع لفريقك", outValue: "قيمة هالوقت بالسنة", outFine: "هاد وقت بيرجع لفريقك لشغل ثاني. بيصير توفير مصاري إذا وزّعت الناس على شغل ثاني أو خففت الإضافي أو استغنيت عن تعيين جديد. القيمة = الساعات × كلفة الساعة من الراتب اللي دخلته (٢٢ يوم عمل، ٨ ساعات).",
     secEyebrow: "الأمان والبيانات", secTitle: "بياناتك إلك، ومنفصلة عن غيرها.",
-    planEyebrow: "الأسعار", planTitle: "اشتراك سنوي، والسعر حسب حجم فريقك.", planLead: "كل الباقات فيها مساعدة بالتجهيز، تدريب للفريق، المساعد، ودعم بالعربي والإنجليزي.",
-    perYear: "د.أ / سنوياً", perMonthEq: "≈ {m} د.أ بالشهر، دفع سنوي", usersInc: "{n} مستخدمين ضمن الباقة · المستخدم الإضافي {x} د.أ بالسنة", setupFee: "رسوم تجهيز لمرة واحدة {s} د.أ", from: "يبدأ من",
-    choose: "احكي معنا عن باقة {p}", popular: "الأكثر اختياراً",
-    planNote: "الأسعار بالدينار الأردني وغير شاملة ضريبة المبيعات ١٦٪. بدك عدد مستخدمين أو قنوات أو ربط مختلف؟ اطلب عرض سعر. وإذا وقفت، بتاخذ كل بياناتك معك.",
+    planEyebrow: "الأسعار", planTitle: "سعر على قد شركتك، مش من قائمة أسعار.", planLead: "أغلب الشركات بتدفع حوالي ٤٬٠٠٠ دينار بالسنة، وكثير منها أقل. السعر بيعتمد على حجم فريقك، وعدد اللي بدهم حساب، وشو منجهّز ومنربط إلك.",
+    estBig: "≈ ٤٬٠٠٠ د.أ", estUnit: "بالسنة، وغالباً أقل", estDepends: "شو بيحدد سعرك", estIncluded: "دايماً ضمن السعر", estCta: "اطلب سعرك بالضبط", estFine: "فحص مجاني أول، بعدين عرض سعر مكتوب. دفع سنوي، غير شامل ضريبة المبيعات ١٦٪.",
+    estD: ["عدد اللي بدهم حساب", "أنواع الشغل والصفحات اللي بتستخدمها", "الربط مع أنظمتك الثانية: Odoo وواتساب للأعمال وغيرها", "قديش فريقك بيستخدم المساعد"], estI: ["التجهيز واستيراد البيانات", "تدريب لكل دور", "المساعد", "دعم بالعربي والإنجليزي", "تصدير كل بياناتك بأي وقت"],
+    planNote: "وإذا وقفت، بتاخذ كل بياناتك معك.",
     founderEyebrow: "ليش مغطينك", founderQuote: "قضيت ٨ سنين جوّا عمليات التوصيل وخدمة العملاء. بنيت مغطينك للمشاكل اللي كنت أحلّها بإيدي كل يوم.",
     founderWho: "محمد الخطيب، المؤسس. قائد فريق عمليات وأخصائي ضبط جودة سابقاً.",
     faqEyebrow: "أسئلة", faqTitle: "أسئلة بتنسأل قبل البداية",
@@ -572,37 +583,29 @@ const STEPS = {
   ar: [["فحص مجاني", "اليوم ١–٢", "منقعد مع فريقك، منشوف كيف بتمشي الطلبات والمحادثات والتقارير فعلياً، ومنتفق شو بدنا نجهّز."], ["منجهّزه معك", "خلال أسبوع", "حالاتك، قواعدك، رسائلك، إجراءاتك وحسابات فريقك. ومنستورد العملاء والشغل المفتوح من إكسل."], ["شغّال كل يوم", "مستمر", "فريقك بيشتغل من شاشة وحدة. منراجع الأرقام معك ومنعدّل القواعد كل ما تكبر."]]
 };
 const INDS = {
-  en: [["Delivery and q-commerce", ["Late-order alerts with a ready apology", "Driver stops on their phone", "On-time rate per driver and area"]], ["Home healthcare and labs", ["Unconfirmed visit reminders", "Team-not-dispatched alerts", "No-show rebooking in one click"]], ["Cloud kitchens and restaurants", ["Complaints from every app in one queue", "15-minute reply promise", "Repeat-customer flags"]], ["Call centers and service teams", ["Queues with reply timers", "Quality reviews and coaching", "Daily targets per agent"]]],
-  ar: [["التوصيل والتجارة السريعة", ["تنبيه الطلبات المتأخرة مع اعتذار جاهز", "طلبات السائق على موبايله", "الالتزام بالوقت لكل سائق ومنطقة"]], ["الرعاية المنزلية والمختبرات", ["تذكير بالزيارات غير المؤكدة", "تنبيه إذا الفريق ما طلع", "إعادة حجز الغياب بكبسة"]], ["المطابخ السحابية والمطاعم", ["شكاوى كل التطبيقات بقائمة وحدة", "وعد رد خلال ١٥ دقيقة", "تمييز العملاء المتكررين"]], ["مراكز الاتصال وفرق الخدمة", ["قوائم مع مؤقت للرد", "تقييم جودة وتدريب", "أهداف يومية لكل موظف"]]]
+  en: [["Any company that serves customers", ["Customer requests with reply times", "Sales pipeline from lead to won", "Tasks, approvals and SOPs for every team"]], ["Delivery and q-commerce", ["Late-order alerts with a ready apology", "Driver stops on their phone", "On-time rate per driver and area"]], ["Field services and maintenance", ["Jobs booked, confirmed and dispatched", "Technician running-late alerts", "Customer not home, rebooked in one click"]], ["Clinics, labs and home healthcare", ["Unconfirmed appointment reminders", "No-show follow-up", "Home visits with teams on the road"]], ["Restaurants and cloud kitchens", ["Complaints from every app in one queue", "15-minute reply promise", "Repeat-customer flags"]], ["Retail and online stores", ["Orders from confirmed to delivered", "Returns and customer requests", "Daily numbers by channel"]]],
+  ar: [["أي شركة بتخدم عملاء", ["طلبات العملاء مع أوقات الرد", "المبيعات من أول تواصل لحد الإغلاق", "مهام وموافقات وإجراءات لكل فريق"]], ["التوصيل والتجارة السريعة", ["تنبيه الطلبات المتأخرة مع اعتذار جاهز", "طلبات السائق على موبايله", "الالتزام بالوقت لكل سائق ومنطقة"]], ["الخدمات الميدانية والصيانة", ["حجز وتأكيد وإرسال الفني", "تنبيه إذا الفني متأخر", "العميل مش موجود؟ إعادة حجز بكبسة"]], ["العيادات والمختبرات والرعاية المنزلية", ["تذكير بالمواعيد غير المؤكدة", "متابعة اللي ما إجوا", "زيارات منزلية مع الفرق على الطريق"]], ["المطاعم والمطابخ السحابية", ["شكاوى كل التطبيقات بقائمة وحدة", "وعد رد خلال ١٥ دقيقة", "تمييز العملاء المتكررين"]], ["المتاجر والبيع أونلاين", ["الطلبات من التأكيد للتوصيل", "المرتجعات وطلبات العملاء", "أرقام يومية حسب القناة"]]],
 };
 const INTS = {
-  en: [["now", "Available today", "Works from day one, no extra cost.", ["Excel and CSV import", "Export everything", "WhatsApp one-click messages", "Phone calls from the app", "Google Maps links"]],
-    ["setup", "Set up with Jreebs", "We build the connection with you during setup or as a paid add-on. Timing depends on the system and its access rules.", ["Shared email forwarding", "WhatsApp Business API", "Google Sheets", "Outlook and Microsoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
+  en: [["now", "Available today", "Works from day one, no extra cost.", ["Excel and CSV import", "Google Sheets link that keeps syncing", "Export everything", "WhatsApp one-click messages", "Phone calls from the app", "Google Maps links"]],
+    ["setup", "Set up with Jreebs", "We build the connection with you during setup or as a paid add-on. Timing depends on the system and its access rules.", ["Shared email forwarding", "WhatsApp Business API", "Outlook and Microsoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
     ["ask", "On request", "For larger companies, built with your system's partner.", ["SAP Business One", "Microsoft Dynamics", "Your own internal system", "Delivery apps through your POS"]]],
-  ar: [["now", "متاح اليوم", "بيشتغل من أول يوم، بدون كلفة إضافية.", ["استيراد إكسل وCSV", "تصدير كل شي", "رسائل واتساب بكبسة", "اتصال من التطبيق", "روابط خرائط جوجل"]],
-    ["setup", "منربطه معك", "منبني الربط معك وقت التجهيز أو كإضافة مدفوعة. المدة بتعتمد على النظام وشروط الوصول له.", ["تحويل الإيميل المشترك", "WhatsApp Business API", "Google Sheets", "Outlook وMicrosoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
+  ar: [["now", "متاح اليوم", "بيشتغل من أول يوم، بدون كلفة إضافية.", ["استيراد إكسل وCSV", "ربط Google Sheets ومزامنة تلقائية", "تصدير كل شي", "رسائل واتساب بكبسة", "اتصال من التطبيق", "روابط خرائط جوجل"]],
+    ["setup", "منربطه معك", "منبني الربط معك وقت التجهيز أو كإضافة مدفوعة. المدة بتعتمد على النظام وشروط الوصول له.", ["تحويل الإيميل المشترك", "WhatsApp Business API", "Outlook وMicrosoft 365", "Odoo", "Zoho", "Foodics", "ZenHR"]],
     ["ask", "حسب الطلب", "للشركات الأكبر، بالتعاون مع شريك نظامك.", ["SAP Business One", "Microsoft Dynamics", "نظامك الداخلي", "تطبيقات التوصيل عن طريق نقطة البيع"]]]
 };
 const SECURITY = {
   en: [["Separate by design", "Each company's data is isolated in the database itself, not just hidden on screen. We test this on the live database."], ["Access by role", "Six roles from owner to driver. Managers can't promote themselves; drivers see only their own stops."], ["Two-step sign-in", "Every user can turn on authenticator codes and sign themselves out of every device at once."], ["Everything logged", "An audit log records who changed what, and when."], ["Never your passwords", "We never ask for passwords to your other systems. Connections use keys you can switch off."], ["Leave with your data", "Export every record to Excel any time. If you stop, we hand everything over and delete the rest."]],
   ar: [["منفصلة من الأساس", "بيانات كل شركة معزولة بقاعدة البيانات نفسها، مش بس مخفية عالشاشة. ومنختبر هالشي على قاعدة البيانات الحية."], ["صلاحيات حسب الدور", "ستة أدوار من صاحب الشركة للسائق. المدير ما بيرقّي حاله، والسائق بيشوف طلباته بس."], ["تسجيل دخول بخطوتين", "كل مستخدم بيقدر يفعّل رموز التطبيق ويطلع من كل أجهزته بكبسة وحدة."], ["كل شي مسجّل", "سجل الحركات بيحفظ مين غيّر شو وإمتى."], ["ما منطلب كلمات سرك", "ما منطلب كلمات السر لأنظمتك الثانية. الربط بمفاتيح بتقدر توقفها."], ["بتطلع ومعك بياناتك", "صدّر كل سجل لإكسل بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذف الباقي."]]
 };
-const PLANS = {
-  en: [{ id: "starter", name: "Starter", for: "One team getting organised", feats: ["The full foundation: work, team, company, reports", "1 shared mailbox", "Assistant: 1,500 questions a month", "Excel and CSV import and export", "Setup, data import and training"] },
-    { id: "professional", name: "Professional", for: "Growing teams with several roles", hot: true, feats: ["Everything in Starter", "3 shared mailboxes", "Assistant: 6,000 questions and 100 deep analyses a month", "1 connection to a system you already use", "Quarterly review of your rules and numbers"] },
-    { id: "business", name: "Business", for: "Several branches, brands or teams", from: true, feats: ["Everything in Professional", "Several branches or brands", "Assistant: 20,000 questions and 400 deep analyses a month", "3 connections to your systems", "Priority support"] }],
-  ar: [{ id: "starter", name: "الأساسية", for: "فريق واحد بدّه يرتّب شغله", feats: ["الأساس الكامل: الشغل، الفريق، الشركة، التقارير", "صندوق بريد مشترك واحد", "المساعد: ١٬٥٠٠ سؤال بالشهر", "استيراد وتصدير إكسل وCSV", "تجهيز واستيراد بيانات وتدريب"] },
-    { id: "professional", name: "المهنية", for: "فرق بتكبر وفيها أكثر من دور", hot: true, feats: ["كل شي بالأساسية", "٣ صناديق بريد مشتركة", "المساعد: ٦٬٠٠٠ سؤال و١٠٠ تحليل معمّق بالشهر", "ربط واحد مع نظام بتستخدمه", "مراجعة ربع سنوية لقواعدك وأرقامك"] },
-    { id: "business", name: "الأعمال", for: "عدة فروع أو براندات أو فرق", from: true, feats: ["كل شي بالمهنية", "عدة فروع أو براندات", "المساعد: ٢٠٬٠٠٠ سؤال و٤٠٠ تحليل معمّق بالشهر", "٣ ربطات مع أنظمتك", "دعم بأولوية"] }]
-};
 const FACTS = { en: [["70%", "faster on a daily task I automated (10 min → 3)"], ["2×", "team output after that tool: 100 → 200 a day"], ["8 yrs", "in delivery, contact-center and healthcare operations"]], ar: [["٧٠٪", "أسرع بمهمة يومية أتمتتها (١٠ دقائق ← ٣)"], ["٢×", "إنتاجية الفريق بعد الأداة: ١٠٠ ← ٢٠٠ يومياً"], ["٨ سنين", "بعمليات التوصيل ومراكز الاتصال والرعاية الصحية"]] };
 const FAQ = {
-  en: [["Can I see it before talking to anyone?", "Yes. The live demo runs the real app on a sample delivery company. Use “View as” to switch between owner, manager, team lead, agent and driver."], ["Do we need to install anything?", "No. Jreebs runs in the browser on any computer, tablet or phone. Your team gets a link and a login."], ["We already use Odoo, Zoho or Excel. Do we have to switch?", "No. Jreebs sits next to them. Most companies start by importing from Excel; direct connections are added when they're worth it."], ["What does the assistant do with our data?", "It reads only what the person asking is allowed to see, answers inside your workspace, and can't change records without a click. Your data isn't used to train AI models."], ["What does the setup fee cover?", "The check-up, building your workspace (statuses, rules, templates, SOPs), importing your data, adding your team and training them. Most setups take about a week."], ["How does billing work?", "Plans are billed yearly. Prices depend on the number of users, channels and connections you need, and exclude 16% sales tax."], ["Who owns the data?", "You do. Export everything any time. If you stop, we hand it all over and delete it from our side."]],
-  ar: [["بقدر أشوفه قبل ما أحكي مع حدا؟", "أكيد. النسخة التجريبية هي التطبيق الحقيقي على شركة توصيل تجريبية. استخدم «عرض كـ» لتبدّل بين صاحب الشركة والمدير وقائد الفريق والموظف والسائق."], ["لازم ننزّل إشي؟", "لا. مغطينك بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["إحنا شغالين على Odoo أو Zoho أو إكسل. لازم نغيّر؟", "لا. مغطينك بيشتغل جنبهم. أغلب الشركات بتبدأ باستيراد من إكسل، والربط المباشر بينضاف لما يستاهل."], ["شو بيعمل المساعد ببياناتنا؟", "بيقرأ بس اللي مسموح للشخص اللي بيسأل يشوفه، وبيجاوب جوّا مساحتك، وما بيغيّر أي سجل بدون كبسة. وبياناتك ما بتستخدم لتدريب نماذج الذكاء الاصطناعي."], ["شو بتغطي رسوم التجهيز؟", "الفحص، بناء مساحتك (الحالات والقواعد والرسائل والإجراءات)، استيراد بياناتك، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["كيف الدفع؟", "الباقات بدفع سنوي. السعر حسب عدد المستخدمين والقنوات والربط اللي بتحتاجه، وغير شامل ضريبة المبيعات ١٦٪."], ["لمين البيانات؟", "إلك. صدّر كل شي بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذفه من عنا."]]
+  en: [["Can I see it before talking to anyone?", "Yes. The live demo runs the real app on a sample company. Pick your type of business at the top, and use “View as” to switch between owner, manager, team lead, agent and field staff."], ["Do we need to install anything?", "No. Jreebs runs in the browser on any computer, tablet or phone. Your team gets a link and a login."], ["We run on Excel, Google Sheets, Odoo or Zoho. Do we have to switch?", "No. Jreebs sits next to them. Import from Excel in minutes, or link your Google Sheet and it keeps syncing: new and changed rows come in on their own, so your team can move over at their own pace. Direct connections to other systems are added when they are worth it."], ["What does the assistant do with our data?", "It reads only what the person asking is allowed to see, answers inside your workspace, and can't change records without a click. Your data isn't used to train AI models."], ["What does setup include?", "It is part of your quote: the check-up, building your workspace (statuses, rules, templates, SOPs), importing your data, adding your team and training them. Most setups take about a week."], ["What does it cost?", "Most companies pay around 4,000 JOD a year, and many pay less. It depends on how many people need a login, which kinds of work you track, and what we connect for you. You get a written quote after a free check-up. Billed yearly, before 16% sales tax."], ["Who owns the data?", "You do. Export everything any time. If you stop, we hand it all over and delete it from our side."]],
+  ar: [["بقدر أشوفه قبل ما أحكي مع حدا؟", "أكيد. النسخة التجريبية هي التطبيق الحقيقي على شركة تجريبية. اختار نوع شغلك من فوق، واستخدم «عرض كـ» لتبدّل بين صاحب الشركة والمدير وقائد الفريق والموظف والفريق الميداني."], ["لازم ننزّل إشي؟", "لا. مغطينك بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["إحنا شغالين على إكسل أو Google Sheets أو Odoo أو Zoho. لازم نغيّر؟", "لا. مغطينك بيشتغل جنبهم. استورد من إكسل بدقايق، أو اربط ملف Google Sheets وبضل يتزامن لحاله: الصفوف الجديدة والمعدّلة بتوصل لحالها، وفريقك بينتقل على راحته. الربط المباشر مع الأنظمة الثانية بينضاف لما يستاهل."], ["شو بيعمل المساعد ببياناتنا؟", "بيقرأ بس اللي مسموح للشخص اللي بيسأل يشوفه، وبيجاوب جوّا مساحتك، وما بيغيّر أي سجل بدون كبسة. وبياناتك ما بتستخدم لتدريب نماذج الذكاء الاصطناعي."], ["شو بيشمل التجهيز؟", "هو جزء من عرض السعر: الفحص، بناء مساحتك (الحالات والقواعد والرسائل والإجراءات)، استيراد بياناتك، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["قديش بيكلّف؟", "أغلب الشركات بتدفع حوالي ٤٬٠٠٠ دينار بالسنة، وكثير منها أقل. السعر بيعتمد على عدد اللي بدهم حساب، وأنواع الشغل اللي بتتابعها، وشو منربط إلك. بتاخذ عرض سعر مكتوب بعد فحص مجاني. دفع سنوي، غير شامل ضريبة المبيعات ١٦٪."], ["لمين البيانات؟", "إلك. صدّر كل شي بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذفه من عنا."]]
 };
 const FRAME = {
-  en: { url: "jreebs.com/app", nav: [["Home", ""], ["Customer requests", "7"], ["Sales pipeline", ""], ["Orders", "12"], ["Tasks", "6"], ["Inbox", "4"], ["Approvals", "4"]], title: "Needs attention", k: [["34", "orders today"], ["81%", "on time"], ["3", "late now"]], rows: [["c", "R-1013 · Jana Q.", "Overdue 2 h", "Billing · Urgent · Bilal"], ["c", "O-1044 · Leen N.", "Late 3 h", "229 JOD · 2 items · Khaled"], ["w", "Email · Orient Supplies", "Needs reply", "Price list update from 1 Nov"]], send: "Send", ai: "Assistant", q: "What is overdue right now?", a: "3 items are overdue right now.", how: "How I got this · 1 lookup", tbl: [["R-1013", "2 h", "Bilal"], ["O-1044", "3 h", "Khaled"], ["T-1031", "1 day", "Lina"]] },
-  ar: { url: "jreebs.com/app", nav: [["الرئيسية", ""], ["طلبات العملاء", "٧"], ["المبيعات", ""], ["الطلبات", "١٢"], ["المهام", "٦"], ["المحادثات", "٤"], ["الموافقات", "٤"]], title: "بحاجة لانتباه", k: [["٣٤", "طلب اليوم"], ["٨١٪", "بالوقت"], ["٣", "متأخر الآن"]], rows: [["c", "D-1523 · نادية ح.", "متأخر ٤٦ د", "جرين باسكت · جبل عمان · فادي"], ["c", "D-1525 · مايا ر.", "VIP بيستنى", "ديلي بيكري · الجبيهة · خالد"], ["w", "إيميل · Burger Lab", "بحاجة رد", "شكاوى أكل بارد هالأسبوع"]], send: "إرسال", ai: "المساعد", q: "شو الطلبات المتأخرة هلأ؟", a: "في ٣ طلبات متأخرة هلأ.", how: "كيف وصلت للجواب · بحث واحد", tbl: [["D-1523", "٤٦ د", "فادي"], ["D-1525", "١٧ د", "خالد"], ["D-1526", "٣ د", "رامي"]] }
+  en: { url: "jreebs.com/app", nav: [["Home", ""], ["Customer requests", "7"], ["Sales pipeline", ""], ["Orders", "12"], ["Tasks", "6"], ["Inbox", "4"], ["Approvals", "4"]], title: "Needs attention", k: [["25", "open requests"], ["81%", "on time"], ["3", "overdue now"]], rows: [["c", "R-1013 · Jana Q.", "Overdue 2 h", "Billing · Urgent · Bilal"], ["c", "O-1044 · Leen N.", "Late 3 h", "229 JOD · 2 items · Khaled"], ["w", "Email · Orient Supplies", "Needs reply", "Price list update from 1 Nov"]], send: "Send", ai: "Assistant", q: "What is overdue right now?", a: "3 items are overdue right now.", how: "How I got this · 1 lookup", tbl: [["R-1013", "2 h", "Bilal"], ["O-1044", "3 h", "Khaled"], ["T-1031", "1 day", "Lina"]] },
+  ar: { url: "jreebs.com/app", nav: [["الرئيسية", ""], ["طلبات العملاء", "٧"], ["المبيعات", ""], ["الطلبات", "١٢"], ["المهام", "٦"], ["المحادثات", "٤"], ["الموافقات", "٤"]], title: "بحاجة لانتباه", k: [["٢٥", "طلب عميل مفتوح"], ["٨١٪", "بالوقت"], ["٣", "متأخر الآن"]], rows: [["c", "R-1013 · جنى ق.", "متأخر ساعتين", "فواتير · عاجل · بلال"], ["c", "O-1044 · لين ن.", "متأخر ٣ ساعات", "٢٢٩ د.أ · قطعتين · خالد"], ["w", "إيميل · Orient Supplies", "بحاجة رد", "تحديث الأسعار من ١ تشرين الثاني"]], send: "إرسال", ai: "المساعد", q: "شو المتأخر هلأ؟", a: "في ٣ أشياء متأخرة هلأ.", how: "كيف وصلت للجواب · بحث واحد", tbl: [["R-1013", "ساعتين", "بلال"], ["O-1044", "٣ ساعات", "خالد"], ["T-1031", "يوم", "لينا"]] }
 };
 
 let lang = "en", role = 0;
@@ -622,11 +625,8 @@ function renderCalc() {
   const t = T[lang], a = +$("#cAgents").value, s = +$("#cSalary").value, h = +$("#cHours").value, p = +$("#cShare").value;
   $("#oAgents").textContent = num(a); $("#oSalary").textContent = num(s); $("#oHours").textContent = num(h); $("#oShare").textContent = num(p) + "%";
   const hoursMonth = a * h * 22 * p / 100, value = hoursMonth * 12 * (s / (22 * 8));
-  const plan = a <= 5 ? "starter" : a <= 15 ? "professional" : "business", P = PLAN_PRICES[plan];
-  const planYear = P[0] + Math.max(0, a - P[1]) * P[2];
-  const planName = PLANS[lang].find(x => x.id === plan).name;
   $("#calcOut").innerHTML = `<div><div class="big">${num(Math.round(hoursMonth))}</div><div class="muted">${esc(t.outHours)}</div></div>
-    <dl><dt>${esc(t.outValue)}</dt><dd>${num(Math.round(value))} ${lang === "ar" ? "د.أ" : "JOD"}</dd><dt>${esc(t.outPlan)} (${esc(planName)})</dt><dd>${num(planYear)} ${lang === "ar" ? "د.أ" : "JOD"}</dd><dt><b>${esc(t.outNet)}</b></dt><dd><b>${num(Math.round(value - planYear))} ${lang === "ar" ? "د.أ" : "JOD"}</b></dd></dl>
+    <dl><dt>${esc(t.outValue)}</dt><dd>${num(Math.round(value))} ${lang === "ar" ? "د.أ" : "JOD"}</dd></dl>
     <p class="fine">${esc(t.outFine)}</p>`;
 }
 function render() {
@@ -655,16 +655,9 @@ function render() {
   $("#inds").innerHTML = INDS[lang].map(([h, list]) => `<div class="ind"><h3>${esc(h)}</h3><ul>${list.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("");
   $("#ints").innerHTML = INTS[lang].map(([k, h, p, list]) => `<div class="intg ${k}"><h3><i aria-hidden="true"></i>${esc(h)}</h3><p>${esc(p)}</p><div class="chips">${list.map(x => `<span>${esc(x)}</span>`).join("")}</div></div>`).join("");
   $("#secGrid").innerHTML = SECURITY[lang].map(([h, p]) => `<div class="sec-item"><b>${esc(h)}</b><span>${esc(p)}</span></div>`).join("");
-  $("#plans-grid").innerHTML = PLANS[lang].map(p => {
-    const [price, users, extra, setup] = PLAN_PRICES[p.id];
-    return `<div class="plan ${p.hot ? "hot" : ""}">${p.hot ? `<span class="tag">${esc(t.popular)}</span>` : ""}
-      <h3>${esc(p.name)}</h3><p class="for">${esc(p.for)}</p>
-      <div class="price">${p.from ? `<span>${esc(t.from)}</span>` : ""}<b>${num(price)}</b><span>${esc(t.perYear)}</span></div>
-      <div class="permo">${esc(fill(t.perMonthEq, { m: num(Math.round(price / 12)) }))}<br>${esc(fill(t.usersInc, { n: num(users), x: num(extra) }))}<br>${esc(fill(t.setupFee, { s: num(setup) }))}</div>
-      <ul>${p.feats.map(f => `<li>${IC.yes}<span>${esc(f)}</span></li>`).join("")}</ul>
-      <a class="btn ${p.hot ? "primary" : ""}" href="${wa(t.waPlan.replace("{plan}", p.name))}" target="_blank" rel="noopener">${esc(fill(t.choose, { p: p.name }))}</a>
-    </div>`;
-  }).join("");
+  $("#plans-grid").innerHTML = `<div class="est"><div class="est-main"><div class="est-big">${esc(t.estBig)}</div><div class="est-unit">${esc(t.estUnit)}</div><a class="btn primary" href="${wa(t.waDemo)}" target="_blank" rel="noopener">${esc(t.estCta)}</a><p class="est-fine">${esc(t.estFine)}</p></div>
+    <div><h3>${esc(t.estDepends)}</h3><ul>${t.estD.map(x => `<li>${IC.yes}<span>${esc(x)}</span></li>`).join("")}</ul></div>
+    <div><h3>${esc(t.estIncluded)}</h3><ul>${t.estI.map(x => `<li>${IC.yes}<span>${esc(x)}</span></li>`).join("")}</ul></div></div>`;
   $("#facts").innerHTML = FACTS[lang].map(([b, s]) => `<div class="fact"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
   $("#faqList").innerHTML = FAQ[lang].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
   renderCalc(); renderTheme();

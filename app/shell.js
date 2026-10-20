@@ -108,7 +108,7 @@ async function openClient(client) {
   await loadAll();
   refreshItems();
   startShell(lvl() === 0 ? "home" : "home");
-  if (!DEMO) { subscribeLive(); joinPresence(); }
+  if (!DEMO) { subscribeLive(); joinPresence(); autoSyncSheets(); }
 }
 function startShell(v) {
   $("#login").hidden = true; $("#shell").hidden = false;

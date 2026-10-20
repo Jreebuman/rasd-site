@@ -44,6 +44,7 @@ function bindView() {
   on("#impFile", e => { const f = e.target.files[0]; if (f) readImportFile(f); });
   const dr = $("#drop"); if (dr) { dr.ondragover = e => { e.preventDefault(); dr.classList.add("over"); }; dr.ondragleave = () => dr.classList.remove("over"); dr.ondrop = e => { e.preventDefault(); dr.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) readImportFile(f); }; }
   $$("[data-map]").forEach(s => s.onchange = e => { ui.imp.map[+e.target.dataset.map] = e.target.value; render(); });
+  const su = $("#shUrl"); if (su) su.oninput = e => { ui.shUrl = e.target.value; };
   $$("[data-chrole]").forEach(s => s.onchange = e => act(async () => { await DB.rpc("client_invite_user", { p_client_id: CLIENT.id, p_email: e.target.dataset.chrole, p_role: e.target.value }); await logAct(`Changed ${e.target.dataset.chrole} to ${ROLES[e.target.value].label}`, "team"); S.team = await DB.rpc("client_team", { p_client_id: CLIENT.id }); toast("Role changed. It applies the next time they load the app."); render(); }));
   $$("[data-tkstatus]").forEach(s => s.onchange = e => act(async () => { await DB.update("tickets", e.target.dataset.tkstatus, { status: e.target.value }); toast("Ticket updated."); }));
   const msgs = $("#msgs"); if (msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -52,6 +53,13 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "dAgent" && t.value) act(async () => { const it = itemById(t.dataset.item); await patchItem(it, { assigned_to: t.value }, `Handled by ${memberName(t.value)}`); await logAct(`${it.ext_id} given to ${memberName(t.value)}`, "item"); toast("Updated."); render(); itemDrawer(it.id); });
   if (t.id === "dStage" && t.value) act(async () => { const it = itemById(t.dataset.item); await setStage(it, t.value); toast(`${it.ext_id}: ${stageName(t.value, it)}`); render(); itemDrawer(it.id); });
+  if (t.dataset.shiftsel) act(async () => {
+    const [pid, day] = t.dataset.shiftsel.split("|"), cur = S.shifts.find(s => s.person_id === pid && s.day === day), v = t.value;
+    if (!v) { if (cur) { await DB.remove("shifts", cur.id); S.shifts = S.shifts.filter(s => s.id !== cur.id); } }
+    else if (cur) putRow(S.shifts, await DB.update("shifts", cur.id, { shift: v }));
+    else S.shifts.push(...await DB.insert("shifts", { client_id: CLIENT.id, person_id: pid, day, shift: v }));
+    render();
+  });
   /* email */
   if (t.id === "emBox") { ui.emBox = t.value; return render(); }
   if (t.id === "emCust" || t.id === "emAsg" || t.id === "emItem") act(async () => {
@@ -267,6 +275,10 @@ async function action(b, d) {
   if (d.deltpl) { await DB.remove("templates", d.deltpl); S.tpls = S.tpls.filter(x => x.id !== d.deltpl); closeModal(); return render(); }
   if (d.impcancel) { ui.imp = null; return render(); }
   if (d.impgo) return runImport();
+  if (d.readsheet) { const link = val("#shUrl"), k = val("#shKind"); ui.shUrl = link; if (!/^https?:\/\//.test(link)) return toast("Paste the sheet's link first. It starts with https://docs.google.com/spreadsheets/"); const [kind, board] = k.split(":"); toast("Reading the sheet…"); return startImport(k, IMPORTS[kind](board).label + " sheet", await fetchSheet(link), link); }
+  if (d.samplesheet) { const k = val("#shKind"); const [kind, board] = k.split(":"); return startImport(k, "Sample " + IMPORTS[kind](board).label.toLowerCase() + " sheet", sampleSheet(k), "sample:" + k); }
+  if (d.sync) { const s = cfg("sheets", []).find(x => x.id === d.sync); if (s) { toast("Syncing…"); return syncSheet(s); } return; }
+  if (d.unlink) { await saveConfig({ sheets: cfg("sheets", []).filter(x => x.id !== d.unlink) }); await logAct("Google Sheet unlinked", "sheet"); toast("Unlinked. Records already brought in stay in Jreebs."); return render(); }
 
   /* settings */
   if (d.savesla) { const s = { ...SLA() }, t = { ...TARGETS() }; ["promise", "firstReply", "pickup", "nodriver"].forEach(k => { const v = +val("#sla-" + k); if (v > 0) s[k] = v; }); ["ontime", "perAgent", "qa"].forEach(k => { const v = +val("#tg-" + k); if (v > 0) t[k] = v; }); await saveConfig({ sla: s, targets: t }); await logAct("Time limits and targets updated", "settings"); return toast("Saved."); }

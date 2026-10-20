@@ -21,7 +21,7 @@ function reportsInner() {
   switch (ui.report) {
     case "mine": {
       const mine = inRange.filter(i => i.assigned_to === ME.id), st = dayStats(mine), myC = S.cases.filter(c => c.assignee === ME.id);
-      body = `<section class="kpis">${kpi(`${WDEF.items} handled`, mine.length, `last ${ui.range} days`)}${kpi("On time", st.ontime == null ? "—" : st.ontime + "%", `target ${TARGETS().ontime}%`)}${kpi("Conversations", myC.length, "assigned to you")}${kpi("QA score", S.qa.length ? Math.round(S.qa.reduce((s, r) => s + qaPct(r), 0) / S.qa.length) + "%" : "—", "from your reviews")}</section>
+      body = `<section class="kpis">${kpi(`${WDEF.items} handled`, mine.length, `last ${ui.range} days`)}${kpi("On time", st.ontime == null ? "—" : st.ontime + "%", `target ${TARGETS().ontime}%`)}${kpi("Conversations", myC.length, "assigned to you")}${kpi("QA score", myQA().length ? Math.round(myQA().reduce((s, r) => s + qaPct(r), 0) / myQA().length) + "%" : "—", "from your reviews")}</section>
       ${card(`My ${WDEF.items.toLowerCase()} per day`, barChart(Sr.map(d => ITEMS.filter(i => i.assigned_to === ME.id && i.created >= mins(d.d.getTime()) && i.created < mins(d.d.getTime()) + 1440).length), Sr.map(d => d.label), { hi: Sr.length - 1 }))}`;
       REPORT_ROWS = mine.map(i => ({ ref: i.ext_id, customer: i.name, status: stageName(i.status, i), created: new Date(i.created * 60000).toISOString() }));
       break;

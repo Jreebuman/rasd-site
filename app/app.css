@@ -304,6 +304,8 @@ table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
 .optrow b { display: block; font-weight: 600; }
 .optrow span { font-size: 12.5px; color: var(--muted); }
 .shift { border: 0; border-radius: 6px; padding: 4px 6px; font-family: var(--mono); font-size: 11.5px; font-weight: 600; width: 100%; min-width: 64px; }
+select.shift { cursor: pointer; height: 28px; }
+span.shift { display: block; text-align: center; }
 .shift.s0 { background: var(--accent-soft); color: var(--accent); } .shift.s1 { background: var(--cta-soft); color: var(--cta); }
 .shift.s2 { background: var(--info-soft); color: var(--info); } .shift.s3, .shift.none { background: var(--surface-2); color: var(--faint); }
 .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
