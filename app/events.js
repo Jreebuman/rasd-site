@@ -30,8 +30,11 @@ async function act(fn) { try { await fn(); } catch (e) { console.error(e); toast
 
 function bindView() {
   const refocus = (sel, key) => { const el = $(sel); if (el) el.oninput = e => { ui[key] = e.target.value; const pos = e.target.selectionStart; render(); const n = $(sel); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (err) {} } }; };
-  refocus("#oq", "q"); refocus("#cq", "cq"); refocus("#sopq", "sopq"); refocus("#accq", "accq"); refocus("#emq", "emq");
+  refocus("#oq", "q"); refocus("#cq", "cq"); refocus("#sopq", "sopq"); refocus("#accq", "accq"); refocus("#emq", "emq"); refocus("#pvq", "pvq");
   enhanceTables();
+  /* kanban: drag a card to another column to change its stage */
+  $$("[data-drag]").forEach(c => { c.ondragstart = e => { e.dataTransfer.setData("text/plain", c.dataset.drag); c.classList.add("dragging"); }; c.ondragend = () => c.classList.remove("dragging"); });
+  $$("[data-drop]").forEach(col => { col.ondragover = e => { e.preventDefault(); col.classList.add("over"); }; col.ondragleave = () => col.classList.remove("over"); col.ondrop = e => { e.preventDefault(); col.classList.remove("over"); const it = itemById(e.dataTransfer.getData("text/plain")); if (it && it.status !== col.dataset.drop) act(async () => { await setStage(it, col.dataset.drop); toast(`${it.ext_id}: ${stageName(col.dataset.drop, it)}`); render(); }); }; });
   const on = (sel, fn) => { const el = $(sel); if (el) el.onchange = fn; };
   on("#fArea", e => { ui.area = e.target.value; render(); });
   on("#deptSel", e => { ui.dept = e.target.value; render(); });
@@ -48,21 +51,21 @@ function bindView() {
 document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "dAgent" && t.value) act(async () => { const it = itemById(t.dataset.item); await patchItem(it, { assigned_to: t.value }, `Handled by ${memberName(t.value)}`); await logAct(`${it.ext_id} given to ${memberName(t.value)}`, "item"); toast("Updated."); render(); itemDrawer(it.id); });
-  if (t.id === "dStage" && t.value) act(async () => { const it = itemById(t.dataset.item); await setStage(it, t.value); toast(`${it.ext_id}: ${stageName(t.value)}`); render(); itemDrawer(it.id); });
+  if (t.id === "dStage" && t.value) act(async () => { const it = itemById(t.dataset.item); await setStage(it, t.value); toast(`${it.ext_id}: ${stageName(t.value, it)}`); render(); itemDrawer(it.id); });
   /* email */
   if (t.id === "emBox") { ui.emBox = t.value; return render(); }
   if (t.id === "emCust" || t.id === "emAsg" || t.id === "emItem") act(async () => {
     const e = S.emails.find(x => x.id === t.dataset.id); let patch;
     if (t.id === "emCust") patch = { customer_id: t.value || null };
     if (t.id === "emAsg") patch = { assignee: t.value || null };
-    if (t.id === "emItem") { const ref = t.value.trim().toUpperCase(); const it = ref ? ITEMS.find(i => i.ext_id.toUpperCase() === ref) : null; if (ref && !it) return toast(`No ${WDEF.item.toLowerCase()} ${ref} found.`); patch = { item_id: it ? it.id : null, ...(it && !e.customer_id && it.customer_id ? { customer_id: it.customer_id } : {}) }; }
+    if (t.id === "emItem") { const ref = t.value.trim().toUpperCase(); const it = ref ? ITEMS.find(i => i.ext_id.toUpperCase() === ref) : null; if (ref && !it) return toast(`Nothing found with reference ${ref}.`); patch = { item_id: it ? it.id : null, ...(it && !e.customer_id && it.customer_id ? { customer_id: it.customer_id } : {}) }; }
     putRow(S.emails, await DB.update("emails", e.id, patch)); await logAct(`Email "${e.subject.slice(0, 50)}" ${t.id === "emAsg" ? (t.value ? "given to " + memberName(t.value) : "unassigned") : "linked"}`, "email"); toast("Saved."); render();
   });
 });
 document.addEventListener("input", e => {
   if (!e.target.matches("[data-q]")) return;
   if ($("#qOut")) { ui.qo = readQuote("qq"); $("#qOut").innerHTML = quoteBox(quote(ui.qo)); }
-  if ($("#ncQuote")) $("#ncQuote").innerHTML = quoteBox(quote(readQuote("nq")));
+  if ($("#ncQuote")) $("#ncQuote").innerHTML = quoteLine(quote(readQuote("nq")));
 });
 
 document.addEventListener("click", e => {
@@ -80,7 +83,9 @@ document.addEventListener("click", e => {
   if (d.ainew) { AI.msgs = []; AI.turns = []; return renderAI(); }
   if (d.aiq) return askAI(d.aiq);
   /* provider */
-  if (d.pvc) { closeModal(); return clientDrawer(d.pvc); }
+  if (d.pvc) { ui.pvtab = "summary"; closeModal(); return clientDrawer(d.pvc); }
+  if (d.pvtab) { ui.pvtab = d.pvtab; return clientDrawer(d.id); }
+  if (d.pvinv) return pvInviteModal(d.pvinv);
   if (d.pvf) { ui.pvf = d.pvf; return render(); }
   if (d.copyquote) return copyText(quoteText(quote(ui.qo)));
   if (d.more) { ui.page[d.more] = d.all ? +d.all : (ui.page[d.more] || 50) + 50; return render(); }
@@ -93,7 +98,8 @@ document.addEventListener("click", e => {
   /* login */
   if (d.lmode) return showLogin(d.lmode);
   /* shell */
-  if (d.nav) { if (d.saved) { ui.saved = d.saved; ui.orderTab = "active"; } if (d.tt) ui.teamTab = d.tt; if (d.rp) ui.report = d.rp; closeModal(); return go(d.nav); }
+  if (d.ngt) { NAVC.has(d.ngt) ? NAVC.delete(d.ngt) : NAVC.add(d.ngt); try { localStorage.setItem("jreebs-nav-closed", JSON.stringify([...NAVC])); } catch (e) {} return renderNav(); }
+  if (d.nav) { if (d.board && d.board !== ui.board) { setBoard(d.board); ui.orderTab = "active"; ui.saved = null; ui.q = ""; ui.area = "all"; } if (d.saved) { ui.saved = d.saved; ui.orderTab = "active"; } if (d.tt) ui.teamTab = d.tt; if (d.rp) ui.report = d.rp; if (d.st) ui.setTab = d.st; if (d.apf) ui.apf = d.apf; closePalette(); closeModal(); return go(d.nav); }
   if (d.toast) return toast(d.toast);
   switch (d.act) {
     case "close": return closeDrawer();
@@ -114,6 +120,15 @@ document.addEventListener("click", e => {
 
   /* lists and filters */
   if (d.otab) { ui.orderTab = d.otab; ui.sel.clear(); return render(); }
+  if (d.bview) { ui.boardView = d.bview; try { localStorage.setItem("jreebs-bview", d.bview); } catch (e) {} return render(); }
+  if (d.apf) { ui.apf = d.apf; return render(); }
+  if (d.calw !== undefined) { ui.calWeek = +d.calw === 0 ? 0 : ui.calWeek + +d.calw; return render(); }
+  if (d.calb) { ui.calBoard = d.calb; return render(); }
+  if (d.rboard) { ui.rboard = d.rboard; return render(); }
+  if (d.apk) return approvalModal(d.apk);
+  if (d.badd) return addBoardModal();
+  if (d.bedit) return boardModal(d.bedit);
+  if (d.pal !== undefined) { const e = PAL && PAL.list[+d.pal]; closePalette(); if (e) e.go(); return; }
   if (d.savedt) { ui.saved = ui.saved === d.savedt ? null : d.savedt; return render(); }
   if (d.mine) { ui.mine = !ui.mine; return render(); }
   if (d.clearsel) { ui.sel.clear(); return render(); }
@@ -135,7 +150,7 @@ document.addEventListener("click", e => {
   /* dialogs */
   if (d.modal) {
     switch (d.modal) {
-      case "newitem": return newItemModal();
+      case "newitem": return newItemModal(d.b);
       case "invite": return inviteModal();
       case "shiftcodes": return shiftCodesModal();
       case "qa": return qaModal();
@@ -149,6 +164,7 @@ document.addEventListener("click", e => {
       case "rule": return ruleModal();
       case "tpl": return tplModal(d.tid);
       case "newclient": return newClientModal(!!d.fromquote);
+      case "approval": return approvalModal();
     }
   }
   if (d.msg !== undefined) return msgModal(d.msg, d.tpl);
@@ -164,16 +180,16 @@ document.addEventListener("click", e => {
 
 async function action(b, d) {
   /* items */
-  if (d.adv) { const it = itemById(d.adv); await setStage(it, d.to); toast(`${it.ext_id}: ${stageName(d.to)}`); render(); if (DRAWER) itemDrawer(it.id); return; }
+  if (d.adv) { const it = itemById(d.adv); await setStage(it, d.to); toast(`${it.ext_id}: ${stageName(d.to, it)}`); render(); if (DRAWER) itemDrawer(it.id); return; }
   if (d.take) { const it = itemById(d.take); await patchItem(it, { assigned_to: ME.id }, `Taken by ${nameOf(ME.email)}`); toast("It's yours."); render(); return itemDrawer(it.id); }
   if (d.onote) { const v = val("#oNote"); if (!v) return toast("Write the note first."); const it = itemById(d.onote); await patchItem(it, {}, v); render(); return itemDrawer(it.id); }
   if (d.delitem) { const it = itemById(d.delitem); if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Press again to delete"; return; } await DB.remove("items", it.id); S.items = S.items.filter(x => x.id !== it.id); await logAct(`${it.ext_id} deleted`, "item"); closeDrawer(); toast("Deleted."); return render(); }
-  if (d.saveitem) return saveNewItem();
+  if (d.saveitem) return saveNewItem(d.saveitem);
   if (d.doassign) {
     const name = d.doassign === "__typed" ? val("#asName") : d.doassign; if (!name) return toast("Pick or type a name.");
     const ids = d.ids.split(",").filter(Boolean);
-    for (const id of ids) { const it = itemById(id); if (!it || isTerm(it)) continue; const patch = { owner: name, owner_user: d.uid || null }; const second = WDEF.stages[1][0]; if (it.status === WDEF.stages[0][0] && second) { patch.status = second; patch.data = { ...it.data, t: { ...(it.data.t || {}), [second]: Date.now() } }; } await patchItem(it, patch, `Assigned to ${name}`); }
-    await logAct(`${ids.length} ${ids.length > 1 ? WDEF.items.toLowerCase() : WDEF.item.toLowerCase()} assigned to ${name}`, "item");
+    for (const id of ids) { const it = itemById(id); if (!it || isTerm(it)) continue; const D = defOf(it), patch = D.fieldOwner ? { owner: name, owner_user: d.uid || null } : { owner: name, owner_user: null, assigned_to: d.uid || it.assigned_to || null }; const second = D.stages[1] && D.fieldOwner ? D.stages[1][0] : null; if (it.status === D.stages[0][0] && second) { patch.status = second; patch.data = { ...it.data, t: { ...(it.data.t || {}), [second]: Date.now() } }; } await patchItem(it, patch, `Assigned to ${name}`); }
+    const D1 = defOf(itemById(ids[0])); await logAct(`${ids.length} ${ids.length > 1 ? D1.items.toLowerCase() : D1.item.toLowerCase()} assigned to ${name}`, "item");
     ui.sel.clear(); closeModal(); toast(`Assigned to ${name}.`); render(); if (DRAWER) itemDrawer(DRAWER.id); return;
   }
   if (d.copymsg) return copyText(val("#mText"));
@@ -241,10 +257,10 @@ async function action(b, d) {
   if (d.delsop) { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Press again to delete"; return; } await DB.remove("sops", d.delsop); S.sops = S.sops.filter(x => x.id !== d.delsop); closeModal(); return render(); }
 
   /* setup */
-  if (d.rule) { const cur = ruleOn(d.rule); const r = (await DB.upsert("rules", { client_id: CLIENT.id, rule_id: d.rule, enabled: !cur }, "client_id,rule_id"))[0]; putRow(S.rules, r); await logAct(`Automation "${WDEF.rules.find(x => x.id === d.rule)?.name}" turned ${cur ? "off" : "on"}`, "automation"); return render(); }
+  if (d.rule) { const cur = ruleOn(d.rule); const r = (await DB.upsert("rules", { client_id: CLIENT.id, rule_id: d.rule, enabled: !cur }, "client_id,rule_id"))[0]; putRow(S.rules, r); await logAct(`Automation "${BOARDS.flatMap(b => b.rules.map(r => [ruleKey(b, r), r.name])).find(x => x[0] === d.rule)?.[1] || d.rule}" turned ${cur ? "off" : "on"}`, "automation"); return render(); }
   if (d.crule) { const r = S.rules.find(x => x.id === d.crule); putRow(S.rules, await DB.update("rules", r.id, { enabled: !r.enabled })); await logAct(`Automation "${r.def.name}" turned ${r.enabled ? "off" : "on"}`, "automation"); return render(); }
   if (d.delrule) { const r = S.rules.find(x => x.id === d.delrule); await DB.remove("rules", r.id); S.rules = S.rules.filter(x => x.id !== r.id); await logAct(`Automation "${r.def.name}" deleted`, "automation"); return render(); }
-  if (d.saverule) { const name = val("#rn"); if (!name) return toast("Give it a name."); const def = { name, when: val("#rw"), status: val("#rs"), mins: +val("#rm") || 0, cond: val("#rc"), val: val("#rv"), label: val("#rl") || name, sev: +val("#rsev"), tpl: val("#rt") || null };
+  if (d.saverule) { const name = val("#rn"); if (!name) return toast("Give it a name."); const def = { name, board: val("#rb") || "main", when: val("#rw"), status: val("#rs"), mins: +val("#rm") || 0, cond: val("#rc"), val: val("#rv"), label: val("#rl") || name, sev: +val("#rsev"), tpl: val("#rt") || null };
     S.rules.push(...await DB.insert("rules", { client_id: CLIENT.id, rule_id: "c-" + Date.now().toString(36), enabled: true, def })); await logAct(`Automation created: ${name}`, "automation"); closeModal(); toast(`"${name}" is on.`); return render(); }
   if (d.ins) { const a = document.activeElement; const ta = a && a.tagName === "TEXTAREA" ? a : $("#ten"); ta.value += d.ins; ta.focus(); return; }
   if (d.savetpl !== undefined) { const row = { name: val("#tn"), category: val("#tc"), en: val("#ten"), ar: val("#tar") }; if (!row.name) return toast("Give it a name."); if (d.savetpl) putRow(S.tpls, await DB.update("templates", d.savetpl, row)); else S.tpls.push(...await DB.insert("templates", { client_id: CLIENT.id, key: "t-" + Date.now().toString(36), ...row })); await logAct(`Template saved: ${row.name}`, "template"); closeModal(); toast("Saved."); return render(); }
@@ -259,6 +275,47 @@ async function action(b, d) {
   if (d.signoutall) return signOut("global");
   if (d.mfaverify) { const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: d.mfaverify, code: val("#mfaCode") }); if (error) throw error; closeModal(); return toast("Two-step sign-in is on."); }
   if (d.mfaoff) { const { error } = await sb.auth.mfa.unenroll({ factorId: d.mfaoff }); if (error) throw error; closeModal(); return toast("Two-step sign-in is off."); }
+
+
+  /* approvals */
+  if (d.apsave) {
+    const k = d.apsave, row = { client_id: CLIENT.id, kind: k, requester: ME.id, requester_name: memberName(ME.id) || nameOf(ME.email), details: val("#ap5"), title: val("#ap1") };
+    if (k === "leave") { Object.assign(row, { start_date: val("#ap2"), end_date: val("#ap3") || val("#ap2") }); if (!row.start_date) return toast("Pick the first day."); if (row.end_date < row.start_date) return toast("The last day is before the first day."); }
+    else { if (!row.title) return toast("Say briefly what it's for."); if ($("#ap4")) row.amount = +val("#ap4") || null; }
+    S.approvals.unshift(...await DB.insert("approvals", row)); await logAct(`Request sent: ${apTitle(row)}`, "approval");
+    closeModal(); toast("Sent. You'll see the answer in Approvals."); ui.apf = "mine"; return go("approvals");
+  }
+  if (d.apdo) {
+    const a = S.approvals.find(x => x.id === d.id);
+    const patch = d.apdo === "cancelled" ? { status: "cancelled" } : { status: d.apdo, decided_by: ME.id, decided_by_name: memberName(ME.id) || nameOf(ME.email), decided_at: new Date().toISOString() };
+    putRow(S.approvals, await DB.update("approvals", a.id, patch)); await logAct(`${apTitle(a)} for ${a.requester_name}: ${AP_ST[d.apdo][0].toLowerCase()}`, "approval");
+    toast(d.apdo === "approved" ? "Approved." : d.apdo === "rejected" ? "Rejected." : "Cancelled."); return render();
+  }
+
+  /* workspace: modules and boards */
+  if (d.mod) { const m = { ...(CFG.modules || {}) }; if (modOn(d.mod)) m[d.mod] = false; else delete m[d.mod]; await saveConfig({ modules: m }); await logAct(`${MODULES.find(x => x[0] === d.mod)[1]} switched ${modOn(d.mod) ? "on" : "off"}`, "settings"); return render(); }
+  if (d.bhide) { const list = BOARDS.map(x => x.id === d.bhide ? { ...x, hidden: !x.hidden } : x); if (!list.some(x => !x.hidden)) return toast("Keep at least one board shown."); const nb = list.find(x => x.id === d.bhide); return saveBoards(list, `${nb.items} ${nb.hidden ? "hidden" : "shown"}`); }
+  if (d.bdel) { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Press again"; return; } return saveBoards(BOARDS.filter(x => x.id !== d.bdel), "Board removed"); }
+  if (d.blib) {
+    const k = d.blib, spec = k === "blank" ? { item: "Record", items: "New board", icon: "grid", prefix: "N", stages: [["new", "New"], ["doing", "In progress"], ["done", "Done"]], alt: [["cancelled", "Cancelled"]], done: "done", fields: [], hasPhone: false, hasArea: false, promise: 1440, rules: [{ id: "overdue", type: "late", name: "Overdue", desc: "Flag records past their due time.", label: "Overdue {d}", sev: 2 }] } : JSON.parse(JSON.stringify(BOARD_LIB[k]));
+    let id = k === "blank" ? "b" + Date.now().toString(36) : k; while (BOARDS.some(x => x.id === id)) id += "2";
+    let p = spec.prefix; for (let n = 2; BOARDS.some(x => x.prefix === p); n++) p = spec.prefix + n;
+    closeModal(); await saveBoards([...BOARDS, normBoard({ ...spec, id, lib: k === "blank" ? null : k, prefix: p })], `Board added: ${spec.items}`);
+    const missing = (spec.templates || []).filter(t => !S.tpls.some(x => x.key === t[0]));
+    if (missing.length) S.tpls.push(...await DB.insert("templates", missing.map(([key, name, category, en, ar]) => ({ client_id: CLIENT.id, key, name, category, en, ar }))));
+    return boardModal(id);
+  }
+  if (d.bsave) {
+    const b0 = BDEF(d.bsave), old = [...b0.stages, ...b0.alt], stages = stagesFrom(val("#bx7"), old);
+    if (stages.length < 2) return toast("Add at least two stages, one per line.");
+    const alt = stagesFrom(val("#bx8"), old).filter(a => !stages.some(s => s[0] === a[0]));
+    const fields = val("#bx9").split("\n").map(s => s.trim()).filter(Boolean).map(l => { const ex = b0.fields.find(f => f[1].toLowerCase() === l.toLowerCase()); return ex ? [ex[0], l] : [/^value\b/i.test(l) ? "value" : l.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "field", l]; });
+    const prefix = (val("#bx3") || b0.prefix).toUpperCase().replace(/[^A-Z0-9]/g, "") || b0.prefix;
+    if (BOARDS.some(x => x.id !== b0.id && x.prefix === prefix)) return toast(`Another board already uses ${prefix}. Pick a different prefix.`);
+    const keys = new Set([...stages, ...alt].map(s => s[0]));
+    const nb = { ...b0, items: val("#bx1") || b0.items, item: val("#bx2") || b0.item, prefix, nameLabel: val("#bx4") || "Customer", ownerLabel: val("#bx5") || "Owner", dueLabel: val("#bx6") || "Due", stages, alt, done: stages[stages.length - 1][0], fields, promise: Math.max(0, +val("#bx10") || 0) * ({ minutes: 1, hours: 60, days: 1440 }[val("#bx11")] || 1), hasPhone: $("#bx12").checked, hasArea: $("#bx13").checked, fieldOwner: $("#bx14").checked, icon: ($("input[name=bxi]:checked") || {}).value || b0.icon, rules: b0.rules.filter(r => !r.stage || keys.has(r.stage)) };
+    closeModal(); return saveBoards(BOARDS.map(x => x.id === nb.id ? nb : x), `Board saved: ${nb.items}`);
+  }
 
   /* Jreebs admin */
   if (d.admreload) { ADM.loaded = false; return render(); }
@@ -281,7 +338,14 @@ async function action(b, d) {
     await loadAdmin(); render(); toast("Contract saved."); return clientDrawer(id);
   }
   if (d.chk) { const a = acctOf(d.id), on = !a.checklist?.[d.chk]; await DB.upsert("client_accounts", { ...a, client_id: d.id, checklist: { ...(a.checklist || {}), [d.chk]: on }, ...(d.chk === "live" && on ? { status: "active" } : {}), updated_at: new Date().toISOString() }, "client_id"); if (d.chk === "live" && on) toast("Marked live and active."); await loadAdmin(); render(); return clientDrawer(d.id); }
-  if (d.pvinvite) { const email = val("#pvInv"); if (!email) return toast("Type their email first."); const role = val("#pvRole"); const st = await DB.rpc("invite_by_email", { p_client_id: d.pvinvite, p_email: email, p_role: role }); toast(st === "linked" ? `${email} already had an account and is now linked as ${ROLES[role].label}.` : `Invited. ${email} joins as ${ROLES[role].label} when they sign up. Copy the invite below.`); await loadAdmin(); render(); return clientDrawer(d.pvinvite); }
+  if (d.pvinvite) { const email = val("#pvInv").toLowerCase(); if (!email) return toast("Type their email first."); const role = val("#pvRole"); const st = await DB.rpc("invite_by_email", { p_client_id: d.pvinvite, p_email: email, p_role: role }); await loadAdmin(); render(); const c = ADM.clients.find(x => x.id === d.pvinvite), a = acctOf(d.pvinvite); if (d.modalinv) return invitedModal(c, email, role, a.contact_phone, a.contact_name, st); toast(st === "linked" ? `${email} already had an account and is now in as ${ROLES[role].label}.` : `Invited. ${email} joins as ${ROLES[role].label} when they sign up. Copy their invite below.`); ui.pvtab = "people"; return clientDrawer(d.pvinvite); }
+  if (d.pvtest) {
+    const base = val("#ptB").toLowerCase(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(base)) return toast("Enter your email first."); ui.testBase = base;
+    let test = ADM.clients.find(c => c.slug === TEST_SLUG);
+    if (!test) { test = (await DB.insert("clients", { name: "Jreebs Test Co", slug: TEST_SLUG, workspace_type: val("#ptT") || "general", plan: "business", config: {} }))[0]; await DB.insert("client_accounts", { client_id: test.id, status: "trial", users_included: 40, annual_price: 0, setup_fee: 0, notes: "Internal test company for checking every role.", checklist: {}, addons: {} }); }
+    for (const r of ROLE_ORDER) await DB.rpc("invite_by_email", { p_client_id: test.id, p_email: testEmail(base, r), p_role: r });
+    await loadAdmin(); toast("Test logins ready. Open each sign-up link in a private window."); return render();
+  }
 }
 
 async function switchCompany() {
@@ -290,6 +354,48 @@ async function switchCompany() {
   $$("[data-goco]").forEach(b => b.onclick = () => { try { localStorage.setItem("jreebs-client", b.dataset.goco); } catch (e) {} location.reload(); });
 }
 
+
+/* ---------- quick jump (Ctrl+K): pages, actions and records in one box ---------- */
+let PAL = null;
+function palEntries(q) {
+  const out = [];
+  navGroups().forEach(g => g.items.forEach(it => { if (lvl() >= it[3] && !(lvl() === 0 && it[3] > 0)) out.push({ t: navLabel(it[0], it[1], it[4]), s: g.g, ic: it[2], go: () => { if (it[4]) setBoard(it[4]); go(it[0]); } }); }));
+  if (can(1)) liveBoards().forEach(b => out.push({ t: `New ${b.item.toLowerCase()}`, s: b.items, ic: "plus", go: () => newItemModal(b.id) }));
+  if (modOn("approvals")) out.push({ t: "Ask for leave, an expense or a purchase", s: "Approvals", ic: "check", go: () => approvalModal() });
+  if (can(4)) out.push({ t: "Invite a team member", s: "Team", ic: "team", go: () => inviteModal() }, { t: "Customize workspace", s: "Settings", ic: "edit", go: () => { ui.setTab = "workspace"; go("settings"); } });
+  out.push({ t: "Ask the assistant", s: "Assistant", ic: "spark", go: () => toggleAI(true) });
+  const ql = q.toLowerCase().trim();
+  let res = ql ? out.filter(e => (e.t + " " + e.s).toLowerCase().includes(ql)) : out.slice(0, 10);
+  if (ql.length >= 2) res = res.concat(localSearch(q).slice(0, 8).map(r => ({ t: r.title, s: KIND[r.kind] ? KIND[r.kind]() : r.kind, ic: "search", go: () => openResult(r) })));
+  return res.slice(0, 14);
+}
+function openResult(r) {
+  if (r.kind === "item") return itemDrawer(r.id);
+  if (r.kind === "customer") return custDrawer(r.id);
+  if (r.kind === "conversation") { ui.convo = r.id; return go("inbox"); }
+  if (r.kind === "email") { ui.emSel = r.id; return go("email"); }
+  if (r.kind === "sop") return sopDrawer(r.id);
+  if (r.kind === "person" && can(4)) return personModal(r.id);
+  if (r.kind === "link" && r.url) window.open(r.url, "_blank", "noopener");
+}
+function openPalette() {
+  if (!ME || ADMIN) return;
+  PAL = { i: 0, list: palEntries("") };
+  openModal(`<div class="pal"><label class="pal-in" for="palq">${ic("search")}<input id="palq" placeholder="Jump to a page, add something, or find a record…" autocomplete="off"></label><div id="palr" role="listbox"></div><div class="pal-f small muted"><span>↑ ↓ to move · Enter to open · Esc to close</span></div></div>`);
+  $("#modal").classList.add("palm");
+  const draw = () => { $("#palr").innerHTML = PAL.list.map((e, i) => `<button type="button" class="pal-r${i === PAL.i ? " on" : ""}" data-pal="${i}" role="option" aria-selected="${i === PAL.i}">${ic(e.ic)}<span class="grow">${esc(e.t)}</span><span class="small muted">${esc(e.s)}</span></button>`).join("") || `<div class="empty">Nothing found.</div>`; };
+  const inp = $("#palq");
+  inp.oninput = () => { PAL.list = palEntries(inp.value); PAL.i = 0; draw(); };
+  inp.onkeydown = e => {
+    if (e.key === "ArrowDown") { e.preventDefault(); PAL.i = Math.min(PAL.list.length - 1, PAL.i + 1); draw(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); PAL.i = Math.max(0, PAL.i - 1); draw(); }
+    else if (e.key === "Enter") { e.preventDefault(); const x = PAL.list[PAL.i]; closePalette(); if (x) x.go(); }
+  };
+  draw(); inp.focus();
+}
+function closePalette() { if (PAL) closeModal(); }
+try { ui.boardView = localStorage.getItem("jreebs-bview") || "list"; } catch (e) {}
+
 /* ---------- start ---------- */
 $("#loginForm").addEventListener("submit", onLoginSubmit);
 $("#mscrim").onclick = closeModal;
@@ -297,6 +403,7 @@ $("#scrim").onclick = closeDrawer;
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { if (!$("#modal").hidden) closeModal(); else if (!$("#drawer").hidden) closeDrawer(); else if (AI.open) toggleAI(false); else $("#pop").hidden = true; }
   if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || "") && ME && !ADMIN) { e.preventDefault(); $("#q").focus(); }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k" && ME && !ADMIN) { e.preventDefault(); PAL ? closePalette() : openPalette(); }
 });
 $("#q").addEventListener("keydown", e => { if (e.key === "Enter" && !ADMIN && ME) { const q = e.target.value.trim(); if (!q) return; runSearch(q); go("search"); } });
 $("#qIcon").innerHTML = ic("search");

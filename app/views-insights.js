@@ -11,9 +11,9 @@ function seriesFor(days) {
   }
   return out;
 }
-VIEWS.reports = function () {
+function reportsInner() {
   const isMine = r => r[0] === "mine";
-  const avail = REPORTS.filter(r => lvl() >= r[2] && !(isMine(r) && lvl() >= 2) && !(r[0] === "money" && !WDEF.hasValue));
+  const avail = REPORTS.filter(r => lvl() >= r[2] && !(isMine(r) && lvl() >= 2) && !(r[0] === "money" && !WDEF.hasValue) && !(r[0] === "areas" && !WDEF.hasArea));
   if (!ui.report || !avail.find(r => r[0] === ui.report)) ui.report = avail[0][0];
   const S7 = seriesFor(Math.max(7, ui.range)), Sr = seriesFor(ui.range), from = mins(startOfDay().getTime()) - (ui.range - 1) * 1440;
   const inRange = ITEMS.filter(i => i.created >= from), stR = dayStats(inRange);
@@ -23,11 +23,11 @@ VIEWS.reports = function () {
       const mine = inRange.filter(i => i.assigned_to === ME.id), st = dayStats(mine), myC = S.cases.filter(c => c.assignee === ME.id);
       body = `<section class="kpis">${kpi(`${WDEF.items} handled`, mine.length, `last ${ui.range} days`)}${kpi("On time", st.ontime == null ? "—" : st.ontime + "%", `target ${TARGETS().ontime}%`)}${kpi("Conversations", myC.length, "assigned to you")}${kpi("QA score", S.qa.length ? Math.round(S.qa.reduce((s, r) => s + qaPct(r), 0) / S.qa.length) + "%" : "—", "from your reviews")}</section>
       ${card(`My ${WDEF.items.toLowerCase()} per day`, barChart(Sr.map(d => ITEMS.filter(i => i.assigned_to === ME.id && i.created >= mins(d.d.getTime()) && i.created < mins(d.d.getTime()) + 1440).length), Sr.map(d => d.label), { hi: Sr.length - 1 }))}`;
-      REPORT_ROWS = mine.map(i => ({ ref: i.ext_id, customer: i.name, status: stageName(i.status), created: new Date(i.created * 60000).toISOString() }));
+      REPORT_ROWS = mine.map(i => ({ ref: i.ext_id, customer: i.name, status: stageName(i.status, i), created: new Date(i.created * 60000).toISOString() }));
       break;
     }
     case "ops":
-      body = `<section class="kpis">${kpi(WDEF.items, fmtN(stR.n), `last ${ui.range} days`)}${kpi("Per day", Math.round(stR.n / ui.range), "average")}${kpi("On time", stR.ontime == null ? "—" : stR.ontime + "%", `target ${TARGETS().ontime}%`)}${kpi("Avg time", stR.avg == null ? "—" : stR.avg + " min", "created to done")}</section>
+      body = `<section class="kpis">${kpi(WDEF.items, fmtN(stR.n), `last ${ui.range} days`)}${kpi("Per day", Math.round(stR.n / ui.range), "average")}${kpi("On time", stR.ontime == null ? "—" : stR.ontime + "%", `target ${TARGETS().ontime}%`)}${kpi("Avg time", stR.avg == null ? "—" : dur(stR.avg), "created to done")}</section>
       <div class="grid2e">${card(`${WDEF.items} per day`, barChart(Sr.map(d => d.n), Sr.map(d => d.label), { hi: Sr.length - 1 }) + `<p class="small muted">Today is in orange and counts ${WDEF.items.toLowerCase()} so far.</p>`)}${card("Average time", lineChart(S7.map(d => d.avg), S7.map(d => d.label), { label: "Average time" }), false, `<span class="sub">minutes</span>`)}</div>
       ${card("Day by day", `<div class="tw"><table class="t"><thead><tr><th>Day</th><th class="r">${WDEF.items}</th><th class="r">Completed</th><th class="r">On time</th><th class="r">Avg time</th><th class="r">Complaints</th></tr></thead><tbody>${Sr.slice().reverse().map(d => `<tr><td>${d.d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</td><td class="r num">${d.n}</td><td class="r num">${d.done}</td><td class="r num">${d.ontime == null ? "—" : d.ontime + "%"}</td><td class="r num">${d.avg == null ? "—" : d.avg + " min"}</td><td class="r num">${d.complaints}</td></tr>`).join("")}</tbody></table></div>`, true)}`;
       REPORT_ROWS = Sr.map(d => ({ day: isoDay(d.d), [WDEF.items.toLowerCase()]: d.n, completed: d.done, on_time_pct: d.ontime ?? "", avg_minutes: d.avg ?? "", complaints: d.complaints }));
@@ -69,9 +69,9 @@ VIEWS.reports = function () {
     }
     case "money": {
       const done = inRange.filter(i => i.status === WDEF.done), rev = done.reduce((s, i) => s + (+i.data?.value || 0), 0);
-      const byStore = {}; done.forEach(i => { const k = i.data?.store || "Other"; byStore[k] = (byStore[k] || 0) + (+i.data?.value || 0); });
+      const gf = WDEF.fields.find(f => f[0] !== "value"), byStore = {}; done.forEach(i => { const k = (gf && i.data?.[gf[0]]) || "Other"; byStore[k] = (byStore[k] || 0) + (+i.data?.value || 0); });
       body = `<section class="kpis">${kpi("Revenue", fmtN(Math.round(rev)) + " JOD", `last ${ui.range} days`)}${kpi("Average value", done.length ? fmtN(Math.round(rev / done.length * 10) / 10) + " JOD" : "—", `per completed ${WDEF.item.toLowerCase()}`)}${kpi("Completed", done.length, "")}</section>
-      <div class="grid2e">${card("Revenue per day", barChart(Sr.map(d => Math.round(d.value)), Sr.map(d => d.label), { hi: Sr.length - 1 }), false, `<span class="sub">JOD</span>`)}${card("Revenue by store", hbars(Object.entries(byStore).map(([k, v]) => [k, Math.round(v)]).sort((a, b) => b[1] - a[1]), " JOD"))}</div>`;
+      <div class="grid2e">${card("Revenue per day", barChart(Sr.map(d => Math.round(d.value)), Sr.map(d => d.label), { hi: Sr.length - 1 }), false, `<span class="sub">JOD</span>`)}${card(`Revenue by ${esc((gf ? gf[1] : "type").toLowerCase())}`, hbars(Object.entries(byStore).map(([k, v]) => [k, Math.round(v)]).sort((a, b) => b[1] - a[1]), " JOD"))}</div>`;
       REPORT_ROWS = Sr.map(d => ({ day: isoDay(d.d), revenue_jod: Math.round(d.value), completed: d.done }));
       break;
     }
@@ -90,6 +90,17 @@ VIEWS.reports = function () {
   }
   const title = (REPORTS.find(r => r[0] === ui.report) || [])[1];
   return `${head("Reports", "Live from your own data. Export any report as a spreadsheet.", REPORT_ROWS.length ? `<button class="btn" type="button" data-export="report">${ic("down")}Export ${esc(title)}</button>` : "")}
-  <div class="setgrid"><nav class="setnav" aria-label="Reports">${REPORTS.filter(r => !(isMine(r) && lvl() >= 2) && !(r[0] === "money" && !WDEF.hasValue)).map(([k, l, min]) => `<button type="button" ${lvl() >= min ? `data-rep="${k}"` : `data-toast="${esc(l)} is for ${NEED[min]}."`} aria-current="${ui.report === k}">${esc(l)}${lvl() >= min ? "" : ic("lock")}</button>`).join("")}</nav>
+  <div class="setgrid"><nav class="setnav" aria-label="Reports">${REPORTS.filter(r => !(isMine(r) && lvl() >= 2) && !(r[0] === "money" && !WDEF.hasValue) && !(r[0] === "areas" && !WDEF.hasArea)).map(([k, l, min]) => `<button type="button" ${lvl() >= min ? `data-rep="${k}"` : `data-toast="${esc(l)} is for ${NEED[min]}."`} aria-current="${ui.report === k}">${esc(l)}${lvl() >= min ? "" : ic("lock")}</button>`).join("")}</nav>
   <div class="stack"><div class="row"><span class="lbl">Period</span><div class="chips">${[[1, "Today"], [7, "7 days"], [14, "14 days"], [30, "30 days"]].map(([d, l]) => `<button class="chip" type="button" data-range="${d}" aria-pressed="${ui.range === d}">${l}</button>`).join("")}</div></div>${body}</div></div>`;
+};
+// Reports run on one board at a time; the other pages of the report (team, customers, company) use that board's numbers.
+VIEWS.reports = function () {
+  const bs = liveBoards();
+  if (!ui.rboard || !bs.some(b => b.id === ui.rboard)) ui.rboard = bs.some(b => b.id === ui.board) ? ui.board : bs[0].id;
+  const all = ITEMS, keep = WDEF;
+  ITEMS = all.filter(i => i.board === ui.rboard); WDEF = BDEF(ui.rboard);
+  try {
+    const html = reportsInner();
+    return bs.length > 1 ? html.replace('<div class="setgrid">', `<div class="chips rboards"><span class="lbl">Board</span>${bs.map(b => `<button class="chip" type="button" data-rboard="${b.id}" aria-pressed="${b.id === ui.rboard}">${esc(b.items)}</button>`).join("")}</div><div class="setgrid">`) : html;
+  } finally { ITEMS = all; WDEF = keep; }
 };

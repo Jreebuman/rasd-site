@@ -1,18 +1,24 @@
 /* Jreebs app shell: sign-in, boot, navigation, live updates, presence, theme. */
-const NAV = [
-  { g: "Work", items: [["home", "Home", "home", 0], ["orders", "Orders", "box", 1], ["inbox", "Inbox", "inbox", 1], ["email", "Email", "mail", 1], ["customers", "Customers", "contact", 1]] },
-  { g: "Team", items: [["team", "Team & shifts", "team", 2], ["quality", "Quality (QA)", "star", 1]] },
+// "BOARDS" expands to one menu item per board (each kind of work the company tracks).
+const NAV_BASE = [
+  { g: "Work", items: [["home", "Home", "home", 0], "BOARDS", ["inbox", "Inbox", "inbox", 1], ["email", "Email", "mail", 1], ["customers", "Customers", "contact", 1], ["calendar", "Calendar", "cal", 1]] },
+  { g: "Team", items: [["approvals", "Approvals", "check", 0], ["team", "Team & shifts", "team", 2], ["quality", "Quality (QA)", "star", 1]] },
   { g: "Company", items: [["company", "Company profile", "building", 1], ["systems", "Systems & tools", "grid", 1], ["access", "People & access", "key", 4], ["sops", "SOPs", "book", 0]] },
   { g: "Insights", items: [["reports", "Reports", "chart", 1]] },
   { g: "Setup", items: [["automations", "Automations", "bolt", 2], ["templates", "Message templates", "msg", 1], ["integrations", "Integrations", "plug", 4], ["data", "Import & export", "swap", 4]] },
   { g: "Admin", items: [["settings", "Settings", "gear", 0], ["audit", "Audit log", "shield", 4]] }
 ];
-const ADMIN_NAV = [{ g: "Jreebs", items: [["pv_home", "Overview", "home", 0], ["clients", "Clients", "building", 0], ["quote", "Quote calculator", "chart", 0], ["tickets", "Support tickets", "inbox", 0], ["pv_usage", "Assistant usage", "spark", 0]] }];
-const TITLES = { pv_home: "Overview", quote: "Quote calculator", pv_usage: "Assistant usage", email: "Email", search: "Search", home: "Home", inbox: "Inbox", customers: "Customers", team: "Team & shifts", quality: "Quality (QA)", company: "Company profile", systems: "Systems & tools", access: "People & access", sops: "SOPs", reports: "Reports", automations: "Automations", templates: "Message templates", integrations: "Integrations", data: "Import & export", settings: "Settings", audit: "Audit log", clients: "Clients", tickets: "Support tickets" };
+const ADMIN_NAV = [{ g: "Jreebs", items: [["clients", "Clients", "building", 0], ["quote", "Quotes", "chart", 0], ["tickets", "Support tickets", "inbox", 0], ["pv_test", "Test logins", "key", 0], ["pv_usage", "Assistant usage", "spark", 0]] }];
+function navGroups() {
+  if (ADMIN) return ADMIN_NAV;
+  return NAV_BASE.map(g => ({ g: g.g, items: g.items.flatMap(it => it === "BOARDS" ? liveBoards().map(b => ["orders", b.items, b.icon, 1, b.id]) : [it]).filter(it => it[0] === "orders" || ["home", "settings", "audit"].includes(it[0]) || modOn(it[0])) })).filter(g => g.items.length);
+}
+const TITLES = { pv_home: "Overview", quote: "Quotes", pv_usage: "Assistant usage", pv_test: "Test logins", email: "Email", search: "Search", calendar: "Calendar", approvals: "Approvals", home: "Home", inbox: "Inbox", customers: "Customers", team: "Team & shifts", quality: "Quality (QA)", company: "Company profile", systems: "Systems & tools", access: "People & access", sops: "SOPs", reports: "Reports", automations: "Automations", templates: "Message templates", integrations: "Integrations", data: "Import & export", settings: "Settings", audit: "Audit log", clients: "Clients", tickets: "Support tickets" };
 const VIEWS = {}; // filled by the view files
 let view = "home", ADMIN = false;
-const ui = { emf: "open", emBox: "all", emSel: null, emq: "", pvf: "all", sort: null, page: {}, orderTab: "active", q: "", area: "all", saved: null, mine: true, sel: new Set(), cfilter: "open", convo: null, report: null, range: 14, teamTab: "members", setTab: "company", intCat: "All", imp: null, cq: "", ctag: "All", auditUser: "All", sopCat: "All", sopMine: false, sopq: "", accq: "", dept: "All", week: 0 };
-const navMin = id => { for (const g of NAV) for (const it of g.items) if (it[0] === id) return it[3]; return 0; };
+const ui = { board: "main", boardView: "list", apf: "mine", calWeek: 0, calBoard: "all", rboard: null, emf: "open", emBox: "all", emSel: null, emq: "", pvf: "all", sort: null, page: {}, orderTab: "active", q: "", area: "all", saved: null, mine: true, sel: new Set(), cfilter: "open", convo: null, report: null, range: 14, teamTab: "members", setTab: "company", intCat: "All", imp: null, cq: "", ctag: "All", auditUser: "All", sopCat: "All", sopMine: false, sopq: "", accq: "", dept: "All", week: 0 };
+const navMin = id => { for (const g of navGroups()) for (const it of g.items) if (it[0] === id) return it[3]; return 0; };
+let NAVC = new Set(); try { NAVC = new Set(JSON.parse(localStorage.getItem("jreebs-nav-closed") || "[]")); } catch (e) {}
 
 /* ---------- sign-in ---------- */
 let loginMode = "signin", loginMsg = null;
@@ -84,7 +90,7 @@ async function boot() {
   const { data: memberships } = await sb.from("client_users").select("client_id, role");
   if (adminRow && !(memberships || []).length) {
     ADMIN = true; ME = { id: user.id, email: user.email, role: "owner", lvl: 5 };
-    return startShell("pv_home");
+    return startShell("clients");
   }
   if (!memberships || !memberships.length) return showLogin("signin", ["err", "Your account isn't linked to a company yet. If you were invited, confirm your email from the message we sent, then sign in again. Otherwise ask your company's owner or manager to invite you."]);
   let pick = memberships[0];
@@ -95,7 +101,7 @@ async function boot() {
   await openClient(client);
 }
 async function openClient(client) {
-  CLIENT = client; CFG = client.config || {}; WDEF = WS[client.workspace_type] || WS.delivery;
+  CLIENT = client; CFG = client.config || {}; BOARDS = buildBoards(client); setBoard(BOARDS[0].id);
   ADMIN = false;
   $("#login").hidden = true; $("#shell").hidden = false;
   $("#content").innerHTML = `<div class="loading">Loading ${esc(client.name)}…</div>`;
@@ -107,8 +113,9 @@ async function openClient(client) {
 function startShell(v) {
   $("#login").hidden = true; $("#shell").hidden = false;
   $("#wsName").textContent = ADMIN ? "Jreebs admin" : CLIENT.name;
-  $("#wsSub").textContent = ADMIN ? "All client companies" : `${WDEF.items} desk · ${PLANS[planKey(CLIENT.plan)].name} plan`;
+  $("#wsSub").textContent = ADMIN ? "All client companies" : `${(TEMPLATES[CLIENT.workspace_type] || TEMPLATES.general).name} · ${PLANS[planKey(CLIENT.plan)].name} plan`;
   $("#roleSel").parentElement.hidden = !DEMO || ADMIN;
+  $("#tplWrap").hidden = !DEMO || ADMIN;
   $("#demoTag").hidden = !DEMO;
   $("#demoTag").textContent = ADMIN ? "Provider demo · sample clients" : "Demo · sample data";
   $("#askBtn").hidden = ADMIN;
@@ -117,36 +124,40 @@ function startShell(v) {
 }
 
 /* ---------- navigation + render ---------- */
-function navLabel(id, label) {
+function navLabel(id, label, b) {
   if (id === "home") return lvl() === 1 ? "My day" : lvl() === 0 ? "My stops" : "Home";
-  if (id === "orders") return lvl() === 1 ? `My ${WDEF.items.toLowerCase()}` : WDEF.items;
+  if (id === "orders") { const d = b ? BDEF(b) : WDEF; return lvl() === 1 ? `My ${d.items.toLowerCase()}` : d.items; }
   return label;
 }
 function renderNav() {
-  const groups = ADMIN ? ADMIN_NAV : NAV;
-  const flagged = ADMIN ? 0 : ITEMS.filter(i => !isTerm(i) && attention(i) && (lvl() > 1 || i.assigned_to === ME.id || !i.assigned_to)).length;
+  const groups = navGroups();
+  const mineOk = i => lvl() > 1 || i.assigned_to === ME.id || !i.assigned_to;
   const openCv = ADMIN ? 0 : S.cases.filter(c => c.status === "open" && (lvl() > 1 || c.assignee === ME.id || !c.assignee)).length;
+  const waitAp = ADMIN ? 0 : S.approvals.filter(a => a.status === "pending" && (lvl() >= 3 ? a.requester !== ME.id : false)).length;
+  const isOn = it => it[0] === "orders" ? view === "orders" && ui.board === it[4] : view === it[0];
   $("#nav").innerHTML = groups.map(g => {
     const items = g.items.filter(it => ADMIN || lvl() > 0 || it[3] === 0);
     if (!items.length) return "";
-    return `<div><p class="ng-t">${g.g}</p>${items.map(([id, label, icon, min]) => {
-      const lk = !ADMIN && lvl() < min;
+    const open = !NAVC.has(g.g) || items.some(isOn);
+    return `<div><button class="ng-t" type="button" data-ngt="${esc(g.g)}" aria-expanded="${open}">${esc(g.g)}${ic("chev", "chev")}</button>${open ? items.map(it => {
+      const [id, label, icon, min, b] = it, lk = !ADMIN && lvl() < min, on = isOn(it);
+      const flagged = id === "orders" && !lk ? ITEMS.filter(i => i.board === b && !isTerm(i) && attention(i) && mineOk(i)).length : 0;
       const openEm = id === "email" && !ADMIN ? new Set(S.emails.filter(e => e.status === "open" && canMail(e)).map(e => (e.mailbox_id || "") + "|" + (e.thread_key || e.id))).size : 0;
-      const badge = !lk && id === "orders" && flagged ? `<span class="ct">${flagged}</span>` : !lk && id === "inbox" && openCv ? `<span class="ct q">${openCv}</span>` : !lk && openEm ? `<span class="ct q">${openEm}</span>` : "";
-      return `<button type="button" class="ni${view === id ? " on" : ""}${lk ? " locked" : ""}" data-nav="${id}" ${lk ? `title="For ${NEED[min]}"` : ""} ${view === id ? 'aria-current="page"' : ""}>${ic(icon)}<span>${navLabel(id, label)}</span>${lk ? ic("lock", "lk") : badge}</button>`;
-    }).join("")}</div>`;
-  }).join("");
+      const badge = lk ? "" : flagged ? `<span class="ct">${flagged}</span>` : id === "inbox" && openCv ? `<span class="ct q">${openCv}</span>` : openEm ? `<span class="ct q">${openEm}</span>` : id === "approvals" && waitAp ? `<span class="ct">${waitAp}</span>` : "";
+      return `<button type="button" class="ni${on ? " on" : ""}${lk ? " locked" : ""}" data-nav="${id}" ${b ? `data-board="${esc(b)}"` : ""} ${lk ? `title="For ${NEED[min]}"` : ""} ${on ? 'aria-current="page"' : ""}>${ic(icon)}<span>${esc(navLabel(id, label, b))}</span>${lk ? ic("lock", "lk") : badge}</button>`;
+    }).join("") : ""}</div>`;
+  }).join("") + (!ADMIN && can(4) ? `<button type="button" class="ni ni-cust" data-nav="settings" data-st="workspace">${ic("edit")}<span>Customize workspace</span></button>` : "");
   const nm = ADMIN ? nameOf(ME.email) : (memberName(ME.id) || nameOf(ME.email));
   $("#me").innerHTML = `${av(nm)}<div class="grow" style="min-width:0"><b>${esc(nm)}</b><span>${esc(ADMIN ? "Jreebs admin" : ROLES[ME.role].label)}${ME.memberships && ME.memberships.length > 1 ? ` · <button class="linkbtn" style="color:var(--side-muted)" type="button" data-act="switchco">switch</button>` : ""}</span></div><button class="ib" type="button" data-act="signout" aria-label="Sign out" title="Sign out">${ic("out")}</button>`;
 }
 const lockedView = min => `<div class="locked-v">${ic("lock")}<h2>This area is for ${NEED[min]}.</h2><p>You're signed in as <b>${esc(ROLES[ME.role].label)}</b>. Your company's owner decides who can see what.</p><button class="btn" type="button" data-nav="home">Back to ${navLabel("home")}</button></div>`;
 function render() {
   if (!ME) return;
-  if (!ADMIN) refreshItems();
+  if (!ADMIN) { setBoard(ui.board); refreshItems(); }
   renderNav();
   const min = ADMIN ? 0 : navMin(view);
-  const grp = (ADMIN ? ADMIN_NAV : NAV).find(g => g.items.some(it => it[0] === view))?.g || "";
-  $("#title").innerHTML = `<span class="crumb">${esc(ADMIN ? "Jreebs" : CLIENT.name)}${grp && !ADMIN ? ` <i>/</i> ${esc(grp)}` : ""} <i>/</i></span> ${esc(view === "home" || view === "orders" ? navLabel(view) : TITLES[view] || "")}`;
+  const grp = navGroups().find(g => g.items.some(it => it[0] === view))?.g || "";
+  $("#title").innerHTML = `<span class="crumb">${esc(ADMIN ? "Jreebs" : CLIENT.name)}${grp && !ADMIN ? ` <i>/</i> ${esc(grp)}` : ""} <i>/</i></span> ${esc(view === "home" || view === "orders" ? navLabel(view, "", ui.board) : TITLES[view] || "")}`;
   const fn = VIEWS[view];
   try { $("#content").innerHTML = (!ADMIN && (lvl() < min || (lvl() === 0 && min > 0))) ? lockedView(min || 1) : fn ? fn() : ""; }
   catch (e) { console.error(e); $("#content").innerHTML = `<div class="locked-v"><h2>This page hit a problem.</h2><p>${esc(e.message)}</p><button class="btn" type="button" data-nav="home">Back to Home</button></div>`; }

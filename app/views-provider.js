@@ -37,83 +37,7 @@ const inviteLink = email => `${location.origin}${location.pathname}?signup&email
 const inviteText = (name, email) => `Hi ${name || ""}, your Jreebs workspace is ready. Create your account with this email (${email}) here: ${inviteLink(email)}\nYou'll land straight in your company's workspace.`.replace("Hi ,", "Hi,");
 function admGuard() { if (!ADM.loaded) { ADM.loaded = true; loadAdmin().then(render).catch(e => { toast(errMsg(e)); }); return `<div class="loading">Loading your clients…</div>`; } return null; }
 
-VIEWS.pv_home = function () {
-  const g = admGuard(); if (g) return g;
-  const act = ADM.clients.filter(c => acctOf(c.id).status === "active"), arr = act.reduce((a, c) => a + +acctOf(c.id).annual_price, 0);
-  const yr = new Date().getFullYear(), setupYr = ADM.clients.filter(c => new Date(c.created_at).getFullYear() === yr).reduce((a, c) => a + +acctOf(c.id).setup_fee, 0);
-  const ren = ADM.clients.map(c => ({ c, a: acctOf(c.id), d: daysUntil(acctOf(c.id).renews_on) })).filter(x => x.d != null && x.d <= 60 && x.a.status !== "churned").sort((a, b) => a.d - b.d);
-  const users = ADM.over.reduce((a, o) => a + (o.members || 0), 0), aiCost = ADM.ai.reduce((a, r) => a + +r.cost_usd, 0);
-  const openT = ADM.tickets.filter(t => t.status !== "Done");
-  const attn = [];
-  ren.forEach(x => attn.push([x.d < 0 ? 3 : x.d <= 30 ? 2 : 1, x.c, x.a.status === "trial" ? `Trial ${x.d < 0 ? "ended" : "ends"} ${x.d < 0 ? -x.d + " days ago" : x.d === 0 ? "today" : "in " + x.d + " days"}: agree a plan` : `Renewal ${x.d < 0 ? `overdue by ${-x.d} days` : x.d === 0 ? "today" : `in ${x.d} days`} · ${jod(x.a.annual_price)}`]));
-  ADM.clients.forEach(c => { const a = acctOf(c.id), o = overOf(c.id), age = (Date.now() - new Date(c.created_at)) / 864e5;
-    if (a.status === "onboarding" && age > 14 && doneSteps(a) < CHECK.length / 2) attn.push([2, c, `Onboarding for ${Math.round(age)} days, ${doneSteps(a)} of ${CHECK.length} steps done`]);
-    if (a.status === "active" && (!o.last_activity || (Date.now() - new Date(o.last_activity)) / 864e5 > 7)) attn.push([2, c, o.last_activity ? `No activity for ${Math.round((Date.now() - new Date(o.last_activity)) / 864e5)} days` : "No activity yet"]);
-    if (o.pending) attn.push([1, c, `${o.pending} invite${o.pending > 1 ? "s" : ""} not accepted yet`]);
-    const q = quotaOf(c.id); if (q.pct >= 80) attn.push([q.pct >= 100 ? 3 : 2, c, `Assistant allowance ${q.pct}% used this month`]);
-  });
-  openT.filter(t => t.urgency === "Urgent").forEach(t => attn.push([3, ADM.clients.find(c => c.id === t.client_id) || { name: "—" }, `Urgent ticket: ${t.subject}`]));
-  attn.sort((a, b) => b[0] - a[0]);
-  const onb = ADM.clients.filter(c => ["onboarding", "trial"].includes(acctOf(c.id).status));
-  return `${head("Overview", `${ADM.clients.length} companies on Jreebs`, `<button class="btn" type="button" data-admreload="1">${ic("refresh")}Refresh</button><button class="btn go" type="button" data-modal="newclient">${ic("plus")}New client</button>`)}
-  <div class="kpis">${kpi("Active clients", act.length, `${onb.length} onboarding`)}${kpi("Annual revenue", jod(arr), "active contracts")}${kpi("Setup fees " + yr, jod(setupYr), "one-time")}${kpi("Renewals in 60 days", ren.length, ren.length ? jod(ren.reduce((a, x) => a + +x.a.annual_price, 0)) : "none", ren.some(x => x.d <= 30) ? "warn" : "")}${kpi("Open tickets", openT.length, openT.filter(t => t.urgency === "Urgent").length + " urgent", openT.some(t => t.urgency === "Urgent") ? "crit" : "")}${kpi("Users", users, "with a login")}${kpi("AI cost this month", "$" + aiCost.toFixed(2), `${ADM.ai.filter(r => r.question).length} questions`)}</div>
-  <div class="grid2e">
-    ${card("Needs your attention", attn.length ? `<div class="tw"><table class="t"><tbody>${attn.slice(0, 12).map(([s, c, t]) => `<tr><td style="width:6px;padding-right:0"><span class="sev s${s}"></span></td><td><button class="linkbtn" type="button" data-pvc="${c.id || ""}"><b>${esc(c.name)}</b></button><div class="small muted">${esc(t)}</div></td></tr>`).join("")}</tbody></table></div>` : `<div class="card-b">${empty("Nothing needs you right now.")}</div>`, true)}
-    ${card("Onboarding", onb.length ? `<div class="tw"><table class="t"><thead><tr><th>Company</th><th>Progress</th><th class="r">Started</th></tr></thead><tbody>${onb.map(c => { const a = acctOf(c.id), d = doneSteps(a); return `<tr data-pvc="${c.id}" class="click"><td><b>${esc(c.name)}</b><div class="small muted">${esc(CHECK.find(([k]) => !a.checklist?.[k])?.[1] || "Ready to go live")}</div></td><td style="min-width:140px">${prog(d, CHECK.length)}<span class="small muted">${d} of ${CHECK.length}</span></td><td class="r small muted">${dShort(c.created_at)}</td></tr>`; }).join("")}</tbody></table></div>` : `<div class="card-b">${empty("No one is onboarding right now.")}</div>`, true)}
-  </div>
-  ${card("Latest tickets", openT.length ? `<div class="tw"><table class="t"><tbody>${openT.slice(0, 6).map(t => `<tr><td class="small muted" style="white-space:nowrap">${ago(t.created_at)}</td><td><b>${esc(ADM.clients.find(c => c.id === t.client_id)?.name || "—")}</b></td><td class="wrap">${esc(t.subject)}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}</td><td>${pill(t.status, t.status === "Open" ? "warn" : "acc")}</td></tr>`).join("")}</tbody></table></div>` : `<div class="card-b">${empty("No open tickets.")}</div>`, true, `<button class="btn sm" type="button" data-nav="tickets">All tickets</button>`)}`;
-};
-
 function quotaOf(id) { const c = ADM.clients.find(x => x.id === id), a = acctOf(id), P = PLANS[planKey(c?.plan)]; const lim = +(a.addons?.ai_limit || P.ai), used = ADM.ai.filter(r => r.client_id === id && r.question && !r.deep).length; return { used, lim, pct: lim ? Math.round(used / lim * 100) : 0, deep: ADM.ai.filter(r => r.client_id === id && r.deep).length, deepLim: +(a.addons?.deep_limit || P.deep), cost: ADM.ai.filter(r => r.client_id === id).reduce((s, r) => s + +r.cost_usd, 0) }; }
-
-VIEWS.clients = function () {
-  const g = admGuard(); if (g) return g;
-  const f = ui.pvf || "all", rows = ADM.clients.filter(c => f === "all" || acctOf(c.id).status === f);
-  return `${head("Clients", `${ADM.clients.length} companies`, `<button class="btn" type="button" data-admreload="1">${ic("refresh")}Refresh</button><button class="btn go" type="button" data-modal="newclient">${ic("plus")}New client</button>`)}
-  <div class="tabs">${[["all", "All"], ...Object.entries(STATUS).map(([k, v]) => [k, v[0]])].map(([k, l]) => `<button class="tab" type="button" data-pvf="${k}" aria-selected="${f === k}">${l} <span class="ct">${k === "all" ? ADM.clients.length : ADM.clients.filter(c => acctOf(c.id).status === k).length}</span></button>`).join("")}</div>
-  <section class="card"><div class="tw"><table class="t"><thead><tr><th>Company</th><th>Status</th><th>Plan</th><th class="r">Users</th><th class="r">Per year</th><th>Renews</th><th class="r">Last 7 days</th><th>Last active</th><th class="r">Tickets</th></tr></thead><tbody>${rows.map(c => { const a = acctOf(c.id), o = overOf(c.id), d = daysUntil(a.renews_on); return `<tr data-pvc="${c.id}" class="click">
-    <td><b>${esc(c.name)}</b><div class="small muted">${esc({ delivery: "Delivery", lab: "Home-visit lab", kitchen: "Kitchen / complaints" }[c.workspace_type] || c.workspace_type)}${a.contact_name ? " · " + esc(a.contact_name) : ""}</div></td>
-    <td>${pill(...(STATUS[a.status] || ["—", ""]))}</td><td>${esc(PLANS[planKey(c.plan)].name)}</td>
-    <td class="r num">${o.members ?? "—"}<span class="muted"> / ${a.users_included}</span>${o.pending ? `<div class="small muted">+${o.pending} invited</div>` : ""}</td>
-    <td class="r num">${a.annual_price ? jod(a.annual_price) : "—"}</td>
-    <td>${a.renews_on ? `${dLong(a.renews_on)}${d != null && d <= 60 ? `<div class="small ${d <= 30 ? "warn-t" : "muted"}">${d < 0 ? "overdue" : "in " + d + " days"}</div>` : ""}` : "—"}</td>
-    <td class="r num">${o.items_7d ?? "—"}</td><td class="small">${o.last_activity ? ago(o.last_activity) : "—"}</td><td class="r num">${o.open_tickets || ""}</td></tr>`; }).join("") || `<tr><td colspan="9">${empty("No clients here.")}</td></tr>`}</tbody></table></div></section>`;
-};
-
-function clientDrawer(id) {
-  const c = ADM.clients.find(x => x.id === id); if (!c) return;
-  const a = acctOf(id), o = overOf(id), q = quotaOf(id), inv = ADM.invites.filter(i => i.client_id === id);
-  const roles = {}; ADM.members.filter(m => m.client_id === id).forEach(m => roles[m.role] = (roles[m.role] || 0) + 1);
-  DRAWER = { type: "pvc", id };
-  openDrawer(`${dHead(esc(c.name), pill(...(STATUS[a.status] || ["—", ""])) + pill(PLANS[planKey(c.plan)].name, "acc"))}
-  <div class="d-b">
-    <div class="kv"><span>Users</span><b>${o.members ?? 0} of ${a.users_included}${o.pending ? ` · ${o.pending} invited` : ""}</b><span>Roles</span><b>${Object.entries(roles).map(([r, n]) => `${n} ${ROLES[r]?.label.toLowerCase() || r}`).join(", ") || "None yet"}</b><span>Last 7 days</span><b>${o.items_7d ?? 0} ${esc((WS[c.workspace_type] || WS.delivery).items.toLowerCase())} · last active ${o.last_activity ? ago(o.last_activity) : "never"}</b><span>Assistant</span><b>${q.used} of ${fmtN(q.lim)} questions · ${q.deep} of ${q.deepLim} deep · $${q.cost.toFixed(2)}</b></div>
-
-    <h4>Contract</h4>
-    <div class="form">
-      <div class="f2"><div class="field"><label for="ca1">Status</label><select class="sel" id="ca1">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${a.status === k ? "selected" : ""}>${v[0]}</option>`).join("")}</select></div>
-      <div class="field"><label for="ca2">Plan</label><select class="sel" id="ca2">${Object.entries(PLANS).map(([k, p]) => `<option value="${k}" ${planKey(c.plan) === k ? "selected" : ""}>${p.name}</option>`).join("")}</select></div></div>
-      <div class="f3"><div class="field"><label for="ca3">Users included</label><input class="in num" id="ca3" type="number" min="1" value="${a.users_included}"></div><div class="field"><label for="ca4">Price per year (JOD)</label><input class="in num" id="ca4" type="number" min="0" value="${a.annual_price}"></div><div class="field"><label for="ca5">Setup fee (JOD)</label><input class="in num" id="ca5" type="number" min="0" value="${a.setup_fee}"></div></div>
-      <div class="f2"><div class="field"><label for="ca6">Starts</label><input class="in" id="ca6" type="date" value="${a.starts_on || ""}"></div><div class="field"><label for="ca7">Renews</label><input class="in" id="ca7" type="date" value="${a.renews_on || ""}"></div></div>
-      <div class="f3"><div class="field"><label for="ca8">Contact</label><input class="in" id="ca8" value="${esc(a.contact_name || "")}"></div><div class="field"><label for="ca9">Phone</label><input class="in" id="ca9" value="${esc(a.contact_phone || "")}"></div><div class="field"><label for="ca10">Owner email</label><input class="in" id="ca10" type="email" value="${esc(a.owner_email || "")}"></div></div>
-      <div class="f2"><div class="field"><label for="ca11">Assistant questions / month</label><input class="in num" id="ca11" type="number" min="0" value="${q.lim}"></div><div class="field"><label for="ca12">Deep analyses / month</label><input class="in num" id="ca12" type="number" min="0" value="${q.deepLim}"></div></div>
-      <div class="field"><label for="ca13">Notes</label><textarea class="in" id="ca13" rows="2">${esc(a.notes || "")}</textarea></div>
-      <div class="row"><span class="spacer"></span><button class="btn go" type="button" data-saveacct="${id}">Save contract</button></div>
-    </div>
-
-    <h4>Go-live checklist <span class="small muted">${doneSteps(a)} of ${CHECK.length}</span></h4>
-    <div class="checks">${CHECK.map(([k, l]) => `<button class="chk${a.checklist?.[k] ? " on" : ""}" type="button" data-chk="${k}" data-id="${id}">${ic("check")}<span>${l}</span></button>`).join("")}</div>
-
-    <h4>Invite someone</h4>
-    <div class="row"><input class="in grow" id="pvInv" type="email" placeholder="their@company.com" value="${esc(!(o.members) && a.owner_email ? a.owner_email : "")}"><select class="sel" id="pvRole">${ROLE_ORDER.map(r => `<option value="${r}" ${r === (o.members ? "manager" : "owner") ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select><button class="btn" type="button" data-pvinvite="${id}">Invite</button></div>
-    <p class="small muted">If they don't have an account yet, they're linked automatically when they sign up with this email.</p>
-    ${inv.length ? `<div class="tw"><table class="t"><tbody>${inv.map(i => `<tr><td>${esc(i.email)}<div class="small muted">${esc(ROLES[i.role]?.label || i.role)} · ${i.accepted_at ? "joined " + dShort(i.accepted_at) : "invited " + ago(i.created_at)}</div></td><td class="r">${i.accepted_at ? pill("Joined", "good") : `<button class="btn sm" type="button" data-copy="${esc(inviteText(a.contact_name, i.email))}">Copy invite</button>`}</td></tr>`).join("")}</tbody></table></div>` : ""}
-    ${a.contact_phone && inv.some(i => !i.accepted_at) ? `<a class="btn" href="https://wa.me/${waNum(a.contact_phone)}?text=${encodeURIComponent(inviteText(a.contact_name, inv.find(i => !i.accepted_at).email))}" target="_blank" rel="noopener">${ic("wa")}Send the invite on WhatsApp</a>` : ""}
-
-    <h4>Tickets</h4>
-    ${ADM.tickets.filter(t => t.client_id === id).slice(0, 8).map(t => `<div class="kvrow"><span>${esc(t.subject)}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}<div class="small muted">${ago(t.created_at)} · ${esc(t.created_by_email || "")}</div></span>${pill(t.status, t.status === "Done" ? "good" : "warn")}</div>`).join("") || `<p class="small muted">No tickets.</p>`}
-  </div>`);
-}
 
 function quoteForm(o, pre) {
   return `<div class="f2"><div class="field"><label for="${pre}p">Plan</label><select class="sel" id="${pre}p" data-q="1">${Object.entries(PLANS).map(([k, p]) => `<option value="${k}" ${planKey(o.plan) === k ? "selected" : ""}>${p.name} · ${p.price} JOD / year</option>`).join("")}</select></div>
@@ -157,19 +81,6 @@ VIEWS.tickets = function () {
   <section class="card"><div class="tw"><table class="t"><thead><tr><th>When</th><th>Company</th><th>Request</th><th>From</th><th>Status</th></tr></thead><tbody>${ADM.tickets.map(t => `<tr><td>${ago(t.created_at)}</td><td><b>${esc(name(t.client_id))}</b></td><td class="wrap"><b>${esc(t.subject)}</b>${t.details ? `<div class="small muted">${esc(t.details)}</div>` : ""}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}</td><td>${esc(t.created_by_email || "")}</td><td><select class="sel" data-tkstatus="${t.id}" style="height:30px">${["Open", "In progress", "Done"].map(s => `<option ${t.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td></tr>`).join("") || `<tr><td colspan="5">${empty("No tickets yet.")}</td></tr>`}</tbody></table></div></section>`;
 };
 
-function newClientModal(fromQuote) {
-  const o = fromQuote && ui.qo ? ui.qo : { plan: "professional", users: 15, connectors: 0, channels: 1, aiPacks: 0, discount: 0 };
-  const today = isoDay(new Date());
-  openModal(`${mHead("New client")}<div class="m-b form">
-    <h4>Company</h4>
-    <div class="f2"><div class="field"><label for="ncn">Company name</label><input class="in" id="ncn" placeholder="e.g. Swift Delivery"></div><div class="field"><label for="nct">Workspace</label><select class="sel" id="nct"><option value="delivery">Delivery</option><option value="lab">Home-visit lab</option><option value="kitchen">Cloud kitchen / complaints</option></select></div></div>
-    <div class="f3"><div class="field"><label for="ncc">Contact name</label><input class="in" id="ncc"></div><div class="field"><label for="ncph">Contact WhatsApp</label><input class="in" id="ncph" placeholder="07x xxx xxxx"></div><div class="field"><label for="nce">Owner's email</label><input class="in" id="nce" type="email" placeholder="owner@company.com"></div></div>
-    <h4>Plan and price</h4>
-    <div id="ncForm">${quoteForm(o, "nq")}</div>
-    <div class="field"><label for="ncs">Contract starts</label><input class="in" id="ncs" type="date" value="${today}"></div>
-    <div id="ncQuote">${quoteBox(quote(o))}</div>
-  </div><div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-saveclient="1">Create and invite owner</button></div>`, true);
-}
 function clientCreatedModal(c, email, phone, contact, status) {
   const text = inviteText(contact, email);
   openModal(`${mHead(`${esc(c.name)} is set up`)}<div class="m-b stack">
@@ -179,3 +90,127 @@ function clientCreatedModal(c, email, phone, contact, status) {
     <p class="small muted">Next: work through the go-live checklist on the client's page.</p>
   </div><div class="m-f"><button class="btn go" type="button" data-pvc="${c.id}">Open ${esc(c.name)}</button></div>`);
 }
+
+/* ---------- CLIENTS: the provider's home ---------- */
+const daysSince = iso => iso ? (Date.now() - new Date(iso)) / 864e5 : null;
+function healthOf(c) {
+  const a = acctOf(c.id), o = overOf(c.id), last = daysSince(o.last_activity), d = daysUntil(a.renews_on);
+  if (a.status === "churned") return ["Left", ""];
+  if (a.status === "paused") return ["Paused", ""];
+  if ((d != null && d < 0) || (a.status === "active" && (last == null || last > 7))) return ["Needs attention", "crit"];
+  if (["trial", "onboarding"].includes(a.status) || (last != null && last > 3) || (d != null && d <= 30)) return ["Watch", "warn"];
+  return ["Healthy", "good"];
+}
+function needsYou() {
+  const out = [];
+  ADM.clients.forEach(c => {
+    const a = acctOf(c.id), o = overOf(c.id), d = daysUntil(a.renews_on), age = daysSince(c.created_at);
+    if (a.status === "churned") return;
+    if (d != null && d <= 60) out.push([d < 0 ? 3 : d <= 30 ? 2 : 1, c, a.status === "trial" ? `Trial ${d < 0 ? "ended" : "ends"} ${d < 0 ? -d + " days ago" : d === 0 ? "today" : "in " + d + " days"}: agree a plan` : `Renewal ${d < 0 ? `overdue by ${-d} days` : d === 0 ? "today" : `in ${d} days`} · ${jod(a.annual_price)}`]);
+    if (a.status === "onboarding" && age > 14 && doneSteps(a) < CHECK.length / 2) out.push([2, c, `Onboarding for ${Math.round(age)} days, ${doneSteps(a)} of ${CHECK.length} steps done`]);
+    if (a.status === "active" && (!o.last_activity || daysSince(o.last_activity) > 7)) out.push([2, c, o.last_activity ? `No activity for ${Math.round(daysSince(o.last_activity))} days` : "No activity yet"]);
+    if (o.pending) out.push([1, c, `${o.pending} invite${o.pending > 1 ? "s" : ""} not accepted yet`]);
+    const q = quotaOf(c.id); if (q.pct >= 80) out.push([q.pct >= 100 ? 3 : 2, c, `Assistant allowance ${q.pct}% used this month`]);
+  });
+  ADM.tickets.filter(t => t.status !== "Done" && t.urgency === "Urgent").forEach(t => out.push([3, ADM.clients.find(c => c.id === t.client_id) || { name: "—" }, `Urgent ticket: ${t.subject}`]));
+  return out.sort((a, b) => b[0] - a[0]);
+}
+VIEWS.clients = function () {
+  const g = admGuard(); if (g) return g;
+  const f = ui.pvf || "all", q = (ui.pvq || "").toLowerCase();
+  const act = ADM.clients.filter(c => acctOf(c.id).status === "active"), onb = ADM.clients.filter(c => ["trial", "onboarding"].includes(acctOf(c.id).status));
+  const ren = ADM.clients.filter(c => { const d = daysUntil(acctOf(c.id).renews_on); return d != null && d <= 60 && acctOf(c.id).status !== "churned"; });
+  const openT = ADM.tickets.filter(t => t.status !== "Done"), attn = needsYou();
+  const rows = ADM.clients.filter(c => (f === "all" || acctOf(c.id).status === f) && (!q || (c.name + " " + (acctOf(c.id).contact_name || "")).toLowerCase().includes(q)));
+  return `${head("Clients", `${ADM.clients.length} companies on Jreebs`, `<button class="btn" type="button" data-admreload="1">${ic("refresh")}Refresh</button><button class="btn go" type="button" data-modal="newclient">${ic("plus")}New client</button>`)}
+  <div class="kpis">${kpi("Active", act.length, `${onb.length} onboarding or on trial`)}${kpi("Yearly revenue", jod(act.reduce((s, c) => s + +acctOf(c.id).annual_price, 0)), "active contracts")}${kpi("Renewals in 60 days", ren.length, ren.length ? jod(ren.reduce((s, c) => s + +acctOf(c.id).annual_price, 0)) : "none", ren.some(c => daysUntil(acctOf(c.id).renews_on) <= 30) ? "warn" : "")}${kpi("Open tickets", openT.length, `${openT.filter(t => t.urgency === "Urgent").length} urgent`, openT.some(t => t.urgency === "Urgent") ? "crit" : "")}${kpi("Users", ADM.over.reduce((s, o) => s + (o.members || 0), 0), "with a login")}</div>
+  ${attn.length ? `<section class="card"><div class="card-h"><h3>Needs you</h3><span class="sub">${attn.length}</span></div><div class="tw"><table class="t"><tbody>${attn.slice(0, 6).map(([s, c, t]) => `<tr class="click" data-pvc="${c.id || ""}"><td style="width:6px;padding-right:0"><span class="sev s${s}"></span></td><td><b>${esc(c.name)}</b><div class="small muted">${esc(t)}</div></td></tr>`).join("")}</tbody></table></div>${attn.length > 6 ? `<div class="card-b small muted">+${attn.length - 6} more on the client pages</div>` : ""}</section>` : ""}
+  <section class="card"><div class="card-h"><div class="tabs">${[["all", "All"], ...Object.entries(STATUS).map(([k, v]) => [k, v[0]])].map(([k, l]) => `<button class="tab" type="button" data-pvf="${k}" aria-selected="${f === k}">${l} <span class="c">${k === "all" ? ADM.clients.length : ADM.clients.filter(c => acctOf(c.id).status === k).length}</span></button>`).join("")}</div><span class="spacer"></span><input class="in" id="pvq" type="search" placeholder="Find a client" value="${esc(ui.pvq || "")}" style="width:180px"></div>
+  <div class="tw"><table class="t"><thead><tr><th>Company</th><th>Health</th><th>Plan</th><th class="r">Users</th><th class="r">Per year</th><th>Renews</th><th>Last active</th><th></th></tr></thead><tbody>${rows.map(c => { const a = acctOf(c.id), o = overOf(c.id), d = daysUntil(a.renews_on), [hl, hk] = healthOf(c); return `<tr class="click" data-pvc="${c.id}">
+    <td><b>${esc(c.name)}</b><div class="small muted">${esc((TEMPLATES[c.workspace_type] || TEMPLATES.general).name)}${a.contact_name ? " · " + esc(a.contact_name) : ""}</div></td>
+    <td><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="hdot ${hk}"></span>${esc(hl)}</span><div class="small muted">${esc(STATUS[a.status]?.[0] || "")}</div></td><td>${esc(PLANS[planKey(c.plan)].name)}</td>
+    <td class="r num">${o.members ?? "—"}<span class="muted"> / ${a.users_included}</span>${o.pending ? `<div class="small muted">+${o.pending} invited</div>` : ""}</td>
+    <td class="r num">${a.annual_price ? jod(a.annual_price) : "—"}</td>
+    <td>${a.renews_on ? dShort(a.renews_on) + (d != null && d <= 60 ? `<div class="small ${d <= 30 ? "warn-t" : "muted"}">${d < 0 ? "overdue" : "in " + d + " days"}</div>` : "") : "—"}</td>
+    <td class="small">${o.last_activity ? ago(o.last_activity) : "—"}</td>
+    <td class="r"><button class="btn sm" type="button" data-pvinv="${c.id}">${ic("plus")}Invite</button></td></tr>`; }).join("") || `<tr><td colspan="8">${empty(ADM.clients.length ? "No clients match." : "No clients yet. Press New client to add your first one.")}</td></tr>`}</tbody></table></div></section>`;
+};
+
+/* ---------- one client ---------- */
+function clientDrawer(id) {
+  const c = ADM.clients.find(x => x.id === id); if (!c) return;
+  const a = acctOf(id), o = overOf(id), q = quotaOf(id), inv = ADM.invites.filter(i => i.client_id === id), [hl, hk] = healthOf(c);
+  const roles = {}; ADM.members.filter(m => m.client_id === id).forEach(m => roles[m.role] = (roles[m.role] || 0) + 1);
+  const tab = ui.pvtab || "summary", pendingOwner = inv.find(i => i.role === "owner" && !i.accepted_at);
+  DRAWER = { type: "pvc", id };
+  const tabs = `<div class="tabs" style="margin-bottom:4px">${[["summary", "Summary"], ["people", "People & invites"], ["contract", "Contract"], ["setup", `Setup ${doneSteps(a)}/${CHECK.length}`]].map(([k, l]) => `<button class="tab" type="button" data-pvtab="${k}" data-id="${id}" aria-selected="${tab === k}">${l}</button>`).join("")}</div>`;
+  let body = "";
+  if (tab === "summary") body = `<div class="kv"><span>Health</span><b><span class="hdot ${hk}"></span> ${esc(hl)} · ${esc(STATUS[a.status]?.[0] || "")}</b><span>Business type</span><b>${esc((TEMPLATES[c.workspace_type] || TEMPLATES.general).name)}</b><span>Plan</span><b>${esc(PLANS[planKey(c.plan)].name)} · ${a.annual_price ? jod(a.annual_price) + " a year" : "no price yet"}</b><span>Users</span><b>${o.members ?? 0} of ${a.users_included}${o.pending ? ` · ${o.pending} invited` : ""}</b><span>Renews</span><b>${a.renews_on ? dLong(a.renews_on) : "—"}</b><span>Last 7 days</span><b>${o.items_7d ?? 0} records · last active ${o.last_activity ? ago(o.last_activity) : "never"}</b><span>Assistant</span><b>${q.used} of ${fmtN(q.lim)} questions · $${q.cost.toFixed(2)}</b><span>Contact</span><b>${esc(a.contact_name || "—")}${a.contact_phone ? " · " + esc(a.contact_phone) : ""}</b></div>
+    <div class="row"><button class="btn go" type="button" data-pvinv="${id}">${ic("plus")}Invite someone</button>${pendingOwner ? `<button class="btn" type="button" data-copy="${esc(inviteText(a.contact_name, pendingOwner.email))}">Copy owner's invite</button>` : ""}${a.contact_phone ? `<a class="btn" href="https://wa.me/${waNum(a.contact_phone)}" target="_blank" rel="noopener">${ic("wa")}WhatsApp ${esc((a.contact_name || "contact").split(" ")[0])}</a>` : ""}${a.status !== "active" && a.status !== "churned" ? `<button class="btn" type="button" data-chk="live" data-id="${id}">${ic("check")}Mark live</button>` : ""}</div>
+    <h4>Tickets</h4>${ADM.tickets.filter(t => t.client_id === id).slice(0, 6).map(t => `<div class="kvrow"><span>${esc(t.subject)}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}<div class="small muted">${ago(t.created_at)}</div></span>${pill(t.status, t.status === "Done" ? "good" : "warn")}</div>`).join("") || `<p class="small muted">No tickets.</p>`}`;
+  if (tab === "people") body = `<div class="kv"><span>With a login</span><b>${Object.entries(roles).map(([r, n]) => `${n} ${ROLES[r]?.label.toLowerCase() || r}`).join(", ") || "Nobody yet"}</b></div>
+    <div class="row"><input class="in grow" id="pvInv" type="email" placeholder="their@company.com" value="${esc(!o.members && a.owner_email ? a.owner_email : "")}"><select class="sel" id="pvRole">${ROLE_ORDER.map(r => `<option value="${r}" ${r === (o.members ? "manager" : "owner") ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select><button class="btn go" type="button" data-pvinvite="${id}">Invite</button></div>
+    <p class="small muted">If they don't have an account yet, they're linked the moment they sign up with this email.</p>
+    ${inv.length ? `<div class="tw"><table class="t"><tbody>${inv.map(i => `<tr><td>${esc(i.email)}<div class="small muted">${esc(ROLES[i.role]?.label || i.role)} · ${i.accepted_at ? "joined " + dShort(i.accepted_at) : "invited " + ago(i.created_at)}</div></td><td class="r">${i.accepted_at ? pill("Joined", "good") : `<div class="row" style="flex-wrap:nowrap;justify-content:flex-end"><button class="btn sm" type="button" data-copy="${esc(inviteText(a.contact_name, i.email))}">Copy invite</button>${a.contact_phone && i.role === "owner" ? `<a class="btn sm" href="https://wa.me/${waNum(a.contact_phone)}?text=${encodeURIComponent(inviteText(a.contact_name, i.email))}" target="_blank" rel="noopener">${ic("wa")}Send</a>` : ""}</div>`}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No invites yet.</p>`}`;
+  if (tab === "contract") body = `<div class="form">
+      <div class="f2"><div class="field"><label for="ca1">Status</label><select class="sel" id="ca1">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${a.status === k ? "selected" : ""}>${v[0]}</option>`).join("")}</select></div>
+      <div class="field"><label for="ca2">Plan</label><select class="sel" id="ca2">${Object.entries(PLANS).map(([k, p]) => `<option value="${k}" ${planKey(c.plan) === k ? "selected" : ""}>${p.name}</option>`).join("")}</select></div></div>
+      <div class="f3"><div class="field"><label for="ca3">Users included</label><input class="in num" id="ca3" type="number" min="1" value="${a.users_included}"></div><div class="field"><label for="ca4">Price per year (JOD)</label><input class="in num" id="ca4" type="number" min="0" value="${a.annual_price}"></div><div class="field"><label for="ca5">Setup fee (JOD)</label><input class="in num" id="ca5" type="number" min="0" value="${a.setup_fee}"></div></div>
+      <div class="f2"><div class="field"><label for="ca6">Starts</label><input class="in" id="ca6" type="date" value="${a.starts_on || ""}"></div><div class="field"><label for="ca7">Renews</label><input class="in" id="ca7" type="date" value="${a.renews_on || ""}"></div></div>
+      <div class="f3"><div class="field"><label for="ca8">Contact</label><input class="in" id="ca8" value="${esc(a.contact_name || "")}"></div><div class="field"><label for="ca9">Phone</label><input class="in" id="ca9" value="${esc(a.contact_phone || "")}"></div><div class="field"><label for="ca10">Owner email</label><input class="in" id="ca10" type="email" value="${esc(a.owner_email || "")}"></div></div>
+      <div class="f2"><div class="field"><label for="ca11">Assistant questions / month</label><input class="in num" id="ca11" type="number" min="0" value="${q.lim}"></div><div class="field"><label for="ca12">Deep analyses / month</label><input class="in num" id="ca12" type="number" min="0" value="${q.deepLim}"></div></div>
+      <div class="field"><label for="ca13">Notes</label><textarea class="in" id="ca13" rows="2">${esc(a.notes || "")}</textarea></div>
+      <div class="row"><span class="spacer"></span><button class="btn go" type="button" data-saveacct="${id}">Save contract</button></div></div>`;
+  if (tab === "setup") body = `<p class="small muted">Tick each step as you finish it. Marking Live also sets the client to Active.</p><div class="checks">${CHECK.map(([k, l]) => `<button class="chk${a.checklist?.[k] ? " on" : ""}" type="button" data-chk="${k}" data-id="${id}">${ic("check")}<span>${l}</span></button>`).join("")}</div>`;
+  openDrawer(`${dHead(esc(c.name), `<span class="hdot ${hk}"></span>` + pill(...(STATUS[a.status] || ["—", ""])) + pill(PLANS[planKey(c.plan)].name, "acc"))}<div class="d-b">${tabs}${body}</div>`);
+}
+function pvInviteModal(id) {
+  const c = ADM.clients.find(x => x.id === id), a = acctOf(id), o = overOf(id);
+  openModal(`${mHead(`Invite someone to ${esc(c.name)}`)}<div class="m-b form">
+    <div class="f2"><div class="field"><label for="pvInv">Their email</label><input class="in" id="pvInv" type="email" placeholder="name@company.com" value="${esc(!o.members && a.owner_email ? a.owner_email : "")}"></div><div class="field"><label for="pvRole">Role</label><select class="sel" id="pvRole">${ROLE_ORDER.map(r => `<option value="${r}" ${r === (o.members ? "agent" : "owner") ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select></div></div>
+    <p class="small muted">They get access the moment they sign up with this email. You'll get a message to send them.</p></div>
+    <div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-pvinvite="${id}" data-modalinv="1">Invite</button></div>`);
+}
+function invitedModal(c, email, role, phone, contact, status) {
+  const text = inviteText(role === "owner" ? contact : "", email);
+  openModal(`${mHead("Invite ready")}<div class="m-b stack">
+    <p>${status === "linked" ? `<b>${esc(email)}</b> already had an account, so they're in ${esc(c.name)} as ${esc(ROLES[role].label)} now.` : `<b>${esc(email)}</b> joins ${esc(c.name)} as ${esc(ROLES[role].label)} as soon as they create their account.`}</p>
+    <div class="field"><label for="invTxt">Message to send them</label><textarea class="in" id="invTxt" rows="4">${esc(text)}</textarea></div>
+    <div class="row"><button class="btn" type="button" data-copy="${esc(text)}">Copy message</button>${phone && role === "owner" ? `<a class="btn go" href="https://wa.me/${waNum(phone)}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">${ic("wa")}Open in WhatsApp</a>` : ""}</div></div>
+    <div class="m-f"><button class="btn go" type="button" data-pvc="${c.id}">Open ${esc(c.name)}</button></div>`);
+}
+const quoteLine = q => `<div class="qline"><b>${jod(q.price)} a year</b><span>+ ${jod(q.setup)} setup · your margin ${q.pct}%${q.pct < 40 ? " (low)" : ""}</span></div>`;
+function newClientModal(fromQuote) {
+  const o = fromQuote && ui.qo ? ui.qo : { plan: "professional", users: 15, connectors: 0, channels: 1, aiPacks: 0, discount: 0 };
+  openModal(`${mHead("New client")}<div class="m-b form">
+    <div class="f2"><div class="field"><label for="ncn">Company name</label><input class="in" id="ncn" placeholder="e.g. Cedar Trading"></div><div class="field"><label for="nct">Business type</label><select class="sel" id="nct">${Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.name)} · ${esc(t.desc)}</option>`).join("")}</select></div></div>
+    <div class="f3"><div class="field"><label for="ncc">Owner's name</label><input class="in" id="ncc"></div><div class="field"><label for="nce">Owner's email</label><input class="in" id="nce" type="email" placeholder="owner@company.com"></div><div class="field"><label for="ncph">Owner's WhatsApp</label><input class="in" id="ncph" placeholder="07x xxx xxxx"></div></div>
+    <div class="f2"><div class="field"><label for="nqp">Plan</label><select class="sel" id="nqp" data-q="1">${Object.entries(PLANS).map(([k, p]) => `<option value="${k}" ${planKey(o.plan) === k ? "selected" : ""}>${p.name} · ${fmtN(p.price)} JOD a year · ${p.users} users</option>`).join("")}</select></div><div class="field"><label for="nqu">Users</label><input class="in num" id="nqu" type="number" min="1" value="${o.users}" data-q="1"></div></div>
+    <details class="more-opt"><summary>Add-ons, discount and start date</summary><div class="form" style="margin-top:10px">
+      <div class="f3"><div class="field"><label for="nqc">Direct connections</label><input class="in num" id="nqc" type="number" min="0" value="${o.connectors || 0}" data-q="1"></div><div class="field"><label for="nqw">Mailboxes / channels</label><input class="in num" id="nqw" type="number" min="0" value="${o.channels || 1}" data-q="1"></div><div class="field"><label for="nqa">Assistant packs</label><input class="in num" id="nqa" type="number" min="0" value="${o.aiPacks || 0}" data-q="1"></div></div>
+      <div class="f2"><div class="field"><label for="nqd">Discount %</label><input class="in num" id="nqd" type="number" min="0" max="30" value="${o.discount || 0}" data-q="1"></div><div class="field"><label for="ncs">Contract starts</label><input class="in" id="ncs" type="date" value="${isoDay(new Date())}"></div></div></div></details>
+    <div id="ncQuote">${quoteLine(quote(o))}</div>
+  </div><div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-saveclient="1">Create and invite owner</button></div>`, true);
+}
+
+/* ---------- TEST LOGINS: one account per role, to check every view yourself ---------- */
+const TEST_SLUG = "jreebs-test";
+const testEmail = (base, role) => base.replace("@", "+" + role.replace("_", "") + "@");
+VIEWS.pv_test = function () {
+  const g = admGuard(); if (g) return g;
+  const test = ADM.clients.find(c => c.slug === TEST_SLUG), base = ui.testBase || ME.email;
+  const inv = test ? ADM.invites.filter(i => i.client_id === test.id) : [];
+  const app = location.origin + location.pathname;
+  return `${head("Test logins", "Sign in as each role to check what your clients see.", "")}
+  <section class="card"><div class="card-h"><h3>How signing in works</h3></div><div class="card-b stack" style="gap:10px">
+    <p>There is one sign-in page for everyone: <b class="num">${esc(app)}</b> <button class="btn sm" type="button" data-copy="${esc(app)}">Copy</button></p>
+    <p class="small muted">The email decides where you land. Your Jreebs admin email (${esc(ME.email)}) opens this console. A client's email opens their company with their role. To be two people at once, use a private window or a second browser for the second account.</p>
+    <div class="row"><a class="btn" href="${esc(app)}?demo" target="_blank" rel="noopener">${ic("grid")}Client demo, no sign-in</a><a class="btn" href="${esc(app)}?demo=provider" target="_blank" rel="noopener">${ic("building")}Provider demo</a></div></div></section>
+  <section class="card"><div class="card-h"><h3>Your test company</h3>${test ? pill(test.name, "acc") : ""}</div><div class="card-b stack" style="gap:12px">
+    ${test ? "" : `<p class="small">Creates <b>Jreebs Test Co</b> and one invite per role, all going to your own inbox. Gmail and Google Workspace deliver "+" addresses to the same inbox, so you@domain.com and you+agent@domain.com both reach you.</p>`}
+    <div class="f2"><div class="field"><label for="ptB">Your email</label><input class="in" id="ptB" type="email" value="${esc(base)}"></div><div class="field"><label for="ptT">Business type</label><select class="sel" id="ptT" ${test ? "disabled" : ""}>${Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}" ${(test ? test.workspace_type : "general") === k ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></div></div>
+    <div class="row"><button class="btn go" type="button" data-pvtest="1">${test ? "Add any missing logins" : "Create test company and logins"}</button></div>
+    ${test ? `<div class="tw"><table class="t"><thead><tr><th>Role</th><th>Sign in with</th><th>Status</th><th></th></tr></thead><tbody>${ROLE_ORDER.map(r => { const e = testEmail(base, r).toLowerCase(), i = inv.find(x => x.email === e); return `<tr><td><b>${ROLES[r].label}</b></td><td class="num small">${esc(e)}</td><td>${i ? (i.accepted_at ? pill("Signed up", "good") : pill("Waiting for sign-up", "warn")) : pill("Not invited")}</td><td class="r">${i && !i.accepted_at ? `<div class="row" style="flex-wrap:nowrap;justify-content:flex-end"><button class="btn sm" type="button" data-copy="${esc(inviteLink(e))}">Copy sign-up link</button><a class="btn sm" href="${esc(inviteLink(e))}" target="_blank" rel="noopener">Open</a></div>` : ""}</td></tr>`; }).join("")}</tbody></table></div>
+    <ol class="small muted" style="margin:0;padding-inline-start:18px;display:grid;gap:4px"><li>Open a sign-up link in a private window and create the account with a password you'll remember.</li><li>Confirm the email Supabase sends (it arrives in your inbox).</li><li>Sign in at ${esc(app)}: you land in Jreebs Test Co with that role.</li></ol>` : ""}
+  </div></section>`;
+};

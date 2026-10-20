@@ -465,7 +465,7 @@ const IC = {
 const T = {
   en: {
     navProduct: "Product", navRoles: "Who uses it", navInt: "Integrations", navPlans: "Pricing", navFaq: "FAQ",
-    ctaTry: "Try the demo", ctaTryLong: "Try the live demo", ctaBook: "Book a demo", ctaBookLong: "Book a 20-minute walkthrough",
+    ctaTry: "Try the demo", ctaTryLong: "Try the live demo", ctaBook: "Book a demo", ctaBookLong: "Talk to us on WhatsApp",
     heroEyebrow: "The operations workspace for companies in Jordan",
     heroTitle: "Every team, every customer, every number. <em>One workspace.</em>",
     heroLead: "Orders, customer conversations, shared email, shifts, quality reviews, SOPs and reports in one place, for agents, team leads, managers and owners. With an assistant that answers questions from your own data.",
@@ -481,7 +481,7 @@ const T = {
     intEyebrow: "Integrations", intTitle: "Works with the tools you already pay for.", intLead: "Jreebs sits next to your accounting, HR and POS systems. It doesn't replace them. Every system can export to Excel, so every company can start on day one.",
     calcEyebrow: "Estimate", calcTitle: "What manual follow-up costs you now.", calcLead: "Move the sliders to match your team. The numbers are your own estimate, not a promise.",
     cAgents: "People in your operations team", cSalary: "Average monthly salary (JOD)", cSalaryHint: "Include social security if you like.", cHours: "Hours each spends a day on manual chasing", cHoursHint: "Copying between WhatsApp and Excel, building reports, asking who did what.", cShare: "Share of that time you'd expect to save", cShareHint: "Your own estimate. Start low.",
-    outHours: "hours a month back to your team", outValue: "Value of that time per year", outPlan: "Matching plan per year", outNet: "Difference per year", outFine: "Value = hours saved × hourly cost from the salary you entered (22 working days, 8 hours). Plan prices exclude 16% sales tax.",
+    outHours: "hours a month back to your team", outValue: "Value of that time per year", outPlan: "Matching plan per year", outNet: "Difference per year", outFine: "This is time your team gets back for other work. It only becomes money saved if you reassign people, cut overtime or avoid a new hire. Value = hours × hourly cost from the salary you entered (22 working days, 8 hours). Plan prices exclude 16% sales tax.",
     secEyebrow: "Security and data", secTitle: "Your data stays yours, and stays separate.",
     planEyebrow: "Pricing", planTitle: "Billed yearly. Priced by the size of your team.", planLead: "Every plan includes setup help, training for your team, the assistant, and support in Arabic and English.",
     perYear: "JOD / year", perMonthEq: "≈ {m} JOD a month, billed yearly", usersInc: "{n} users included · extra users {x} JOD a year", setupFee: "One-time setup {s} JOD", from: "from",
@@ -497,7 +497,7 @@ const T = {
   },
   ar: {
     navProduct: "المنتج", navRoles: "مين بيستخدمه", navInt: "الربط", navPlans: "الأسعار", navFaq: "أسئلة",
-    ctaTry: "جرّب العرض", ctaTryLong: "جرّب النسخة التجريبية", ctaBook: "احجز عرض", ctaBookLong: "احجز عرض ٢٠ دقيقة",
+    ctaTry: "جرّب العرض", ctaTryLong: "جرّب النسخة التجريبية", ctaBook: "احجز عرض", ctaBookLong: "كلّمنا على واتساب",
     heroEyebrow: "مساحة العمليات للشركات في الأردن",
     heroTitle: "كل فريق، كل عميل، كل رقم. <em>بمساحة وحدة.</em>",
     heroLead: "الطلبات، محادثات العملاء، الإيميل المشترك، الشفتات، تقييم الجودة، الإجراءات والتقارير بمكان واحد، للموظف وقائد الفريق والمدير وصاحب الشركة. ومعها مساعد بيجاوب على أسئلتك من بياناتك انت.",
@@ -601,8 +601,8 @@ const FAQ = {
   ar: [["بقدر أشوفه قبل ما أحكي مع حدا؟", "أكيد. النسخة التجريبية هي التطبيق الحقيقي على شركة توصيل تجريبية. استخدم «عرض كـ» لتبدّل بين صاحب الشركة والمدير وقائد الفريق والموظف والسائق."], ["لازم ننزّل إشي؟", "لا. مغطينك بيشتغل على المتصفح من أي كمبيوتر أو تابلت أو موبايل. فريقك بياخذ رابط وحساب."], ["إحنا شغالين على Odoo أو Zoho أو إكسل. لازم نغيّر؟", "لا. مغطينك بيشتغل جنبهم. أغلب الشركات بتبدأ باستيراد من إكسل، والربط المباشر بينضاف لما يستاهل."], ["شو بيعمل المساعد ببياناتنا؟", "بيقرأ بس اللي مسموح للشخص اللي بيسأل يشوفه، وبيجاوب جوّا مساحتك، وما بيغيّر أي سجل بدون كبسة. وبياناتك ما بتستخدم لتدريب نماذج الذكاء الاصطناعي."], ["شو بتغطي رسوم التجهيز؟", "الفحص، بناء مساحتك (الحالات والقواعد والرسائل والإجراءات)، استيراد بياناتك، إضافة فريقك وتدريبهم. أغلب التجهيزات بتاخذ أسبوع تقريباً."], ["كيف الدفع؟", "الباقات بدفع سنوي. السعر حسب عدد المستخدمين والقنوات والربط اللي بتحتاجه، وغير شامل ضريبة المبيعات ١٦٪."], ["لمين البيانات؟", "إلك. صدّر كل شي بأي وقت. وإذا وقفت، منسلّمك كل شي ومنحذفه من عنا."]]
 };
 const FRAME = {
-  en: { url: "jreebs.com/app", nav: [["Home", ""], ["Orders", "3"], ["Inbox", "4"], ["Email", "7"], ["Customers", ""], ["Team & shifts", ""], ["Reports", ""]], title: "Needs attention", k: [["34", "orders today"], ["81%", "on time"], ["3", "late now"]], rows: [["c", "D-1523 · Nadia H.", "Late 46 min", "Green Basket · Jabal Amman · Fadi"], ["c", "D-1525 · Maya R.", "VIP waiting", "Daily Bakery · Jubaiha · Khaled"], ["w", "Email · Burger Lab", "Needs reply", "Cold food complaints this week"]], send: "Send", ai: "Assistant", q: "Which orders are late right now?", a: "3 orders are late right now.", how: "How I got this · 1 lookup", tbl: [["D-1523", "46 min", "Fadi"], ["D-1525", "17 min", "Khaled"], ["D-1526", "3 min", "Rami"]] },
-  ar: { url: "jreebs.com/app", nav: [["الرئيسية", ""], ["الطلبات", "٣"], ["المحادثات", "٤"], ["الإيميل", "٧"], ["العملاء", ""], ["الفريق", ""], ["التقارير", ""]], title: "بحاجة لانتباه", k: [["٣٤", "طلب اليوم"], ["٨١٪", "بالوقت"], ["٣", "متأخر الآن"]], rows: [["c", "D-1523 · نادية ح.", "متأخر ٤٦ د", "جرين باسكت · جبل عمان · فادي"], ["c", "D-1525 · مايا ر.", "VIP بيستنى", "ديلي بيكري · الجبيهة · خالد"], ["w", "إيميل · Burger Lab", "بحاجة رد", "شكاوى أكل بارد هالأسبوع"]], send: "إرسال", ai: "المساعد", q: "شو الطلبات المتأخرة هلأ؟", a: "في ٣ طلبات متأخرة هلأ.", how: "كيف وصلت للجواب · بحث واحد", tbl: [["D-1523", "٤٦ د", "فادي"], ["D-1525", "١٧ د", "خالد"], ["D-1526", "٣ د", "رامي"]] }
+  en: { url: "jreebs.com/app", nav: [["Home", ""], ["Customer requests", "7"], ["Sales pipeline", ""], ["Orders", "12"], ["Tasks", "6"], ["Inbox", "4"], ["Approvals", "4"]], title: "Needs attention", k: [["34", "orders today"], ["81%", "on time"], ["3", "late now"]], rows: [["c", "R-1013 · Jana Q.", "Overdue 2 h", "Billing · Urgent · Bilal"], ["c", "O-1044 · Leen N.", "Late 3 h", "229 JOD · 2 items · Khaled"], ["w", "Email · Orient Supplies", "Needs reply", "Price list update from 1 Nov"]], send: "Send", ai: "Assistant", q: "What is overdue right now?", a: "3 items are overdue right now.", how: "How I got this · 1 lookup", tbl: [["R-1013", "2 h", "Bilal"], ["O-1044", "3 h", "Khaled"], ["T-1031", "1 day", "Lina"]] },
+  ar: { url: "jreebs.com/app", nav: [["الرئيسية", ""], ["طلبات العملاء", "٧"], ["المبيعات", ""], ["الطلبات", "١٢"], ["المهام", "٦"], ["المحادثات", "٤"], ["الموافقات", "٤"]], title: "بحاجة لانتباه", k: [["٣٤", "طلب اليوم"], ["٨١٪", "بالوقت"], ["٣", "متأخر الآن"]], rows: [["c", "D-1523 · نادية ح.", "متأخر ٤٦ د", "جرين باسكت · جبل عمان · فادي"], ["c", "D-1525 · مايا ر.", "VIP بيستنى", "ديلي بيكري · الجبيهة · خالد"], ["w", "إيميل · Burger Lab", "بحاجة رد", "شكاوى أكل بارد هالأسبوع"]], send: "إرسال", ai: "المساعد", q: "شو الطلبات المتأخرة هلأ؟", a: "في ٣ طلبات متأخرة هلأ.", how: "كيف وصلت للجواب · بحث واحد", tbl: [["D-1523", "٤٦ د", "فادي"], ["D-1525", "١٧ د", "خالد"], ["D-1526", "٣ د", "رامي"]] }
 };
 
 let lang = "en", role = 0;
@@ -641,7 +641,7 @@ function render() {
   $("#email").textContent = EMAIL;
   const F = FRAME[lang];
   $("#frame").innerHTML = `<div class="fbar"><i></i><i></i><i></i><span>${F.url}</span></div><div class="fbody">
-    <div class="fside"><b>Swift Delivery</b>${F.nav.map(([n, c], i) => `<span class="${i === 1 ? "on" : ""}">${esc(n)}${c ? `<em>${c}</em>` : ""}</span>`).join("")}</div>
+    <div class="fside"><b>Cedar Trading Co.</b>${F.nav.map(([n, c], i) => `<span class="${i === 1 ? "on" : ""}">${esc(n)}${c ? `<em>${c}</em>` : ""}</span>`).join("")}</div>
     <div class="fmain"><div class="fk">${F.k.map(([v, l], i) => `<div><b style="${i === 2 ? "color:var(--crit)" : i === 1 ? "color:var(--warn)" : ""}">${v}</b><small>${esc(l)}</small></div>`).join("")}</div>
       <b>${esc(F.title)}</b>${F.rows.map(([s, a, p, d]) => `<div class="frow"><i class="${s}"></i><div style="min-width:0"><div class="t">${esc(a)}<span class="tagp ${s}">${esc(p)}</span></div><div class="d">${esc(d)}</div></div><span class="wa">${esc(F.send)}</span></div>`).join("")}</div>
     <div class="fai"><b>${esc(F.ai)}</b><div class="fq">${esc(F.q)}</div><div class="fa"><b>${esc(F.a)}</b><table>${F.tbl.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table><span class="how">${esc(F.how)}</span></div></div></div>`;

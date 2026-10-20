@@ -36,7 +36,7 @@ function emailReader(e) {
     <div class="row">${["open", "waiting", "done"].map(s => `<button class="btn sm${e.status === s ? " primary" : ""}" type="button" data-emst="${s}" data-id="${e.id}">${EM_ST[s][0]}</button>`).join("")}</div></div>
   <div class="mail-meta">
     <div class="field"><label for="emCust">Customer</label><select class="sel" id="emCust" data-id="${e.id}"><option value="">Not linked</option>${S.cust.slice().sort((a, b) => cmp(a.name, b.name)).map(c => `<option value="${c.id}" ${c.id === e.customer_id ? "selected" : ""}>${esc(c.name)}${c.phone ? " · " + esc(c.phone) : ""}</option>`).join("")}</select></div>
-    <div class="field"><label for="emItem">${esc(WDEF.item)}</label><input class="in" id="emItem" data-id="${e.id}" placeholder="e.g. ${esc(ITEMS[0]?.ext_id || "D-1001")}" value="${esc(it?.ext_id || "")}"></div>
+    <div class="field"><label for="emItem">Linked record</label><input class="in" id="emItem" data-id="${e.id}" placeholder="e.g. ${esc(ITEMS[0]?.ext_id || "D-1001")}" value="${esc(it?.ext_id || "")}"></div>
     <div class="field"><label for="emAsg">Handled by</label><select class="sel" id="emAsg" data-id="${e.id}"><option value="">Nobody yet</option>${S.team.filter(m => m.role !== "driver").map(m => `<option value="${m.auth_user_id}" ${m.auth_user_id === e.assignee ? "selected" : ""}>${esc(memberName(m.auth_user_id))}</option>`).join("")}</select></div>
   </div>
   <div class="row mail-acts">

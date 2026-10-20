@@ -8,8 +8,8 @@ const iso = m => m == null ? null : new Date(m * 60000).toISOString();
 
 /* ---------- the tables the assistant may read (compact rows, no secrets) ---------- */
 const AI_TABLES = {
-  items: { rows: () => ITEMS.map(it => ({ id: it.id, ref: it.ext_id, customer: it.name, phone: it.phone, area: it.area || "", status: stageName(it.status), open: !isTerm(it), [WDEF.ownerLabel.toLowerCase()]: it.owner || "", handled_by: it.assigned_to ? memberName(it.assigned_to) : "", created: iso(it.created), due: iso(it.due), late_min: !isTerm(it) && nowM() > it.due ? Math.round(nowM() - it.due) : 0, finished: iso(it.t[WDEF.done] ?? it.t[WDEF.terminal[1]]), on_time: it.t[WDEF.done] != null ? it.t[WDEF.done] <= it.due : null, ...Object.fromEntries(WDEF.fields.map(([k]) => [k, it.data?.[k] ?? ""])), flags: it.flags.map(f => f.text).join(", ") })),
-    fields: ["ref", "customer", "area", "status", "handled_by", "due", "late_min", "flags"] },
+  items: { rows: () => ITEMS.map(it => { const d = defOf(it), fin = it.t[d.done] ?? d.alt.map(a => it.t[a[0]]).find(x => x != null); return { id: it.id, ref: it.ext_id, board: d.items, name: it.name, phone: it.phone, area: it.area || "", status: stageName(it.status, it), open: !isTerm(it), owner: it.owner || "", handled_by: it.assigned_to ? memberName(it.assigned_to) : "", created: iso(it.created), due: iso(it.due), late_min: !isTerm(it) && nowM() > it.due ? Math.round(nowM() - it.due) : 0, late_by: !isTerm(it) && nowM() > it.due ? dur(nowM() - it.due) : "", finished: iso(fin), on_time: it.t[d.done] != null ? it.t[d.done] <= it.due : null, ...Object.fromEntries(d.fields.map(([k]) => [k, it.data?.[k] ?? ""])), flags: it.flags.map(f => f.text).join(", ") }; }),
+    fields: ["ref", "board", "name", "status", "owner", "due", "late_min", "flags"] },
   customers: { rows: () => S.cust.map(c => ({ id: c.id, name: c.name, phone: c.phone, email: c.email || "", area: c.area || "", tags: (c.tags || []).join(", "), orders: ITEMS.filter(i => i.customer_id === c.id).length, conversations: S.cases.filter(k => k.customer_id === c.id).length, notes: (c.notes || "").slice(0, 200), since: c.created_at })), fields: ["name", "phone", "area", "tags", "orders", "conversations"] },
   conversations: { rows: () => S.cases.map(c => ({ id: c.id, subject: c.subject, channel: c.channel, kind: c.kind, status: c.status, customer: S.cust.find(x => x.id === c.customer_id)?.name || "", assignee: c.assignee ? memberName(c.assignee) : "", order: itemById(c.item_id)?.ext_id || "", created: c.created_at, updated: c.updated_at, reply_by: c.reply_by, last_from: (S.msgs.filter(m => m.case_id === c.id && m.dir !== "sys" && m.dir !== "note").slice(-1)[0] || {}).dir === "in" ? "customer" : "team" })), fields: ["subject", "channel", "status", "customer", "assignee", "updated", "last_from"] },
   messages: { rows: () => S.msgs.filter(m => m.dir !== "sys").map(m => ({ conversation: m.case_id, from: m.dir === "in" ? "customer" : m.dir === "note" ? "internal note" : "team", body: m.body.slice(0, 300), author: m.author_email ? nameOf(m.author_email) : "", at: m.created_at })), fields: ["conversation", "from", "body", "at"] },
@@ -25,7 +25,7 @@ const AI_TABLES = {
   templates: { rows: () => S.tpls.map(t => ({ id: t.id, name: t.name, category: t.category, english: t.en })), fields: ["name", "category", "english"] },
   activity: { rows: () => S.act.map(a => ({ at: a.at, who: a.actor_email ? nameOf(a.actor_email) : "System", what: a.text })), fields: ["at", "who", "what"] }
 };
-const AI_DESC = { items: `${WDEF.items} (last 31 days plus every open one)`, customers: "Customers, matched by phone number", conversations: "Customer conversations in the Inbox", messages: "Messages inside conversations (last 31 days)", emails: "Emails received in the company mailboxes", people: "Everyone who works at the company, with the systems they can access", shifts: "This week's shifts", qa_reviews: "Quality reviews (score is %)", sops: "Standard operating procedures and who has read them", sop_reads: "Who confirmed reading which SOP", files: "Company compliance files and expiry dates", subscriptions: "Software subscriptions and renewals", links: "Tools and internal systems", templates: "Message templates", activity: "Audit log of actions (latest 400)" };
+const AI_DESC = { items: "All work records across the company's boards (last 31 days plus every open one). The board field says which kind of work it is.", customers: "Customers, matched by phone number", conversations: "Customer conversations in the Inbox", messages: "Messages inside conversations (last 31 days)", emails: "Emails received in the company mailboxes", people: "Everyone who works at the company, with the systems they can access", shifts: "This week's shifts", qa_reviews: "Quality reviews (score is %)", sops: "Standard operating procedures and who has read them", sop_reads: "Who confirmed reading which SOP", files: "Company compliance files and expiry dates", subscriptions: "Software subscriptions and renewals", links: "Tools and internal systems", templates: "Message templates", activity: "Audit log of actions (latest 400)" };
 const aiRows = t => { const T = AI_TABLES[t]; if (!T) throw new Error("Unknown table: " + t); try { return T.rows(); } catch (e) { return []; } };
 const cmp = (a, b) => (a == null) - (b == null) || (a > b ? 1 : a < b ? -1 : 0);
 function aiFilter(rows, filters = []) {
@@ -51,7 +51,7 @@ function aiCheck(check) {
   const it = aiRows("items");
   switch (check) {
     case "late_now": return it.filter(r => r.open && r.late_min > 0).sort((a, b) => b.late_min - a.late_min);
-    case "unassigned_open": return it.filter(r => r.open && !r[WDEF.ownerLabel.toLowerCase()]);
+    case "unassigned_open": return it.filter(r => r.open && !r.owner);
     case "missing_phone": return aiRows("customers").filter(c => !String(c.phone || "").replace(/\D/g, ""));
     case "duplicate_customers": { const by = {}; aiRows("customers").forEach(c => { const k = waNum(c.phone); if (k) (by[k] = by[k] || []).push(c.name); }); return Object.entries(by).filter(([, v]) => v.length > 1).map(([phone, names]) => ({ phone, names: names.join(" / "), count: names.length })); }
     case "stale_conversations": return aiRows("conversations").filter(c => c.status === "open" && c.last_from === "customer").sort((a, b) => cmp(a.updated, b.updated));
@@ -70,7 +70,7 @@ function runTool(name, input = {}, turn) {
   switch (name) {
     case "workspace_overview": return {
       company: CLIENT.name, business_type: CLIENT.workspace_type, your_role: ROLES[ME.role].label, today: isoDay(new Date()), now: new Date().toISOString(),
-      item_word: WDEF.item, stages: [...WDEF.stages, ...WDEF.alt].map(s => s[1]), finished_stage: stageName(WDEF.done), owner_field: WDEF.ownerLabel.toLowerCase(),
+      boards: liveBoards().map(b => ({ name: b.items, one: b.item, stages: [...b.stages, ...b.alt].map(s => s[1]), finished_stage: stageName(b.done, b), owner_means: b.ownerLabel, due_means: b.dueLabel, fields: b.fields.map(f => f[1]) })),
       targets: TARGETS(), time_limits_minutes: SLA(),
       tables: Object.fromEntries(Object.keys(AI_TABLES).map(t => { const rows = aiRows(t); return [t, { holds: AI_DESC[t], rows: rows.length, fields: Object.keys(rows[0] || {}) }]; }).filter(([, v]) => v.rows))
     };
@@ -166,7 +166,7 @@ const AR = s => /[؀-ۿ]/.test(s);
 function mdTable(rows, cols, labels) { if (!rows.length) return "_Nothing found._"; return `| ${(labels || cols).join(" | ")} |\n| ${cols.map(() => "---").join(" | ")} |\n` + rows.map(r => "| " + cols.map(c => String(r[c] ?? "").replace(/\|/g, "/")).join(" | ") + " |").join("\n"); }
 function demoBrain(q, turn) {
   const s = q.toLowerCase(), ar = AR(q), T = (tool, input) => { const out = runTool(tool, input, turn); turn.trace.push({ tool, input, n: out.total ?? out.count ?? out.rows?.length ?? out.groups?.length ?? out.results?.length }); return out; };
-  const today = isoDay(new Date()), own = WDEF.ownerLabel.toLowerCase();
+  const today = isoDay(new Date()), own = "owner", W = multi() ? { item: "item", items: "items", Items: "Work" } : { item: WDEF.item.toLowerCase(), items: WDEF.items.toLowerCase(), Items: WDEF.items }, OWN = multi() ? "owner" : WDEF.ownerLabel.toLowerCase();
   const has = (...w) => w.some(x => s.includes(x));
   if (has("summar", "لخص", "ملخص الايميل") && has("email", "mail", "ايميل", "thread")) {
     const e = S.emails.find(x => s.includes(x.subject.toLowerCase())) || S.emails.find(x => x.id === ui.emSel) || S.emails[0];
@@ -182,17 +182,17 @@ function demoBrain(q, turn) {
     T("find_records", { table: "items", filters: [{ field: "open", op: "eq", value: true }] });
     const late = mine.filter(r => r.late_min > 0).sort((a, b) => b.late_min - a.late_min), conv = T("data_checks", { check: "stale_conversations" }).rows, em = T("data_checks", { check: "unanswered_emails" }).rows;
     late.slice(0, 2).forEach(r => turn.actions.push({ action: "open_record", ref: r.ref, label: `Open ${r.ref}` }));
-    return { text: `${ar ? "ابدأ بهدول:" : "Start with these, in this order:"}\n\n1. **${late.length} late ${WDEF.items.toLowerCase()}**${late.length ? ": " + late.slice(0, 3).map(r => `${r.ref} (${r.late_min} min)`).join(", ") : ""}\n2. **${conv.length} conversations** where the customer wrote last${conv.length ? ": " + conv.slice(0, 3).map(c => c.customer || c.subject).join(", ") : ""}\n3. **${em.length} open emails**${em.length ? ", oldest from " + em[0].from : ""}` };
+    return { text: `${ar ? "ابدأ بهدول:" : "Start with these, in this order:"}\n\n1. **${late.length} overdue ${W.items}**${late.length ? ": " + late.slice(0, 3).map(r => `${r.ref} (${r.late_by})`).join(", ") : ""}\n2. **${conv.length} conversations** where the customer wrote last${conv.length ? ": " + conv.slice(0, 3).map(c => c.customer || c.subject).join(", ") : ""}\n3. **${em.length} open emails**${em.length ? ", oldest from " + em[0].from : ""}` };
   }
   if (has("late", "delay", "متأخر", "تأخير", "at risk")) {
     const r = T("data_checks", { check: "late_now" });
     r.rows.slice(0, 2).forEach(x => turn.actions.push({ action: "open_record", ref: x.ref, label: `Open ${x.ref}` }));
-    if (r.rows[0]) turn.actions.push({ action: "draft_message", ref: r.rows[0].ref, label: `Send apology to ${r.rows[0].customer.split(" ")[0]}` });
-    return { text: `${r.count ? (ar ? `في **${r.count}** متأخرين هلأ.` : `**${r.count} ${r.count === 1 ? WDEF.item.toLowerCase() + " is" : WDEF.items.toLowerCase() + " are"} late right now.**`) : (ar ? "ما في ولا واحد متأخر هلأ." : "Nothing is late right now.")}\n\n${r.count ? mdTable(r.rows.slice(0, 10), ["ref", "customer", "late_min", own, "area"], ["Ref", "Customer", "Late (min)", WDEF.ownerLabel, "Area"]) : ""}` };
+    if (r.rows[0] && itemById(r.rows[0].id)?.phone) turn.actions.push({ action: "draft_message", ref: r.rows[0].ref, label: `Send apology to ${(r.rows[0].name || "").split(" ")[0]}` });
+    return { text: `${r.count ? (ar ? `في **${r.count}** متأخرين هلأ.` : `**${r.count} ${r.count === 1 ? W.item + " is" : W.items + " are"} overdue right now.**`) : (ar ? "ما في ولا واحد متأخر هلأ." : "Nothing is late right now.")}\n\n${r.count ? mdTable(r.rows.slice(0, 10), ["ref", ...(multi() ? ["board"] : []), "name", "late_by", "owner"], ["Ref", ...(multi() ? ["Board"] : []), "Name", "Late by", multi() ? "Owner" : WDEF.ownerLabel]) : ""}` };
   }
   if (has("unassigned", "no driver", "without", "بدون")) {
     const r = T("data_checks", { check: "unassigned_open" });
-    return { text: `**${r.count}** open ${WDEF.items.toLowerCase()} have no ${own}.\n\n${mdTable(r.rows.slice(0, 10), ["ref", "customer", "area", "status"], ["Ref", "Customer", "Area", "Status"])}` };
+    return { text: `**${r.count}** open ${W.items} have no ${OWN}.\n\n${mdTable(r.rows.slice(0, 10), ["ref", ...(multi() ? ["board"] : []), "name", "status"], ["Ref", ...(multi() ? ["Board"] : []), "Name", "Status"])}` };
   }
   if (has("on time", "on-time", "ontime", "نسبة", "الالتزام")) {
     const from = isoDay(Date.now() - 6 * 864e5);
@@ -202,15 +202,15 @@ function demoBrain(q, turn) {
     const tbl = Object.entries(by).map(([k, v]) => ({ who: k, done: v.n, on_time: Math.round(v.ok / v.n * 100) + "%" })).sort((a, b) => parseInt(b.on_time) - parseInt(a.on_time));
     const all = rows.length ? Math.round(rows.filter(r => r.on_time).length / rows.length * 100) : 0;
     void g;
-    return { text: `**${all}% on time** over the last 7 days (${rows.length} finished, target ${TARGETS().ontime}%).\n\n${mdTable(tbl, ["who", "done", "on_time"], [WDEF.ownerLabel, "Finished", "On time"])}` };
+    return { text: `**${all}% on time** over the last 7 days (${rows.length} finished, target ${TARGETS().ontime}%).\n\n${mdTable(tbl, ["who", "done", "on_time"], [multi() ? "Owner" : WDEF.ownerLabel, "Finished", "On time"])}` };
   }
   if (has("area", "منطقة", "مناطق")) {
     const g = T("summarize", { table: "items", group_by: "area", metric: "count", date_field: "created", from: today });
-    return { text: `${WDEF.items} today by area (${g.total_records} in total):\n\n${mdTable(g.groups.slice(0, 12), ["group", "value"], ["Area", WDEF.items])}` };
+    return { text: `${W.Items} today by area (${g.total_records} in total):\n\n${mdTable(g.groups.slice(0, 12), ["group", "value"], ["Area", W.Items])}` };
   }
   if (has("driver", "busiest", "most open", "who has", "سائق", "مين عنده") || s.includes(own)) {
     const g = T("summarize", { table: "items", group_by: own, metric: "count", filters: [{ field: "open", op: "eq", value: true }] });
-    return { text: `Open ${WDEF.items.toLowerCase()} by ${own} right now:\n\n${mdTable(g.groups.filter(x => x.group !== "—" && x.group !== "").slice(0, 12), ["group", "value"], [WDEF.ownerLabel, "Open"])}${g.groups.find(x => x.group === "" || x.group === "—") ? `\n\n${g.groups.find(x => x.group === "" || x.group === "—").value} still have no ${own}.` : ""}` };
+    return { text: `Open ${W.items} by ${OWN} right now:\n\n${mdTable(g.groups.filter(x => x.group !== "—" && x.group !== "").slice(0, 12), ["group", "value"], [multi() ? "Owner" : WDEF.ownerLabel, "Open"])}${g.groups.find(x => x.group === "" || x.group === "—") ? `\n\n${g.groups.find(x => x.group === "" || x.group === "—").value} still have no ${OWN}.` : ""}` };
   }
   if (has("conversation", "inbox", "complain", "waiting", "reply", "شكاوى", "محادث", "رد")) {
     const r = T("data_checks", { check: "stale_conversations" });
@@ -238,10 +238,10 @@ function demoBrain(q, turn) {
     return { text: `Average quality score by agent (target ${TARGETS().qa}%):\n\n${mdTable(g.groups.map(x => ({ ...x, value: x.value + "%" })), ["group", "value", "records"], ["Agent", "Average", "Reviews"])}` };
   }
   if (has("today", "doing", "overview", "summary", "اليوم", "ملخص", "وضعنا")) {
-    const items = aiRows("items").filter(r => r.created >= today), done = items.filter(r => r.status === stageName(WDEF.done)), late = T("data_checks", { check: "late_now" }), conv = T("data_checks", { check: "stale_conversations" }), em = T("data_checks", { check: "unanswered_emails" });
+    const items = aiRows("items").filter(r => r.created >= today), done = items.filter(r => r.finished && !r.open && r.on_time !== null), late = T("data_checks", { check: "late_now" }), conv = T("data_checks", { check: "stale_conversations" }), em = T("data_checks", { check: "unanswered_emails" });
     T("summarize", { table: "items", metric: "count", date_field: "created", from: today });
     const ok = done.filter(r => r.on_time).length;
-    return { text: ar ? `**اليوم لحد هلأ:** ${items.length} ${WDEF.items}، ${done.length} خلصوا (${done.length ? Math.round(ok / done.length * 100) : 0}% بالوقت).\n\n- ${late.count} متأخرين هلأ\n- ${conv.count} محادثات بتستنى رد\n- ${em.count} ايميلات مفتوحة` : `**Today so far:** ${items.length} ${WDEF.items.toLowerCase()}, ${done.length} finished, ${done.length ? Math.round(ok / done.length * 100) : 0}% on time.\n\n- ${late.count} late right now${late.count ? " (" + late.rows.slice(0, 3).map(x => x.ref).join(", ") + ")" : ""}\n- ${conv.count} conversations waiting for a reply\n- ${em.count} open emails` };
+    return { text: ar ? `**اليوم لحد هلأ:** ${items.length} ${multi() ? "سجل" : WDEF.items}، ${done.length} خلصوا (${done.length ? Math.round(ok / done.length * 100) : 0}% بالوقت).\n\n- ${late.count} متأخرين هلأ\n- ${conv.count} محادثات بتستنى رد\n- ${em.count} ايميلات مفتوحة` : `**Today so far:** ${items.length} new ${W.items}, ${done.length} finished, ${done.length ? Math.round(ok / done.length * 100) : 0}% on time.\n\n- ${late.count} late right now${late.count ? " (" + late.rows.slice(0, 3).map(x => x.ref).join(", ") + ")" : ""}\n- ${conv.count} conversations waiting for a reply\n- ${em.count} open emails` };
   }
   const r = T("search", { query: q.replace(/^(find|show|search|where is|who is|ابحث عن|وين)\s+/i, "") });
   if (r.results.length) return { text: `I found **${r.results.length}** matches:\n\n${mdTable(r.results.slice(0, 10), ["type", "title", "detail"], ["Type", "Match", "Detail"])}` };
@@ -275,7 +275,7 @@ const TOOL_LABEL = { workspace_overview: "Looked at the workspace", find_records
 function actionBtn(a) {
   const it = ITEMS.find(x => x.ext_id === a.ref || x.id === a.ref), cv = S.cases.find(x => x.id === a.ref), em = S.emails.find(x => x.id === a.ref);
   if (a.action === "draft_message" && em) return `<a class="btn sm" href="mailto:${esc(em.from_addr)}?subject=${encodeURIComponent("Re: " + em.subject)}">${ic("msg")}${esc(a.label)}</a>`;
-  if (a.action === "draft_message" && it) return `<button class="btn sm" type="button" data-msg="${it.id}" data-tpl="${esc(WDEF.templates[0][0])}">${ic("wa")}${esc(a.label)}</button>`;
+  if (a.action === "draft_message" && it) return `<button class="btn sm" type="button" data-msg="${it.id}" data-tpl="${esc((it.flags.find(f => f.tpl) || {}).tpl || "")}">${ic("wa")}${esc(a.label)}</button>`;
   if (a.action === "assign" && it) return `<button class="btn sm" type="button" data-assign="${it.id}">${ic("truck")}${esc(a.label)}</button>`;
   if (it) return `<button class="btn sm" type="button" data-oo="${it.id}">${esc(a.label)}</button>`;
   if (cv) return `<button class="btn sm" type="button" data-cv="${cv.id}">${esc(a.label)}</button>`;
@@ -322,7 +322,7 @@ async function runSearch(q) {
   }
   GS.busy = false; if (view === "search") render();
 }
-const KIND = { item: () => WDEF.items, customer: () => "Customers", conversation: () => "Conversations", email: () => "Emails", sop: () => "SOPs", link: () => "Tools & systems", person: () => "People" };
+const KIND = { item: () => multi() ? "Work" : WDEF.items, customer: () => "Customers", conversation: () => "Conversations", email: () => "Emails", sop: () => "SOPs", link: () => "Tools & systems", person: () => "People" };
 VIEWS.search = function () {
   const groups = {}; GS.res.forEach(r => (groups[r.kind] = groups[r.kind] || []).push(r));
   const open = r => r.kind === "item" ? (ITEMS.some(i => i.id === r.id) ? `data-oo="${r.id}"` : "") : r.kind === "customer" ? `data-cu="${r.id}"` : r.kind === "conversation" ? `data-cv="${r.id}"` : r.kind === "email" ? `data-em="${r.id}"` : r.kind === "sop" ? `data-sop="${r.id}"` : r.kind === "person" && lvl() >= 4 ? `data-modal="person" data-pid="${r.id}"` : "";

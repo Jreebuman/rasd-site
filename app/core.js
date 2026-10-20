@@ -52,7 +52,7 @@ const ICON = {
   building: P("M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M8 7h4M8 11h4M8 15h4M2 21h20"),
   grid: P("M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"),
   book: P("M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"),
-  mail: P("M3 5h18v14H3zM3 6l9 7 9-7"), spark: P("M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4zM19 3v4M17 5h4M5 17v4M3 19h4"),
+  mail: P("M3 5h18v14H3zM3 6l9 7 9-7"), chev: P("m6 9 6 6 6-6"), spark: P("M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4zM19 3v4M17 5h4M5 17v4M3 19h4"),
   out: P("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"), trash: P("M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"),
   edit: P("M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"), refresh: P("M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"),
   wa: '<path fill="currentColor" stroke="none" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.2-.2-.4-.3Z"/>'
@@ -104,77 +104,154 @@ const ROLE_ORDER = ["owner", "manager", "team_lead", "supervisor", "agent", "dri
 const NEED = { 0: "everyone", 1: "agents and above", 2: "supervisors and above", 3: "team leads and above", 4: "managers and owners", 5: "the owner" };
 const DEPT_OF_ROLE = { owner: "Management", manager: "Management", team_lead: "Customer care", supervisor: "Operations", agent: "Customer care", driver: "Field" };
 
-/* ---------- workspace types ---------- */
-const WS = {
-  delivery: {
-    item: "Order", items: "Orders", ownerLabel: "Driver", dueLabel: "Promised by", fieldWord: "drivers",
-    stages: [["new", "New"], ["assigned", "Assigned"], ["picked", "On the way"], ["delivered", "Delivered"]],
-    alt: [["failed", "Failed delivery"]], terminal: ["delivered", "failed"], done: "delivered", promise: 40,
-    fields: [["store", "Store"], ["value", "Value (JOD)"]], hasValue: true,
-    x: it => `${esc(it.data?.store || "")}${it.data?.value ? " · " + esc(it.data.value) + " JOD" : ""}`,
+/* ---------- boards: each kind of work a company tracks ----------
+   A board is plain data (stages, fields, labels, alert rules), so a company can rename it, change its
+   stages, add fields or add another board in Settings › Workspace. Templates pick the starting boards. */
+const TR = (key, name, cat, en, ar) => [key, name, cat, en, ar];
+const BOARD_LIB = {
+  delivery: { item: "Order", items: "Orders", icon: "box", prefix: "D", ownerLabel: "Driver", dueLabel: "Promised by", fieldOwner: true, fieldWord: "drivers", promise: 40,
+    stages: [["new", "New"], ["assigned", "Assigned"], ["picked", "On the way"], ["delivered", "Delivered"]], alt: [["failed", "Failed delivery"]], done: "delivered",
+    fields: [["store", "Store"], ["value", "Value (JOD)"]],
     templates: [
-      ["late", "Late order apology", "Delays", "Hi {first}, sorry, your order {id} is running about {late} minutes late. {owner} is on the way to you.", "مرحبا {first}، نعتذر، طلبك رقم {id} متأخر حوالي {late} دقيقة. {owner} في الطريق إليك."],
-      ["onway", "On the way", "Updates", "Hi {first}, your order {id} is on the way with {owner}.", "مرحبا {first}، طلبك رقم {id} في الطريق مع {owner}."],
-      ["delivered", "Delivered + rating", "Updates", "Hi {first}, your order {id} was delivered. How did we do? Reply 1–5.", "مرحبا {first}، تم توصيل طلبك رقم {id}. كيف كانت تجربتك؟ رد من ١ لـ ٥."],
-      ["failed", "Failed delivery rebook", "Delays", "Hi {first}, we couldn't reach you for order {id}. Would you like us to try again today or tomorrow?", "مرحبا {first}، ما قدرنا نوصلك بطلبك رقم {id}. بتحب نحاول اليوم ولا بكرا؟"],
-      ["driver", "Message driver", "Team", "Hi {owner}, order {id} for {name} in {area} is due at {due}. Where are you now?", "مرحبا {owner}، الطلب {id} لـ {name} في {area} موعده {due}. وينك هلأ؟"],
-      ["complaint", "Complaint first reply", "Complaints", "Hi {first}, thank you for telling us. I'm checking order {id} now and will update you within 15 minutes.", "مرحبا {first}، شكراً إنك حكيتلنا. عم بتابع طلبك رقم {id} هلأ ورح أرد عليك خلال ١٥ دقيقة."]
-    ],
+      TR("late", "Late order apology", "Delays", "Hi {first}, sorry, your order {id} is running about {late} minutes late. {owner} is on the way to you.", "مرحبا {first}، نعتذر، طلبك رقم {id} متأخر حوالي {late} دقيقة. {owner} في الطريق إليك."),
+      TR("onway", "On the way", "Updates", "Hi {first}, your order {id} is on the way with {owner}.", "مرحبا {first}، طلبك رقم {id} في الطريق مع {owner}."),
+      TR("delivered", "Delivered + rating", "Updates", "Hi {first}, your order {id} was delivered. How did we do? Reply 1–5.", "مرحبا {first}، تم توصيل طلبك رقم {id}. كيف كانت تجربتك؟ رد من ١ لـ ٥."),
+      TR("failed", "Failed delivery rebook", "Delays", "Hi {first}, we couldn't reach you for order {id}. Would you like us to try again today or tomorrow?", "مرحبا {first}، ما قدرنا نوصلك بطلبك رقم {id}. بتحب نحاول اليوم ولا بكرا؟"),
+      TR("driver", "Message driver", "Team", "Hi {owner}, order {id} for {name} in {area} is due at {due}. Where are you now?", "مرحبا {owner}، الطلب {id} لـ {name} في {area} موعده {due}. وينك هلأ؟"),
+      TR("complaint", "Complaint first reply", "Complaints", "Hi {first}, thank you for telling us. I'm checking order {id} now and will update you within 15 minutes.", "مرحبا {first}، شكراً إنك حكيتلنا. عم بتابع طلبك رقم {id} هلأ ورح أرد عليك خلال ١٥ دقيقة.")],
     rules: [
-      { id: "late", name: "Late order alert", desc: "When an order passes its promised time, flag it and prepare an apology.", sev: 3, tpl: "late",
-        check: (it, now) => now > it.due ? `Late ${Math.round(now - it.due)} min` : null },
-      { id: "unassigned", name: "No driver after 5 min", desc: "Flag new orders still waiting for a driver after 5 minutes.", sev: 2,
-        check: (it, now) => it.status === "new" && now - it.created >= 5 ? `No driver ${Math.round(now - it.created)} min` : null },
-      { id: "pickup", name: "Slow pickup", desc: "Flag orders assigned 20+ minutes ago but not picked up.", sev: 1, tpl: "driver",
-        check: (it, now) => it.status === "assigned" && now - (it.t.assigned ?? it.created) >= 20 ? "Not picked up" : null }
-    ]
-  },
-  lab: {
-    item: "Visit", items: "Visits", ownerLabel: "Team", dueLabel: "Visit at", fieldWord: "visit teams",
-    stages: [["booked", "Booked"], ["confirmed", "Confirmed"], ["onway", "Team on the way"], ["collected", "Sample collected"]],
-    alt: [["noshow", "No-show"]], terminal: ["collected", "noshow"], done: "collected", promise: 0,
-    fields: [["test", "Test"]], hasValue: false,
-    x: it => esc(it.data?.test || ""),
+      { id: "late", type: "late", name: "Late order alert", desc: "When an order passes its promised time, flag it and prepare an apology.", label: "Late {d}", sev: 3, tpl: "late" },
+      { id: "unassigned", type: "stuck", stage: "new", mins: 5, name: "No driver after 5 min", desc: "Flag new orders still waiting for a driver after 5 minutes.", label: "No driver {d}", sev: 2 },
+      { id: "pickup", type: "stuck", stage: "assigned", mins: 20, name: "Slow pickup", desc: "Flag orders assigned 20+ minutes ago but not picked up.", label: "Not picked up", sev: 1, tpl: "driver" }] },
+  visits: { item: "Visit", items: "Visits", icon: "cal", prefix: "V", ownerLabel: "Team", dueLabel: "Visit at", fieldOwner: true, fieldWord: "visit teams", promise: 180,
+    stages: [["booked", "Booked"], ["confirmed", "Confirmed"], ["onway", "Team on the way"], ["collected", "Sample collected"]], alt: [["noshow", "No-show"]], done: "collected",
+    fields: [["test", "Test"]],
     templates: [
-      ["confirm", "Confirm visit", "Updates", "Hello {first}, a reminder of your home sample collection today at {due} in {area}. Reply 1 to confirm or 2 to change the time.", "مرحباً {first}، نذكّرك بموعد سحب العينة من المنزل اليوم الساعة {due} في {area}. ردّ بـ 1 للتأكيد أو 2 لتغيير الموعد."],
-      ["onway", "Team on the way", "Updates", "Hello {first}, our team ({owner}) is on the way and will arrive around {due}.", "مرحباً {first}، فريقنا ({owner}) في الطريق ويصل حوالي الساعة {due}."],
-      ["noshow", "Missed visit", "Delays", "Hello {first}, our team couldn't reach you at {due} today. Would you like to book a new time?", "مرحباً {first}، لم يتمكن فريقنا من الوصول إليك الساعة {due} اليوم. هل تودّ حجز موعد جديد؟"],
-      ["complaint", "Complaint first reply", "Complaints", "Hello {first}, thank you for telling us. I'm checking your visit now and will update you within 15 minutes.", "مرحباً {first}، شكراً لإبلاغنا. أتابع موعدك الآن وسأرد عليك خلال ١٥ دقيقة."]
-    ],
+      TR("confirm", "Confirm visit", "Updates", "Hello {first}, a reminder of your home visit today at {due} in {area}. Reply 1 to confirm or 2 to change the time.", "مرحباً {first}، نذكّرك بموعد الزيارة المنزلية اليوم الساعة {due} في {area}. ردّ بـ 1 للتأكيد أو 2 لتغيير الموعد."),
+      TR("onway", "Team on the way", "Updates", "Hello {first}, our team ({owner}) is on the way and will arrive around {due}.", "مرحباً {first}، فريقنا ({owner}) في الطريق ويصل حوالي الساعة {due}."),
+      TR("noshow", "Missed visit", "Delays", "Hello {first}, our team couldn't reach you at {due} today. Would you like to book a new time?", "مرحباً {first}، لم يتمكن فريقنا من الوصول إليك الساعة {due} اليوم. هل تودّ حجز موعد جديد؟")],
     rules: [
-      { id: "unconfirmed", name: "Unconfirmed visit reminder", desc: "3 hours before a visit, flag it if it isn't confirmed.", sev: 2, tpl: "confirm",
-        check: (it, now) => it.status === "booked" && it.due - now <= 180 && it.due - now > -20 ? `Not confirmed · ${hm(it.due)}` : null },
-      { id: "dispatch", name: "Team not sent out", desc: "Flag confirmed visits starting in 30 minutes with no team on the way.", sev: 2,
-        check: (it, now) => it.status === "confirmed" && it.due - now <= 30 && it.due - now > -20 ? "Team not on the way" : null },
-      { id: "noshow", name: "Possible no-show", desc: "Flag visits 20+ minutes past time with no sample collected.", sev: 3, tpl: "noshow",
-        check: (it, now) => now > it.due + 20 ? "Possible no-show" : null }
-    ]
-  },
-  kitchen: {
-    item: "Complaint", items: "Complaints", ownerLabel: "Agent", dueLabel: "Reply by", fieldWord: "agents",
-    stages: [["new", "New"], ["replied", "Replied"], ["resolved", "Resolved"]],
-    alt: [["escalated", "Escalated"]], terminal: ["resolved"], done: "resolved", promise: 15,
-    fields: [["brand", "Brand"], ["issue", "Issue"]], hasValue: false,
-    x: it => `${esc(it.data?.brand || "")}${it.data?.issue ? " · " + esc(it.data.issue) : ""}`,
+      { id: "unconfirmed", type: "duesoon", stage: "booked", mins: 180, name: "Unconfirmed visit reminder", desc: "3 hours before a visit, flag it if it isn't confirmed.", label: "Not confirmed · {due}", sev: 2, tpl: "confirm" },
+      { id: "dispatch", type: "duesoon", stage: "confirmed", mins: 30, name: "Team not sent out", desc: "Flag confirmed visits starting in 30 minutes with no team on the way.", label: "Team not on the way", sev: 2 },
+      { id: "noshow", type: "late", mins: 20, name: "Possible no-show", desc: "Flag visits 20+ minutes past time with nothing done.", label: "Possible no-show", sev: 3, tpl: "noshow" }] },
+  complaints: { item: "Complaint", items: "Complaints", icon: "msg", prefix: "C", ownerLabel: "Agent", dueLabel: "Reply by", fieldWord: "agents", promise: 15, hasArea: false,
+    stages: [["new", "New"], ["replied", "Replied"], ["escalated", "Escalated"], ["resolved", "Resolved"]], alt: [["closed", "Closed, no action"]], done: "resolved",
+    fields: [["brand", "Brand"], ["issue", "Issue"]],
     templates: [
-      ["apology", "Apology + fix", "Complaints", "Hi {first}, we're sorry about your {brand} order. We're sending a replacement now, or we can refund you. Which do you prefer?", "مرحبا {first}، بنعتذر عن مشكلة طلبك من {brand}. رح نبعتلك طلب بديل هلأ أو منرجعلك المبلغ، شو بتفضّل؟"],
-      ["followup", "Follow up", "Updates", "Hi {first}, did your replacement arrive OK? Thank you for your patience.", "مرحبا {first}، وصلك الطلب البديل بشكل سليم؟ شكراً لصبرك."]
-    ],
+      TR("apology", "Apology + fix", "Complaints", "Hi {first}, we're sorry about your {brand} order. We're sending a replacement now, or we can refund you. Which do you prefer?", "مرحبا {first}، بنعتذر عن مشكلة طلبك من {brand}. رح نبعتلك طلب بديل هلأ أو منرجعلك المبلغ، شو بتفضّل؟"),
+      TR("followup", "Follow up", "Updates", "Hi {first}, did your replacement arrive OK? Thank you for your patience.", "مرحبا {first}، وصلك الطلب البديل بشكل سليم؟ شكراً لصبرك.")],
     rules: [
-      { id: "overdue", name: "15-minute reply promise", desc: "Flag complaints with no reply after 15 minutes.", sev: 3, tpl: "apology",
-        check: (it, now) => it.status === "new" && now - it.created > 15 ? `No reply ${Math.round(now - it.created)} min` : null },
-      { id: "repeat", name: "Repeat customer", desc: "Flag customers who complained more than once.", sev: 1,
-        check: it => (custOf(it)?.tags || []).includes("Repeat") || it.data?.repeat ? "Repeat customer" : null }
-    ]
-  }
+      { id: "overdue", type: "stuck", stage: "new", mins: 15, name: "15-minute reply promise", desc: "Flag complaints with no reply after 15 minutes.", label: "No reply {d}", sev: 3, tpl: "apology" },
+      { id: "repeat", type: "tag", tag: "Repeat", name: "Repeat customer", desc: "Flag customers who complained more than once.", label: "Repeat customer", sev: 1 }] },
+  requests: { item: "Request", items: "Customer requests", icon: "inbox", prefix: "R", ownerLabel: "Owner", dueLabel: "Resolve by", promise: 480, hasArea: false,
+    stages: [["new", "New"], ["progress", "In progress"], ["waiting", "Waiting on customer"], ["resolved", "Resolved"]], alt: [["closed", "Closed, no action"]], done: "resolved",
+    fields: [["category", "Category"], ["priority", "Priority"]],
+    templates: [
+      TR("req_received", "Request received", "Updates", "Hi {first}, we've received your request {id} and {owner} is looking into it. We'll update you today.", "مرحبا {first}، استلمنا طلبك رقم {id} و{owner} عم يتابعه. رح نحدّثك اليوم."),
+      TR("req_update", "Still working on it", "Delays", "Hi {first}, an update on request {id}: we're still working on it and will get back to you by {due}.", "مرحبا {first}، تحديث على طلبك رقم {id}: لسا شغالين عليه ورح نرجعلك قبل {due}."),
+      TR("req_resolved", "Resolved + rating", "Updates", "Hi {first}, your request {id} is resolved. How did we do? Reply 1–5.", "مرحبا {first}، تم حل طلبك رقم {id}. كيف كانت تجربتك؟ رد من ١ لـ ٥.")],
+    rules: [
+      { id: "overdue", type: "late", name: "Past resolve-by time", desc: "Flag open requests that passed their resolve-by time.", label: "Overdue {d}", sev: 3, tpl: "req_update" },
+      { id: "untouched", type: "stuck", stage: "new", mins: 30, name: "Not started in 30 min", desc: "Flag new requests nobody has started after 30 minutes.", label: "Waiting {d}", sev: 2, tpl: "req_received" }] },
+  sales: { item: "Deal", items: "Sales pipeline", icon: "chart", prefix: "S", ownerLabel: "Salesperson", dueLabel: "Expected close", nameLabel: "Company or contact", promise: 14 * 1440, hasArea: false,
+    stages: [["lead", "Lead"], ["qualified", "Qualified"], ["proposal", "Proposal sent"], ["negotiation", "Negotiation"], ["won", "Won"]], alt: [["lost", "Lost"]], done: "won",
+    fields: [["value", "Value (JOD)"], ["source", "Source"]],
+    templates: [TR("deal_followup", "Proposal follow-up", "Customers", "Hi {first}, following up on the proposal we sent for {id}. Any questions I can answer?", "مرحبا {first}، بتابع معك بخصوص العرض اللي بعتناه ({id}). في أي أسئلة؟")],
+    rules: [
+      { id: "stale", type: "stuck", stage: "proposal", mins: 3 * 1440, name: "Proposal with no answer", desc: "Flag deals sitting in Proposal sent for 3 days or more.", label: "No answer {d}", sev: 2, tpl: "deal_followup" },
+      { id: "pastclose", type: "late", name: "Past expected close", desc: "Flag open deals past their expected close date.", label: "Past close date", sev: 1 }] },
+  orders: { item: "Order", items: "Orders", icon: "box", prefix: "O", ownerLabel: "Courier", dueLabel: "Deliver by", fieldOwner: true, fieldWord: "couriers", promise: 1440,
+    stages: [["new", "New"], ["confirmed", "Confirmed"], ["preparing", "Preparing"], ["shipped", "Out for delivery"], ["delivered", "Delivered"]], alt: [["cancelled", "Cancelled"], ["returned", "Returned"]], done: "delivered",
+    fields: [["value", "Value (JOD)"], ["items", "Items"]],
+    templates: [
+      TR("order_confirmed", "Order confirmed", "Updates", "Hi {first}, your order {id} is confirmed. We'll deliver it by {due}.", "مرحبا {first}، تم تأكيد طلبك رقم {id}. رح يوصلك قبل {due}."),
+      TR("order_shipped", "Out for delivery", "Updates", "Hi {first}, your order {id} is on its way with {owner}.", "مرحبا {first}، طلبك رقم {id} طلع مع {owner}."),
+      TR("order_delay", "Order delay", "Delays", "Hi {first}, sorry, your order {id} is running late. We'll update you with a new time shortly.", "مرحبا {first}، نعتذر، طلبك رقم {id} متأخر. رح نبلغك بموعد جديد قريباً.")],
+    rules: [
+      { id: "late", type: "late", name: "Late order", desc: "Flag orders past their deliver-by time.", label: "Late {d}", sev: 3, tpl: "order_delay" },
+      { id: "unconfirmed", type: "stuck", stage: "new", mins: 60, name: "Not confirmed in an hour", desc: "Flag new orders nobody confirmed within an hour.", label: "Unconfirmed {d}", sev: 2, tpl: "order_confirmed" }] },
+  jobs: { item: "Job", items: "Field jobs", icon: "truck", prefix: "J", ownerLabel: "Technician", dueLabel: "Visit at", fieldOwner: true, fieldWord: "technicians", promise: 1440,
+    stages: [["scheduled", "Scheduled"], ["confirmed", "Confirmed"], ["onway", "On the way"], ["done", "Done"]], alt: [["noshow", "Customer not home"]], done: "done",
+    fields: [["service", "Service"], ["value", "Value (JOD)"]],
+    templates: [
+      TR("job_confirm", "Confirm visit", "Updates", "Hello {first}, your {service} visit is booked for {due}. Reply 1 to confirm or 2 to change the time.", "مرحباً {first}، موعد زيارة {service} الساعة {due}. ردّ بـ 1 للتأكيد أو 2 لتغيير الموعد."),
+      TR("job_late", "Technician running late", "Delays", "Hello {first}, {owner} is running a little late and will reach you shortly. Sorry for the wait.", "مرحباً {first}، {owner} متأخر شوي ورح يوصلك قريباً. نعتذر على التأخير.")],
+    rules: [
+      { id: "unconfirmed", type: "duesoon", stage: "scheduled", mins: 180, name: "Unconfirmed visit", desc: "3 hours before a visit, flag it if the customer hasn't confirmed.", label: "Not confirmed · {due}", sev: 2, tpl: "job_confirm" },
+      { id: "late", type: "late", mins: 30, name: "Visit running late", desc: "Flag visits 30+ minutes past their time and not done.", label: "Running late {d}", sev: 3, tpl: "job_late" },
+      { id: "notech", type: "noowner", mins: 0, name: "No technician", desc: "Flag jobs with no technician assigned.", label: "No technician", sev: 2 }] },
+  appointments: { item: "Appointment", items: "Appointments", icon: "cal", prefix: "A", ownerLabel: "With", dueLabel: "Time", promise: 1440, hasArea: false,
+    stages: [["booked", "Booked"], ["confirmed", "Confirmed"], ["arrived", "Arrived"], ["completed", "Completed"]], alt: [["noshow", "No-show"], ["cancelled", "Cancelled"]], done: "completed",
+    fields: [["service", "Service"], ["value", "Value (JOD)"]],
+    templates: [
+      TR("appt_reminder", "Appointment reminder", "Updates", "Hello {first}, a reminder of your {service} appointment at {due}. Reply 1 to confirm or 2 to change it.", "مرحباً {first}، نذكّرك بموعد {service} الساعة {due}. ردّ بـ 1 للتأكيد أو 2 للتغيير."),
+      TR("appt_missed", "Missed appointment", "Delays", "Hello {first}, we missed you today. Would you like to book a new time?", "مرحباً {first}، ما شفناك اليوم. بتحب نحجزلك موعد جديد؟")],
+    rules: [
+      { id: "unconfirmed", type: "duesoon", stage: "booked", mins: 1440, name: "Unconfirmed appointment", desc: "A day before, flag appointments that aren't confirmed.", label: "Not confirmed · {due}", sev: 2, tpl: "appt_reminder" },
+      { id: "noshow", type: "late", mins: 15, name: "Possible no-show", desc: "Flag appointments 15+ minutes past their time with no arrival.", label: "Possible no-show", sev: 3, tpl: "appt_missed" }] },
+  tasks: { item: "Task", items: "Tasks", icon: "check", prefix: "T", ownerLabel: "Owner", dueLabel: "Due", nameLabel: "Task", hasPhone: false, hasArea: false, promise: 3 * 1440,
+    stages: [["todo", "To do"], ["doing", "Doing"], ["review", "Review"], ["done", "Done"]], alt: [["cancelled", "Cancelled"]], done: "done",
+    fields: [["project", "Project"]], templates: [],
+    rules: [{ id: "overdue", type: "late", name: "Overdue task", desc: "Flag tasks past their due date.", label: "Overdue {d}", sev: 2 }] }
 };
-const stageName = s => [...WDEF.stages, ...WDEF.alt].find(x => x[0] === s)?.[1] || s;
-const isTerm = it => WDEF.terminal.includes(it.status);
-const nextStage = it => { if (isTerm(it)) return null; const i = WDEF.stages.findIndex(s => s[0] === it.status); return i > -1 && i < WDEF.stages.length - 1 ? WDEF.stages[i + 1] : null; };
+const TEMPLATES = {
+  general: { name: "General business", desc: "Customer requests, sales, orders and tasks", boards: ["requests", "sales", "orders", "tasks"] },
+  services: { name: "Field services", desc: "Jobs at customers' sites, requests, sales and tasks", boards: ["jobs", "requests", "sales", "tasks"] },
+  delivery: { name: "Delivery", desc: "Fast deliveries with drivers", boards: ["delivery", "tasks"] },
+  lab: { name: "Home healthcare / lab", desc: "Home visits with teams", boards: ["visits", "tasks"] },
+  clinic: { name: "Clinic / appointments", desc: "Appointments, requests and tasks", boards: ["appointments", "requests", "tasks"] },
+  kitchen: { name: "Restaurant / cloud kitchen", desc: "Complaints from every app in one queue", boards: ["complaints", "orders", "tasks"] },
+  retail: { name: "Retail / online store", desc: "Orders, returns and customer requests", boards: ["orders", "requests", "tasks"] }
+};
+const dur = m => { m = Math.max(0, Math.round(m)); return m < 60 ? m + " min" : m < 1440 ? Math.round(m / 60) + " h" : Math.round(m / 1440) + " day" + (Math.round(m / 1440) > 1 ? "s" : ""); };
+function ruleCheck(r) {
+  const L = (it, n) => String(r.label || r.name).replace("{d}", dur(n)).replace("{n}", Math.round(n)).replace("{due}", dueText(it));
+  const m = +r.mins || 0;
+  switch (r.type) {
+    case "late": return (it, now) => now > it.due + m ? L(it, now - it.due) : null;
+    case "stuck": return (it, now) => { if (it.status !== r.stage) return null; const since = it.t[r.stage] ?? it.created; return now - since >= m ? L(it, now - since) : null; };
+    case "duesoon": return (it, now) => it.status === r.stage && it.due - now <= m && it.due - now > -20 ? L(it, it.due - now) : null;
+    case "noowner": return (it, now) => !it.owner && now - it.created >= m ? L(it, now - it.created) : null;
+    case "tag": return it => (custOf(it)?.tags || []).includes(r.tag) || (r.tag === "Repeat" && it.data?.repeat) ? L(it, 0) : null;
+    default: return () => null;
+  }
+}
+const BOARD_KEYS = ["id", "lib", "item", "items", "icon", "prefix", "ownerLabel", "dueLabel", "nameLabel", "fieldOwner", "fieldWord", "hasArea", "hasPhone", "promise", "stages", "alt", "done", "fields", "rules", "hidden"];
+function normBoard(b) {
+  const d = { icon: "box", nameLabel: "Customer", hasPhone: true, hasArea: true, fieldOwner: false, promise: 60, alt: [], fields: [], rules: [], templates: [], ownerLabel: "Owner", dueLabel: "Due", prefix: "J", ...b };
+  if (!d.stages || !d.stages.length) d.stages = [["new", "New"], ["done", "Done"]];
+  if (!d.done || !d.stages.some(s => s[0] === d.done)) d.done = d.stages[d.stages.length - 1][0];
+  d.terminal = [d.done, ...d.alt.map(a => a[0])];
+  d.hasValue = d.fields.some(f => f[0] === "value");
+  d.fieldWord = b.fieldWord || d.ownerLabel.toLowerCase() + "s";
+  d.long = d.promise >= 1440;
+  d.x = it => d.fields.map(([k]) => { const v = it.data?.[k]; return v == null || v === "" ? "" : k === "value" ? esc(fmtN(v)) + " JOD" : esc(v); }).filter(Boolean).join(" · ");
+  d.rules = (d.rules || []).map(r => ({ ...r, check: ruleCheck(r) }));
+  return d;
+}
+const serialBoard = b => Object.fromEntries(BOARD_KEYS.filter(k => b[k] !== undefined).map(k => [k, k === "rules" ? b.rules.map(({ check, ...r }) => r) : b[k]]));
+function buildBoards(client) {
+  const own = (client.config || {}).boards;
+  if (Array.isArray(own) && own.length) return own.map(normBoard);
+  const tpl = TEMPLATES[client.workspace_type] || TEMPLATES.general;
+  return tpl.boards.map((k, i) => normBoard({ id: i === 0 ? "main" : k, lib: k, ...JSON.parse(JSON.stringify(BOARD_LIB[k])) }));
+}
+const BDEF = id => BOARDS.find(b => b.id === id) || BOARDS[0];
+const defOf = it => BDEF((it && it.board) || "main");
+const ruleKey = (b, r) => b.id === "main" ? r.id : b.id + ":" + r.id;
+function setBoard(id) { const b = BDEF(id); if (b) { WDEF = b; ui.board = b.id; } }
+const liveBoards = () => BOARDS.filter(b => !b.hidden);
+const stageName = (s, x) => { const d = x && x.stages ? x : x ? defOf(x) : WDEF; return [...d.stages, ...d.alt].find(y => y[0] === s)?.[1] || s; };
+const isTerm = it => defOf(it).terminal.includes(it.status);
+const nextStage = it => { if (isTerm(it)) return null; const d = defOf(it), i = d.stages.findIndex(s => s[0] === it.status); return i > -1 && i < d.stages.length - 1 ? d.stages[i + 1] : null; };
+const dueText = it => defOf(it).long ? dShort(it.due * 60000) : hm(it.due);
+/* modules a company can switch off in Settings › Workspace (boards are switched on and off there too) */
+const MODULES = [["inbox", "Inbox"], ["email", "Email"], ["customers", "Customers"], ["calendar", "Calendar"], ["approvals", "Approvals"], ["team", "Team & shifts"], ["quality", "Quality (QA)"], ["company", "Company profile"], ["systems", "Systems & tools"], ["access", "People & access"], ["sops", "SOPs"], ["reports", "Reports"], ["automations", "Automations"], ["templates", "Message templates"], ["integrations", "Integrations"], ["data", "Import & export"]];
+const modOn = k => !(CFG && CFG.modules && CFG.modules[k] === false);
 
 /* ---------- state ---------- */
-let ME = null, CLIENT = null, WDEF = WS.delivery, CFG = {};
-const S = { items: [], rules: [], act: [], cust: [], cases: [], msgs: [], people: [], shifts: [], qa: [], profile: null, docs: [], plats: [], links: [], sops: [], reads: [], tpls: [], tickets: [], team: [], emails: [], mailboxes: [], mbFull: [], invites: [] };
+let ME = null, CLIENT = null, BOARDS = [], WDEF = null, CFG = {};
+const S = { items: [], rules: [], act: [], cust: [], cases: [], msgs: [], people: [], shifts: [], qa: [], profile: null, docs: [], plats: [], links: [], sops: [], reads: [], tpls: [], tickets: [], team: [], emails: [], mailboxes: [], mbFull: [], invites: [], approvals: [] };
 const ONLINE = new Map();
 const lvl = () => ME ? ME.lvl : -1;
 const can = n => lvl() >= n;
@@ -208,7 +285,7 @@ async function loadAll() {
   const none = Promise.resolve([]);
   const res = await Promise.all([
     q("items", { gte: { created: since }, order: ["created", false], limit: 5000 }),
-    q("items", { notIn: { status: WDEF.terminal }, limit: 2000 }),
+    q("items", { notIn: { status: [...new Set(BOARDS.flatMap(b => b.terminal))] }, limit: 2000 }),
     q("rules"),
     L >= 1 ? q("activity", { order: ["at", false], limit: 400 }) : none,
     L >= 1 ? q("customers", { limit: 10000 }) : none,
@@ -229,20 +306,21 @@ async function loadAll() {
     L >= 1 ? q("emails", { order: ["received_at", false], limit: 600 }) : none,
     DB.rpc("mailbox_list", { p_client_id: cid }).catch(() => []),
     L >= 4 ? q("mailboxes") : none,
-    L >= 4 ? q("pending_invites", { order: ["created_at", false] }) : none
+    L >= 4 ? q("pending_invites", { order: ["created_at", false] }) : none,
+    q("approvals", { order: ["created_at", false], limit: 500 })
   ]);
   const seen = new Set(); S.items = [...res[0], ...res[1]].filter(r => !seen.has(r.id) && seen.add(r.id));
   [, , S.rules, S.act, S.cust, S.cases, S.msgs, S.people, S.shifts, S.qa] = res;
   S.profile = res[10][0] || null;
   [S.docs, S.plats, S.links, S.sops, S.reads, S.tpls, S.tickets] = res.slice(11, 18);
   S.team = res[18] || [];
-  [S.emails, S.mailboxes, S.mbFull, S.invites] = [res[19] || [], res[20] || [], res[21] || [], res[22] || []];
+  [S.emails, S.mailboxes, S.mbFull, S.invites, S.approvals] = [res[19] || [], res[20] || [], res[21] || [], res[22] || [], res[23] || []];
   if (L >= 4) await seedStarter();
 }
 
 /* ---------- mapping + alerts ---------- */
 function mapItem(r) {
-  return { ...r, due: mins(new Date(r.due).getTime()), created: mins(new Date(r.created).getTime()), data: r.data || {}, hist: r.hist || [],
+  return { ...r, board: r.board || "main", due: mins(new Date(r.due).getTime()), created: mins(new Date(r.created).getTime()), data: r.data || {}, hist: r.hist || [],
     t: Object.fromEntries(Object.entries((r.data || {}).t || {}).map(([k, v]) => [k, mins(v)])) };
 }
 let ITEMS = [];
@@ -251,6 +329,7 @@ const ruleOn = id => { const r = S.rules.find(x => x.rule_id === id); return r ?
 const customRules = () => S.rules.filter(r => r.def);
 function customCheck(def, it, now) {
   let base = def.when === "due" ? it.due : def.when === "status" ? (it.t[it.status] ?? it.created) : it.created;
+  if ((def.board || "main") !== it.board) return null;
   if (def.when === "status" && def.status && it.status !== def.status) return null;
   if (now - base < (+def.mins || 0)) return null;
   const c = custOf(it);
@@ -266,18 +345,21 @@ function refreshItems() {
   ITEMS.forEach(it => {
     it.flags = [];
     if (isTerm(it)) return;
-    WDEF.rules.forEach(r => { if (!ruleOn(r.id)) return; const f = r.check(it, now); if (f) it.flags.push({ rule: r.id, text: f, sev: r.sev, tpl: r.tpl }); });
+    const d = defOf(it);
+    d.rules.forEach(r => { const k = ruleKey(d, r); if (!ruleOn(k)) return; const f = r.check(it, now); if (f) it.flags.push({ rule: k, text: f, sev: r.sev, tpl: r.tpl }); });
     customRules().forEach(r => { if (!r.enabled) return; const f = customCheck(r.def, it, now); if (f) it.flags.push({ rule: r.rule_id, text: f, sev: +r.def.sev || 2, tpl: r.def.tpl || null }); });
     if ((custOf(it)?.tags || []).includes("VIP")) it.flags.push({ rule: "vip", text: "VIP", sev: 0 });
   });
 }
 const topSev = it => Math.max(0, ...it.flags.map(f => f.sev));
 const attention = it => it.flags.some(f => f.sev > 0);
-const statusPill = it => pill(stageName(it.status), it.status === WDEF.done ? "good" : WDEF.terminal.includes(it.status) ? "crit" : it.status === WDEF.stages[0][0] ? "warn" : "acc");
+const statusPill = it => { const d = defOf(it); return pill(stageName(it.status, d), it.status === d.done ? "good" : d.terminal.includes(it.status) ? "crit" : it.status === d.stages[0][0] ? "warn" : "acc"); };
 const flagPills = it => it.flags.map(f => pill(f.text, f.sev === 3 ? "crit" : f.sev === 2 ? "warn" : f.sev === 1 ? "info" : "cta")).join("");
 const itemById = id => ITEMS.find(i => i.id === id);
 const memberName = uidv => { const m = S.team.find(x => x.auth_user_id === uidv); if (!m) return ""; const p = S.people.find(x => x.auth_user_id === uidv); return p ? p.name : nameOf(m.email); };
 const fieldPeople = () => { const names = new Map(); S.people.filter(p => p.active && (p.dept === "Field" || p.dept === "Delivery")).forEach(p => names.set(p.name, p)); S.team.filter(m => m.role === "driver").forEach(m => { const n = memberName(m.auth_user_id); if (!names.has(n)) names.set(n, { name: n, auth_user_id: m.auth_user_id }); }); return [...names.values()]; };
+const officePeople = () => S.team.filter(m => m.role !== "driver").map(m => ({ name: memberName(m.auth_user_id), auth_user_id: m.auth_user_id }));
+const ownerPeople = d => d.fieldOwner ? fieldPeople() : officePeople();
 function fill(t, it) {
   const now = nowM();
   return String(t || "").replace(/\{(\w+)\}/g, (_, k) => {
@@ -287,7 +369,7 @@ function fill(t, it) {
       case "name": return it.name || "";
       case "id": case "order": return it.ext_id;
       case "late": return String(Math.max(0, Math.round(now - it.due)));
-      case "due": return hm(it.due);
+      case "due": return dueText(it);
       case "owner": case "driver": return (it.owner || "our team").split(" ")[0];
       case "area": return it.area || "";
       default: return String(it.data?.[k] ?? "");
@@ -309,15 +391,15 @@ async function patchItem(it, patch, note) {
 }
 async function setStage(it, status) {
   const data = { ...it.data, t: { ...(it.data.t || {}), [status]: Date.now() } };
-  await patchItem(it, { status, data }, "→ " + stageName(status));
-  await logAct(`${it.ext_id} marked ${stageName(status)}`, "stage");
+  await patchItem(it, { status, data }, "→ " + stageName(status, it));
+  await logAct(`${it.ext_id} marked ${stageName(status, it)}`, "stage");
 }
 async function saveConfig(patch) {
   const v = await DB.rpc("update_client_config", { p_client_id: CLIENT.id, p_patch: patch });
   CFG = v || { ...CFG, ...patch }; CLIENT.config = CFG;
 }
 const cfg = (k, d) => (CFG && CFG[k] != null ? CFG[k] : d);
-const SLA = () => ({ promise: WDEF.promise || 40, firstReply: 15, pickup: 20, nodriver: 5, ...(cfg("sla", {})) });
+const SLA = () => ({ promise: (WDEF && WDEF.promise) || 40, firstReply: 15, pickup: 20, nodriver: 5, ...(cfg("sla", {})) });
 const TARGETS = () => ({ ontime: 90, firstReply: 5, perAgent: 40, complaints: 95, qa: 90, ...(cfg("targets", {})) });
 const SHIFT_CODES = () => cfg("shift_codes", ["08–16", "12–20", "16–24", "Off"]);
 
@@ -329,17 +411,23 @@ const STARTER_SOPS = {
   lab: [["Confirming home visits", "Customer care", ["agent", "supervisor"], ["Jreebs", "WhatsApp Web"], ["Each morning, open Needs attention and filter unconfirmed visits.", "Send the Confirm visit template to each patient.", "Mark the visit Confirmed as soon as they reply 1.", "Call anyone who hasn't replied an hour before the visit."]],
     ["Missed visit (no-show)", "Operations", ["supervisor", "driver"], ["Jreebs"], ["Wait 10 minutes and call the patient once.", "Mark the visit No-show and note what happened.", "Send the Missed visit template to rebook."]]],
   kitchen: [["First reply to a complaint within 15 minutes", "Customer care", ["agent", "team_lead"], ["Jreebs", "WhatsApp Web"], ["Open the complaint as soon as it's flagged.", "Reply with the Apology + fix template.", "Offer a replacement or a refund within your limit.", "Mark it Replied, then Resolved once the customer confirms."]],
-    ["Refund or replacement approval", "Customer care", ["team_lead", "manager"], ["Jreebs"], ["Agents approve replacements up to 15 JOD.", "Above that, the team lead checks the history and approves.", "Record the outcome as a note on the complaint."]]]
+    ["Refund or replacement approval", "Customer care", ["team_lead", "manager"], ["Jreebs"], ["Agents approve replacements up to 15 JOD.", "Above that, the team lead checks the history and approves.", "Record the outcome as a note on the complaint."]]],
+  general: [["Handling a customer request", "Customer care", ["agent", "supervisor"], ["Jreebs", "WhatsApp Web"], ["Open the request as soon as it lands and set yourself as owner.", "Reply within 30 minutes with the Request received template.", "Move it to In progress, or Waiting on customer if you need something from them.", "Before resolving, confirm with the customer that it's sorted.", "Mark it Resolved and send the rating message."]],
+    ["Approving expenses and purchases", "Finance", ["team_lead", "manager"], ["Jreebs"], ["Requests come in through Approvals with the amount and a reason.", "Team leads approve up to 100 JOD; managers approve anything above.", "Check the receipt or quote is attached or described.", "Approve or reject with a short note so the requester knows why."]],
+    ["New employee first week", "HR", ["manager", "team_lead"], ["Jreebs"], ["Invite them to Jreebs with the right role on day one.", "Add them in People & access with the systems they need, nothing more.", "Assign the SOPs for their role and check they confirm reading them.", "Book a 15-minute check-in at the end of the week."]]]
 };
+STARTER_SOPS.services = STARTER_SOPS.general; STARTER_SOPS.clinic = STARTER_SOPS.general; STARTER_SOPS.retail = STARTER_SOPS.general;
+const allTemplates = () => { const seen = new Set(), out = []; BOARDS.forEach(b => ((b.templates && b.templates.length) ? b.templates : ((BOARD_LIB[b.lib] || {}).templates || [])).forEach(t => { if (!seen.has(t[0])) { seen.add(t[0]); out.push(t); } })); GENERAL_TPLS.forEach(t => { if (!seen.has(t[0])) { seen.add(t[0]); out.push(t); } }); return out; };
+const GENERAL_TPLS = [TR("payment", "Payment reminder", "Customers", "Hi {first}, a friendly reminder that payment for {id} is due. Reply if you have any questions.", "مرحبا {first}، تذكير لطيف إنه موعد دفع {id} صار. إذا عندك أي سؤال رد علينا."), TR("thanks", "Thank you", "Customers", "Hi {first}, thank you for choosing us. We're here if you need anything.", "مرحبا {first}، شكراً لاختيارك إلنا. إحنا موجودين إذا احتجت أي إشي.")];
 const SHIFT_SOP = ["Start-of-shift checklist", "Operations", ["agent", "supervisor"], ["Jreebs"], ["Sign in and check Needs attention.", "Read the notes from the previous shift.", "Reply to anyone waiting in the Inbox.", "Confirm who is on shift with your supervisor."]];
 let seeding = false;
 async function seedStarter() {
   if (seeding || DEMO) return; seeding = true;
   try {
     const cid = CLIENT.id, added = [];
-    if (!S.tpls.length) { S.tpls = await DB.insert("templates", WDEF.templates.map(([key, name, category, en, ar]) => ({ client_id: cid, key, name, category, en, ar }))); added.push("message templates"); }
+    if (!S.tpls.length) { S.tpls = await DB.insert("templates", allTemplates().map(([key, name, category, en, ar]) => ({ client_id: cid, key, name, category, en, ar }))); added.push("message templates"); }
     if (!S.links.length) { S.links = await DB.insert("links", DEFAULT_TOOLS.map(([kind, category, name, url]) => ({ client_id: cid, kind, category, name, url }))); added.push("tools"); }
-    if (!S.sops.length) { const list = [...(STARTER_SOPS[CLIENT.workspace_type] || STARTER_SOPS.delivery), SHIFT_SOP]; S.sops = await DB.insert("sops", list.map(([title, category, roles, tools, steps]) => ({ client_id: cid, title, category, roles, tools, steps, owner_name: nameOf(ME.email) }))); added.push("starter SOPs"); }
+    if (!S.sops.length) { const list = [...(STARTER_SOPS[CLIENT.workspace_type] || STARTER_SOPS.general), SHIFT_SOP]; S.sops = await DB.insert("sops", list.map(([title, category, roles, tools, steps]) => ({ client_id: cid, title, category, roles, tools, steps, owner_name: nameOf(ME.email) }))); added.push("starter SOPs"); }
     const missing = S.team.filter(m => !S.people.some(p => p.auth_user_id === m.auth_user_id));
     if (missing.length) { const rows = await DB.insert("people", missing.map(m => ({ client_id: cid, name: nameOf(m.email), email: m.email, dept: DEPT_OF_ROLE[m.role] || "Operations", job: ROLES[m.role]?.label || "", auth_user_id: m.auth_user_id }))); S.people.push(...rows); added.push(`${rows.length} people from your logins`); }
     if (added.length) await logAct("Starter content added: " + added.join(", "), "setup");
@@ -352,7 +440,7 @@ let toastT;
 function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3800); }
 const errMsg = e => (e && (e.message || e.error_description)) || "Something went wrong. Try again.";
 function openModal(html, wide) { const m = $("#modal"); m.innerHTML = html; m.classList.toggle("wide", !!wide); m.hidden = false; $("#mscrim").hidden = false; const f = m.querySelector("input:not([type=hidden]), select, textarea"); if (f) f.focus(); }
-function closeModal() { $("#modal").hidden = true; $("#mscrim").hidden = true; }
+function closeModal() { $("#modal").hidden = true; $("#mscrim").hidden = true; $("#modal").classList.remove("palm"); if (typeof PAL !== "undefined") PAL = null; }
 const mHead = t => `<div class="m-h"><h3 class="grow">${t}</h3><button class="ib" type="button" data-act="mclose" aria-label="Close">${ic("x")}</button></div>`;
 function openDrawer(html) { $("#drawer").innerHTML = html; $("#drawer").hidden = false; $("#scrim").hidden = false; }
 function closeDrawer() { $("#drawer").hidden = true; $("#scrim").hidden = true; DRAWER = null; }
