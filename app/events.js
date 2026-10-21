@@ -342,6 +342,12 @@ async function action(b, d) {
     const st = await DB.rpc("invite_by_email", { p_client_id: c.id, p_email: email, p_role: "owner" });
     await loadAdmin(); render(); return clientCreatedModal(c, email, phone, contact, st);
   }
+  if (d.pvoff) return disableClientModal(d.pvoff);
+  if (d.pvrm) return removeClientModal(d.pvrm);
+  if (d.pvoffgo || d.pvon) { const id = d.pvoffgo || d.pvon, on = !!d.pvon; putRow(ADM.clients, await DB.update("clients", id, { disabled_at: on ? null : new Date().toISOString() })); closeModal(); toast(on ? "Dashboard is back on." : "Dashboard disabled. Nobody there can get in now."); render(); return clientDrawer(id); }
+  if (d.pvrmgo) { const id = d.pvrmgo, c = ADM.clients.find(x => x.id === id); if (val("#rmName").trim().toLowerCase() !== c.name.trim().toLowerCase()) return toast("Type the company name exactly to confirm.");
+    const n = await DB.rpc("admin_delete_client", { p_client_id: id, p_confirm: val("#rmName") }); ADM.clients = ADM.clients.filter(x => x.id !== id); ADM.members = ADM.members.filter(m => m.client_id !== id); ADM.invites = ADM.invites.filter(i => i.client_id !== id); ADM.accts = ADM.accts.filter(a => a.client_id !== id);
+    closeModal(); closeDrawer(); toast(`${c.name} removed${n ? `, with ${n} login${n > 1 ? "s" : ""}` : ""}.`); return render(); }
   if (d.saveacct) {
     const id = d.saveacct, a = acctOf(id), c = ADM.clients.find(x => x.id === id);
     const row = { client_id: id, status: val("#ca1"), users_included: +val("#ca3") || 1, annual_price: +val("#ca4") || 0, setup_fee: +val("#ca5") || 0, starts_on: val("#ca6") || null, renews_on: val("#ca7") || null, contact_name: val("#ca8"), contact_phone: val("#ca9"), owner_email: val("#ca10"), notes: val("#ca13"), addons: { ...(a.addons || {}), ai_limit: +val("#ca11"), deep_limit: +val("#ca12") }, checklist: a.checklist || {}, updated_at: new Date().toISOString() };

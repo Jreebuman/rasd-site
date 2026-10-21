@@ -95,6 +95,7 @@ function clientCreatedModal(c, email, phone, contact, status) {
 const daysSince = iso => iso ? (Date.now() - new Date(iso)) / 864e5 : null;
 function healthOf(c) {
   const a = acctOf(c.id), o = overOf(c.id), last = daysSince(o.last_activity), d = daysUntil(a.renews_on);
+  if (c.disabled_at) return ["Disabled", ""];
   if (a.status === "churned") return ["Left", ""];
   if (a.status === "paused") return ["Paused", ""];
   if ((d != null && d < 0) || (a.status === "active" && (last == null || last > 7))) return ["Needs attention", "crit"];
@@ -105,7 +106,7 @@ function needsYou() {
   const out = [];
   ADM.clients.forEach(c => {
     const a = acctOf(c.id), o = overOf(c.id), d = daysUntil(a.renews_on), age = daysSince(c.created_at);
-    if (a.status === "churned") return;
+    if (a.status === "churned" || c.disabled_at) return;
     if (d != null && d <= 60) out.push([d < 0 ? 3 : d <= 30 ? 2 : 1, c, a.status === "trial" ? `Trial ${d < 0 ? "ended" : "ends"} ${d < 0 ? -d + " days ago" : d === 0 ? "today" : "in " + d + " days"}: agree a plan` : `Renewal ${d < 0 ? `overdue by ${-d} days` : d === 0 ? "today" : `in ${d} days`} · ${jod(a.annual_price)}`]);
     if (a.status === "onboarding" && age > 14 && doneSteps(a) < CHECK.length / 2) out.push([2, c, `Onboarding for ${Math.round(age)} days, ${doneSteps(a)} of ${CHECK.length} steps done`]);
     if (a.status === "active" && (!o.last_activity || daysSince(o.last_activity) > 7)) out.push([2, c, o.last_activity ? `No activity for ${Math.round(daysSince(o.last_activity))} days` : "No activity yet"]);
@@ -148,6 +149,7 @@ function clientDrawer(id) {
   if (tab === "summary") body = `<div class="kv"><span>Health</span><b><span class="hdot ${hk}"></span> ${esc(hl)} · ${esc(STATUS[a.status]?.[0] || "")}</b><span>Business type</span><b>${esc((TEMPLATES[c.workspace_type] || TEMPLATES.general).name)}</b><span>Plan</span><b>${esc(PLANS[planKey(c.plan)].name)} · ${a.annual_price ? jod(a.annual_price) + " a year" : "no price yet"}</b><span>Users</span><b>${o.members ?? 0} of ${a.users_included}${o.pending ? ` · ${o.pending} invited` : ""}</b><span>Renews</span><b>${a.renews_on ? dLong(a.renews_on) : "—"}</b><span>Last 7 days</span><b>${o.items_7d ?? 0} records · last active ${o.last_activity ? ago(o.last_activity) : "never"}</b><span>Assistant</span><b>${q.used} of ${fmtN(q.lim)} questions · $${q.cost.toFixed(2)}</b><span>Contact</span><b>${esc(a.contact_name || "—")}${a.contact_phone ? " · " + esc(a.contact_phone) : ""}</b></div>
     <div class="row"><button class="btn go" type="button" data-pvinv="${id}">${ic("plus")}Invite someone</button>${pendingOwner ? `<button class="btn" type="button" data-copy="${esc(inviteText(a.contact_name, pendingOwner.email))}">Copy owner's invite</button>` : ""}${a.contact_phone ? `<a class="btn" href="https://wa.me/${waNum(a.contact_phone)}" target="_blank" rel="noopener">${ic("wa")}WhatsApp ${esc((a.contact_name || "contact").split(" ")[0])}</a>` : ""}${a.status !== "active" && a.status !== "churned" ? `<button class="btn" type="button" data-chk="live" data-id="${id}">${ic("check")}Mark live</button>` : ""}</div>
     <h4>Tickets</h4>${ADM.tickets.filter(t => t.client_id === id).slice(0, 6).map(t => `<div class="kvrow"><span>${esc(t.subject)}${t.urgency === "Urgent" ? " " + pill("Urgent", "crit") : ""}<div class="small muted">${ago(t.created_at)}</div></span>${pill(t.status, t.status === "Done" ? "good" : "warn")}</div>`).join("") || `<p class="small muted">No tickets.</p>`}`;
+  if (tab === "summary") body += accessBox(c);
   if (tab === "people") body = `<div class="kv"><span>With a login</span><b>${Object.entries(roles).map(([r, n]) => `${n} ${ROLES[r]?.label.toLowerCase() || r}`).join(", ") || "Nobody yet"}</b></div>
     <div class="row"><input class="in grow" id="pvInv" type="email" placeholder="their@company.com" value="${esc(!o.members && a.owner_email ? a.owner_email : "")}"><select class="sel" id="pvRole">${ROLE_ORDER.map(r => `<option value="${r}" ${r === (o.members ? "manager" : "owner") ? "selected" : ""}>${ROLES[r].label}</option>`).join("")}</select><button class="btn go" type="button" data-pvinvite="${id}">Invite</button></div>
     <p class="small muted">If they don't have an account yet, they're linked the moment they sign up with this email.</p>
@@ -163,6 +165,25 @@ function clientDrawer(id) {
       <div class="row"><span class="spacer"></span><button class="btn go" type="button" data-saveacct="${id}">Save contract</button></div></div>`;
   if (tab === "setup") body = `<p class="small muted">Tick each step as you finish it. Marking Live also sets the client to Active.</p><div class="checks">${CHECK.map(([k, l]) => `<button class="chk${a.checklist?.[k] ? " on" : ""}" type="button" data-chk="${k}" data-id="${id}">${ic("check")}<span>${l}</span></button>`).join("")}</div>`;
   openDrawer(`${dHead(esc(c.name), `<span class="hdot ${hk}"></span>` + pill(...(STATUS[a.status] || ["—", ""])) + pill(PLANS[planKey(c.plan)].name, "acc"))}<div class="d-b">${tabs}${body}</div>`);
+}
+// Turning a client off (data kept) and removing a client for good
+const accessBox = c => `<h4>Access</h4>${c.disabled_at
+  ? `<div class="note-box warn">${ic("lock")}<span>Dashboard disabled ${dShort(c.disabled_at)}. Nobody at ${esc(c.name)} can get in, and their data is kept.</span></div>
+    <div class="row"><button class="btn go" type="button" data-pvon="${c.id}">Turn dashboard back on</button><span class="spacer"></span><button class="btn danger" type="button" data-pvrm="${c.id}">Remove company</button></div>`
+  : `<p class="small muted">Disabling blocks everyone at ${esc(c.name)} straight away, for example while a payment is late. Nothing is deleted, and you can turn it back on any time. Removing a company is possible once it's disabled.</p>
+    <div class="row"><button class="btn" type="button" data-pvoff="${c.id}">${ic("lock")}Disable dashboard</button></div>`}`;
+function disableClientModal(id) {
+  const c = ADM.clients.find(x => x.id === id);
+  openModal(`${mHead(`Disable ${esc(c.name)}'s dashboard?`)}<div class="m-b stack"><p>Everyone at <b>${esc(c.name)}</b> is blocked straight away and sees a "workspace paused" message when they sign in. Their data stays, and you can turn it back on any time.</p></div>
+    <div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn go" type="button" data-pvoffgo="${id}">Disable</button></div>`);
+}
+function removeClientModal(id) {
+  const c = ADM.clients.find(x => x.id === id), n = ADM.members.filter(m => m.client_id === id).length;
+  openModal(`${mHead(`Remove ${esc(c.name)} for good?`)}<div class="m-b stack">
+    <div class="note-box warn">${ic("info")}<span>This permanently deletes the company with all its records, customers, people, settings and history, plus the ${n} login${n === 1 ? "" : "s"} that belong only to it. It can't be undone.</span></div>
+    <p class="small muted">If they want a copy of their data, turn the dashboard back on for a day and ask their owner to download it: Import & export › Download everything.</p>
+    <div class="field"><label for="rmName">Type <b>${esc(c.name)}</b> to confirm</label><input class="in" id="rmName" autocomplete="off"></div></div>
+    <div class="m-f"><button class="btn" type="button" data-act="mclose">Cancel</button><button class="btn danger" type="button" data-pvrmgo="${id}">Remove permanently</button></div>`);
 }
 function pvInviteModal(id) {
   const c = ADM.clients.find(x => x.id === id), a = acctOf(id), o = overOf(id);

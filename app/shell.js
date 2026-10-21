@@ -97,7 +97,7 @@ async function boot() {
   try { const saved = localStorage.getItem("jreebs-client"); const m = memberships.find(x => x.client_id === saved); if (m) pick = m; } catch (e) {}
   ME = { id: user.id, email: user.email, role: pick.role, lvl: ROLES[pick.role].lvl, memberships, admin: !!adminRow };
   const { data: client } = await sb.from("clients").select("*").eq("id", pick.client_id).single();
-  if (!client) return showLogin("signin", ["err", "Couldn't load your company. Try again in a minute."]);
+  if (!client) { const paused = await DB.rpc("my_paused_company").catch(() => null); return showLogin("signin", ["err", paused ? `${paused}'s Jreebs workspace is paused. Your data is safe. Ask your manager, or Jreebs at hello@jreebs.com, to switch it back on.` : "Couldn't load your company. Try again in a minute."]); }
   await openClient(client);
 }
 async function openClient(client) {

@@ -27,6 +27,7 @@ function makeDemoDB(mem) {
       if (n === "mailbox_list") { const L = lvl(); return clone((mem.mailboxes || []).filter(m => m.client_id === a.p_client_id && L >= m.min_lvl).map(({ id, address, label, min_lvl }) => ({ id, address, label, min_lvl }))); }
       if (n === "ai_quota") return { used: 37, limit: 6000, deep_used: 2, deep_limit: 100 };
       if (n === "provider_overview") return clone(mem.over || []);
+      if (n === "admin_delete_client") { const c = (mem.clients || []).find(x => x.id === a.p_client_id); if (!c) throw new Error("company not found"); if (!c.disabled_at) throw new Error("disable the company before removing it"); if (a.p_confirm.trim().toLowerCase() !== c.name.trim().toLowerCase()) throw new Error("type the company name exactly to confirm"); for (const t of Object.keys(mem)) if (Array.isArray(mem[t])) mem[t] = mem[t].filter(r => !(r && (r.client_id === c.id || (t === "clients" && r.id === c.id)))); return 0; }
       return null;
     }
   };
