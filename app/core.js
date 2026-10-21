@@ -438,7 +438,7 @@ async function seedStarter() {
 /* ---------- UI plumbing ---------- */
 let toastT;
 function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3800); }
-const errMsg = e => (e && (e.message || e.error_description)) || "Something went wrong. Try again.";
+const errMsg = e => { const m = (e && (e.message || e.error_description)) || ""; if (/row-level security|permission denied/i.test(m)) return "Your login isn't allowed to do that in this company. If your access was just changed, sign out and sign in again."; return m || "Something went wrong. Try again."; };
 function openModal(html, wide) { const m = $("#modal"); m.innerHTML = html; m.classList.toggle("wide", !!wide); m.hidden = false; $("#mscrim").hidden = false; const f = m.querySelector("input:not([type=hidden]), select, textarea"); if (f) f.focus(); }
 function closeModal() { $("#modal").hidden = true; $("#mscrim").hidden = true; $("#modal").classList.remove("palm"); if (typeof PAL !== "undefined") PAL = null; }
 const mHead = t => `<div class="m-h"><h3 class="grow">${t}</h3><button class="ib" type="button" data-act="mclose" aria-label="Close">${ic("x")}</button></div>`;
